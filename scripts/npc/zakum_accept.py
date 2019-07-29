@@ -14,5 +14,5 @@ if response:
         sm.sendSayOkay("Please have your party leader talk to me if you wish to face Zakum.")
     elif sm.checkParty():
         sm.setPartyDeathCount(20)
-        sm.warpPartyIn(fields[sm.getFieldID()])
+        sm.warpInstanceIn(fields[sm.getFieldID()], True)
         sm.invokeAfterDelay(10000, "getDropInRect", 4001017, 200)

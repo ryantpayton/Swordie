@@ -87,6 +87,7 @@ public class Field {
     private Clock clock;
     private int channel;
     private Map<String, Object> properties;
+    private boolean changeToChannelOnLeave;
 
     public Field(int fieldID) {
         this.id = fieldID;
@@ -1408,5 +1409,13 @@ public class Field {
 
     public void setProperties(Map<String, Object> properties) {
         this.properties = properties;
+    }
+
+    public void setChangeToChannelOnLeave(boolean changeToChannelOnLeave) {
+        this.changeToChannelOnLeave = changeToChannelOnLeave;
+    }
+
+    public boolean getChangeToChannelOnLeave() {
+        return changeToChannelOnLeave;
     }
 }

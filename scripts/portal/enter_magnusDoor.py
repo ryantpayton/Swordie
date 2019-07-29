@@ -9,5 +9,4 @@ if response:
         sm.sendSayOkay("Please have your party leader enter if you wish to face Magnus.")
     elif sm.checkParty():
         sm.setPartyDeathCount(BossConstants.MAGNUS_DEATHCOUNT)
-        sm.warpPartyIn(401060200)
-sm.dispose()
+        sm.warpInstanceIn(401060200)

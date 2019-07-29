@@ -8,5 +8,5 @@ if response:
     elif not sm.isPartyLeader():
         sm.sendSayOkay("Please have your party leader enter the portal.")
     elif sm.checkParty():
-        sm.warpPartyIn(223030210)
+        sm.warpInstanceIn(223030210)
 sm.dispose()

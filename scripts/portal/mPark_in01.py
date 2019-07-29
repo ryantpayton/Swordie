@@ -46,6 +46,5 @@ else:
                                    "Would you like to enter the dungeon?"):
             sm.warpInstanceIn(maps[selection][1])
             sm.incrementMonsterParkCount()
+            sm.setInstanceTime(GameConstants.MONSTER_PARK_TIME)
             sm.createQuestWithQRValue(GameConstants.MONSTER_PARK_EXP_QUEST, "0")
-            sm.createClockForMultiple(GameConstants.MONSTER_PARK_TIME, maps[selection][1], maps[selection][1]+100, maps[selection][1]+200, maps[selection][1]+300, maps[selection][1]+400, maps[selection][1]+500)
-            sm.addEvent(sm.invokeAfterDelay(GameConstants.MONSTER_PARK_TIME*1000, "warpInstanceOut", 951000000))

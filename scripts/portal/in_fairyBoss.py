@@ -25,11 +25,8 @@ if response:
                 break
 
         if chrHasQuest:
-            sm.warpPartyIn(QUEENS_HIDING_PLACE)
-            sm.createClock(time)
-            for partyChr in sm.getPartyMembersInSameField(chr):
-                partysm = partyChr.getScriptManager()
-                partysm.invokeAfterDelay(time * 1000, "clearPartyInfo", FAIRY_FOREST_2)
+            sm.warpInstanceIn(QUEENS_HIDING_PLACE)
+            sm.setInstanceTime(time, FAIRY_FOREST_2)
         else:
             text = ("You may not approach the Queen's Hiding Place. "
                     "Some of your party members have not completed the fairy elimination quest.\r\n\r\n"

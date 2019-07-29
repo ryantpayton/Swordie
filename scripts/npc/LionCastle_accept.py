@@ -12,18 +12,10 @@ else:
                                 "#L0#Easy(Level 125+) #l \r\n"
                                 "#L1#Normal (Level 125+) #l \r\n")
         if selection == 0:
-            sm.clearPartyInfo(211070100)
-            sm.clearPartyInfo(211070110)
-            sm.warpPartyIn(211070100)
-
-            sm.createClockForMultiple(BossConstants.VON_LEON_TIME, 211070100, 211070110)
-            sm.invokeAfterDelay(BossConstants.VON_LEON_TIME * 1000, "warpPartyOut", 211070000, 0)
+            sm.warpInstanceIn(211070100, True)
+            sm.setInstanceTime(BossConstants.VON_LEON_TIME)
         elif selection == 1:
-            sm.clearPartyInfo(211070102)
-            sm.clearPartyInfo(211070111)
-            sm.warpPartyIn(211070102)
-            sm.createClockForMultiple(BossConstants.VON_LEON_TIME, 211070102, 211070111)
-            sm.invokeAfterDelay(BossConstants.VON_LEON_TIME * 1000, "warpPartyOut", 211070000, 0)
+            sm.warpInstanceIn(211070102, True)
+            sm.setInstanceTime(BossConstants.VON_LEON_TIME)
     else:
         sm.sendSayOkay("Please have your party leader speak to me.")
-        sm.dispose()

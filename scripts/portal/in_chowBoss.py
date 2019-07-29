@@ -11,12 +11,9 @@ sm.setSpeakerID(CAVE_ENTRANCE)
 if sm.hasQuest(BOULDER_MOUNTAIN_MENACE) or sm.hasQuestCompleted(BOULDER_MOUNTAIN_MENACE):
     response = sm.sendAskYesNo("You sense something inside the dark cave. "
                                "Do you want to enter?")
-
     if response:
         sm.warpInstanceIn(DEEP_INSIDE_THE_CAVE)
-        sm.createClock(time)
+        sm.setInstanceTime(time, BOULDER_MOUNTAIN_ENTRANCE, 2)
         sm.invokeAfterDelay(time * 1000, "chatRed", "Leaving the cave...")
-        sm.invokeAfterDelay(time * 1000, "warpInstanceOut", BOULDER_MOUNTAIN_ENTRANCE, 2)
-
 else:
     sm.sendSayOkay("You sense nothing inside the cave.")

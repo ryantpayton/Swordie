@@ -25,7 +25,7 @@ if sm.isPartyLeader():
         for partyMember in sm.getParty().getMembers():
             sm.createQuestWithQRValue(partyMember.getChr(), GameConstants.LORD_PIRATE_QUEST, "0")
 
-        sm.warpPartyIn(925100000) # Lord Pirate PQ  First Map
+        sm.warpInstanceIn(925100000, True) # Lord Pirate PQ  First Map
 
 else:
     sm.sendSayOkay("Please have your party leader talk to me.")
