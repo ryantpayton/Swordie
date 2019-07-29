@@ -1,5 +1,3 @@
 # Spiegelmann (9071005) | In Monster Park Maps
-response = sm.sendAskYesNo("Do you want to leave?")
-
-if response:
+if sm.sendAskYesNo("Do you want to leave?"):
     sm.warpInstanceOut(951000000)

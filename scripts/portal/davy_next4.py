@@ -2,5 +2,4 @@
 if sm.getReactorQuantity() > 1:
     sm.chat("The portal is not opened.")
 else:
-    sm.warpPartyIn(sm.getFieldID() + 100) #Boss Map of Lord Pirate PQ
-sm.dispose()
+    sm.warpInstanceIn(sm.getFieldID() + 100) #Boss Map of Lord Pirate PQ

@@ -12,17 +12,10 @@ else:
                                 "#L0#Easy(Level 150+) #l \r\n"
                                 "#L1#Normal (Level 175+) #l \r\n")
         if selection == 0:
-            sm.clearPartyInfo(271040100)
-            sm.warpPartyIn(271040100)
-
-            sm.createClockForMultiple(BossConstants.CYGNUS_TIME, 271040100)
-            sm.invokeAfterDelay(BossConstants.CYGNUS_TIME * 1000, "warpPartyOut", 271040100, 0)
+            sm.warpInstanceIn(271040100, True)
+            sm.setInstanceTime(BossConstants.CYGNUS_TIME)
         elif selection == 1:
-            sm.clearPartyInfo(211070102)
-            sm.clearPartyInfo(211070111)
-            sm.warpPartyIn(211070102)
-            sm.createClockForMultiple(BossConstants.CYGNUS_TIME , 211070102)
-            sm.invokeAfterDelay(BossConstants.CYGNUS_TIME * 1000, "warpPartyOut", 211070000, 0)
+            sm.warpInstanceIn(211070102, True)
+            sm.setInstanceTime(BossConstants.CYGNUS_TIME)
     else:
         sm.sendSayOkay("Please have your party leader speak to me.")
-        sm.dispose()

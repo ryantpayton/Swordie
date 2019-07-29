@@ -55,6 +55,7 @@ import net.swordie.ms.world.field.obtacleatom.ObtacleInRowInfo;
 import net.swordie.ms.world.field.obtacleatom.ObtacleRadianInfo;
 import net.swordie.ms.world.shop.NpcShopDlg;
 import org.apache.log4j.LogManager;
+import org.apache.log4j.Logger;
 
 import javax.script.*;
 import java.io.File;
@@ -88,7 +89,7 @@ public class ScriptManagerImpl implements ScriptManager {
 	public static final String QUEST_START_SCRIPT_END_TAG = "s";
 	public static final String QUEST_COMPLETE_SCRIPT_END_TAG = "e";
 	private static final String INTENDED_NPE_MSG = "Intended NPE by forceful script stop.";
-	private static final org.apache.log4j.Logger log = LogManager.getRootLogger();
+	private static final Logger log = LogManager.getRootLogger();
 	private static final ScriptEngine scriptEngine = new ScriptEngineManager().getEngineByName(SCRIPT_ENGINE_NAME);
 
 	private Char chr;
@@ -103,6 +104,7 @@ public class ScriptManagerImpl implements ScriptManager {
 	private ScriptMemory memory = new ScriptMemory();
 	private boolean curNodeEventEnd;
 	private static final Lock fileReadLock = new ReentrantLock();
+	private FieldTransferInfo fieldTransferInfo;
 
 	private ScriptManagerImpl(Char chr, Field field) {
 		this.chr = chr;
@@ -371,6 +373,14 @@ public class ScriptManagerImpl implements ScriptManager {
 
 	public void setLastActiveScriptType(ScriptType lastActiveScriptType) {
 		this.lastActiveScriptType = lastActiveScriptType;
+	}
+
+	public FieldTransferInfo getFieldTransferInfo() {
+		return fieldTransferInfo;
+	}
+
+	public void setFieldTransferInfo(FieldTransferInfo fieldTransferInfo) {
+		this.fieldTransferInfo = fieldTransferInfo;
 	}
 
 	// Start of the sends/asks -----------------------------------------------------------------------------------------
@@ -840,17 +850,56 @@ public class ScriptManagerImpl implements ScriptManager {
 		warp(id, 0);
 	}
 
+	public void warp(int id, boolean executeAfterScript) {
+		warp(id, 0, executeAfterScript, false);
+	}
+
 	@Override
-	public void warp(int mid, int pid) {
-		Field field = chr.getOrCreateFieldByCurrentInstanceType(mid);
-		Portal portal = field.getPortalByID(pid);
-		chr.warp(field, portal);
+	public void warp(int id, int pid) {
+		warp(id, pid, true, false);
+	}
+
+	public void warp(int id, int pid, boolean instanceField) {
+		warp(id, pid, true, instanceField);
+	}
+
+	public void warp(int mid, int pid, boolean executeAfterScript, boolean instanceField) {
+		if (executeAfterScript) {
+			FieldTransferInfo fti = getFieldTransferInfo();
+			fti.setFieldId(mid);
+			fti.setPortal(pid);
+			fti.setIsInstanceField(instanceField);
+		} else {
+			chr.warp(mid, pid);
+		}
+	}
+
+	public void changeChannelAndWarp(int channel, int fieldID, boolean executeAfterScript, boolean instanceField) {
+		if (executeAfterScript) {
+			FieldTransferInfo fti = getFieldTransferInfo();
+			fti.setChannel(channel);
+			fti.setFieldId(fieldID);
+			fti.setIsInstanceField(instanceField);
+		} else {
+			Client c = chr.getClient();
+			c.setOldChannel(c.getChannel());
+			chr.changeChannelAndWarp((byte) channel, fieldID);
+		}
+	}
+
+	public void warpField(int fieldId) {
+		warp(fieldId, 0);
+	}
+
+	public void warpField(int fieldId, int portalId) {
+		// only warp after script has ended
+		FieldTransferInfo fti = getFieldTransferInfo();
+		fti.setFieldId(fieldId);
+		fti.setPortal(portalId);
 	}
 
 	public void changeChannelAndWarp(int channel, int fieldID) {
-		Client c = chr.getClient();
-		c.setOldChannel(c.getChannel());
-		chr.changeChannelAndWarp((byte) channel, fieldID);
+		changeChannelAndWarp(channel, fieldID, true, false);
 	}
 
 	@Override
@@ -858,78 +907,112 @@ public class ScriptManagerImpl implements ScriptManager {
 		return chr.getField().getId();
 	}
 
-	@Override
-	public void warpPartyIn(int id) {
-		warpParty(id, true);
+	public void warpInstanceOut() {
+		warpInstance(-1, false, 0, false);
+	}
+
+	public void warpInstanceIn(int id, int portal) {
+		warpInstance(id, true, portal, false);
+	}
+
+	public void warpInstanceIn(int id, int portalId, boolean partyAllowed) {
+		warpInstance(id, true, portalId, partyAllowed);
+	}
+
+	public void warpInstanceOut(int id, int portal) {
+		warpInstance(id, false, portal, false);
 	}
 
 	@Override
-	public void warpPartyOut(int id) {
-		warpParty(id, false);
+	public void warpInstanceIn(int id) {
+		warpInstance(id, true, 0, false);
 	}
 
-	public void warpParty(int id, boolean in) {
-		if (chr.getParty() == null) {
-			chr.setFieldInstanceType(in ? FieldInstanceType.PARTY : FieldInstanceType.CHANNEL);
-			Field field = chr.getOrCreateFieldByCurrentInstanceType(id);
-			chr.warp(field);
-		} else {
-			if (!in) {
-				clearPartyInfo(GameConstants.NO_MAP_ID);
+	public void warpInstanceIn(int id, boolean partyAllowed) {
+		warpInstance(id, true, 0, partyAllowed);
+	}
+
+	@Override
+	public void warpInstanceOut(int id) {
+		warpInstance(id, false, 0, false);
+	}
+
+	private void warpInstance(int fieldId, boolean in, int portalId, boolean partyAllowed) {
+		Instance instance;
+		if (in) {
+			// warp party in if there is a party and party is allowed, solo instance otherwise
+			Party party = chr.getParty();
+			if (party == null || !partyAllowed) {
+				instance = new Instance(chr);
+			} else {
+				instance = new Instance(party);
 			}
-			for (PartyMember pm : chr.getParty().getPartyMembers()) {
-				if (pm != null && pm.getChr() != null) {
-					Char partyChr = pm.getChr();
-					partyChr.setFieldInstanceType(in ? FieldInstanceType.PARTY : FieldInstanceType.CHANNEL);
-					Field field = partyChr.getOrCreateFieldByCurrentInstanceType(id);
-					partyChr.warp(field);
+			// setup the instance & warp
+			instance.setup(fieldId, portalId);
+		} else {
+			instance = chr.getInstance();
+			stopEvents();
+			if (instance == null) {
+				// no info, just warp them
+				chr.setDeathCount(-1);
+				chr.warp(fieldId, portalId);
+			} else {
+				// remove chr from eligible instance members
+				int forcedReturn;
+				int forcedReturnPortal;
+				if (fieldId >= 0) {
+					forcedReturn = fieldId;
+					forcedReturnPortal = -1;
+				} else {
+					forcedReturn = instance.getForcedReturn();
+					forcedReturnPortal = instance.getForcedReturnPortalId();
+				}
+				instance.removeChar(chr);
+				chr.setDeathCount(-1);
+				if (forcedReturnPortal >= 0) {
+					chr.warp(forcedReturn, forcedReturnPortal);
+				} else {
+					chr.warp(forcedReturn);
+				}
+				// if eligible members' size is 0, clear the instance
+				if (instance.getChars().size() == 0) {
+					instance.clear();
 				}
 			}
 		}
 	}
 
-	public void clearPartyInfo() {
-		clearPartyInfo(0);
+	public void setInstanceTime(int seconds) {
+		setInstanceTime(seconds, 0, 0);
 	}
 
-	@Override
-	public void clearPartyInfo(int warpToID) {
-		stopEvents(); // Stops the FixedRate Event from the Field Script
-		if (chr.getParty() != null) {
-			for (PartyMember pm : chr.getParty().getOnlineMembers()) {
-				pm.getChr().setDeathCount(-1);
+	public void setInstanceTime(int seconds, int forcedReturnFieldId) {
+		Instance instance = chr.getInstance();
+		if (instance != null) {
+			if (forcedReturnFieldId != 0) {
+				instance.setForcedReturn(forcedReturnFieldId);
 			}
-			chr.getParty().clearFieldInstances(warpToID);
+			if (instance.getRemainingTime() < System.currentTimeMillis()) {
+				// don't override old timeout value
+				instance.setTimeout(seconds);
+			}
 		}
 	}
 
-	public void warpInstanceIn(int id, int portal) {
-		warpInstance(id, true, portal);
-	}
-
-	public void warpInstanceOut(int id, int portal) {
-		warpInstance(id, false, portal);
-	}
-
-	@Override
-	public void warpInstanceIn(int id) {
-		warpInstance(id, true, 0);
-	}
-
-	@Override
-	public void warpInstanceOut(int id) {
-		warpInstance(id, false, 0);
-	}
-
-	public void warpInstance(int id, boolean in, int portalID) {
-		stopEvents(); // Stops the FixedRate Event from the Field Script
-		chr.setFieldInstanceType(in ? FieldInstanceType.SOLO : FieldInstanceType.CHANNEL);
-		if (!in) {
-			chr.getFields().clear();
+	public void setInstanceTime(int seconds, int forcedReturnFieldId, int portalId) {
+		Instance instance = chr.getInstance();
+		if (instance != null) {
+			if (forcedReturnFieldId != 0) {
+				instance.setForcedReturn(forcedReturnFieldId);
+			}
+			if (portalId != 0) {
+				instance.setForcedReturnPortalId(portalId);
+			}
+			if (instance.getRemainingTime() < System.currentTimeMillis()) {
+				// don't override old timeout value
+				instance.setTimeout(seconds);
+			}
 		}
-		Field field = chr.getOrCreateFieldByCurrentInstanceType(id);
-		Portal portal = field.getPortalByID(portalID);
-		chr.warp(field, portal);
 	}
 
 	@Override
@@ -2011,7 +2094,7 @@ public class ScriptManagerImpl implements ScriptManager {
 
 	@Override
 	public int moveCamera(boolean back, int speed, int x, int y) {
-		getNpcScriptInfo().setMessageType(NpcMessageType.AskIngameDirection);
+		getNpcScriptInfo().setMessageType(AskIngameDirection);
 		chr.write(UserLocal.inGameDirectionEvent(InGameDirectionEvent.cameraMove(back, speed, new Position(x, y))));
         Object response = getScriptInfoByType(getLastActiveScriptType()).awaitResponse();
         if (response == null) {
@@ -2030,7 +2113,7 @@ public class ScriptManagerImpl implements ScriptManager {
 
 	@Override
 	public int zoomCamera(int inZoomDuration, int scale, int x, int y) {
-		getNpcScriptInfo().setMessageType(NpcMessageType.AskIngameDirection);
+		getNpcScriptInfo().setMessageType(AskIngameDirection);
 		chr.write(UserLocal.inGameDirectionEvent(InGameDirectionEvent.cameraZoom(inZoomDuration, scale, 1000, new Position(x, y))));
         Object response = getScriptInfoByType(getLastActiveScriptType()).awaitResponse();
         if (response == null) {
@@ -2050,7 +2133,7 @@ public class ScriptManagerImpl implements ScriptManager {
 
 	@Override
 	public int sendDelay(int delay) {
-		getNpcScriptInfo().setMessageType(NpcMessageType.AskIngameDirection);
+		getNpcScriptInfo().setMessageType(AskIngameDirection);
 		chr.write(UserLocal.inGameDirectionEvent(InGameDirectionEvent.delay(delay)));
 		Object response = getScriptInfoByType(getLastActiveScriptType()).awaitResponse();
 		if (response == null) {
@@ -2136,7 +2219,7 @@ public class ScriptManagerImpl implements ScriptManager {
 	}
 
 	public int sayMonologue(String text, boolean isEnd) {
-        getNpcScriptInfo().setMessageType(NpcMessageType.Monologue);
+        getNpcScriptInfo().setMessageType(Monologue);
         chr.write(UserLocal.inGameDirectionEvent(InGameDirectionEvent.monologue(text, isEnd)));
         Object response = getScriptInfoByType(getLastActiveScriptType()).awaitResponse();
         if (response == null) {
@@ -2350,7 +2433,7 @@ public class ScriptManagerImpl implements ScriptManager {
 
 	@Override
 	public int playVideoByScript(String videoPath) {
-		getNpcScriptInfo().setMessageType(NpcMessageType.PlayMovieClip);
+		getNpcScriptInfo().setMessageType(PlayMovieClip);
 		chr.write(UserLocal.videoByScript(videoPath, false));
 		Object response = getScriptInfoByType(getLastActiveScriptType()).awaitResponse();
 		if (response == null) {
@@ -2412,4 +2495,5 @@ public class ScriptManagerImpl implements ScriptManager {
 	private ScriptMemory getMemory() {
 		return memory;
 	}
+
 }

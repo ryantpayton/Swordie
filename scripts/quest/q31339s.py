@@ -14,8 +14,7 @@ if response:
     sm.warpInstanceIn(240090800, 0) # Kupo's Ride  The Road Up
     sm.rideVehicle(KUPOS_RIDE)
     sm.lockInGameUI(True, False)
-    sm.createStopWatch(TIME)
-    sm.invokeAfterDelay(TIME * 1000, "warpInstanceOut", 240091000, 2)
+    sm.setInstanceTime(TIME, 240091000, 2)
     sm.invokeAfterDelay(TIME * 1000, "removeCTS", CharacterTemporaryStat.RideVehicle)
     sm.invokeAfterDelay(TIME * 1000, "lockInGameUI", False)
     sm.sendNext("Yeehaa! Let's go!")

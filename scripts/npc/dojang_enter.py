@@ -11,10 +11,7 @@ if sm.getFieldID() == dojoHall:
                 "#L4#I'd like to enter the Unity Training Center.#l\r\n")
 
     if selection == 0: # I want to challenge Mu Lung Dojo
-        if not sm.getParty() is None:
-            sm.sendSayOkay("Please leave your party before attempting the Mu Lung Dojo")
-        else:
-            sm.warpInstanceIn(925070100) # Dojo Floor 1
+        sm.warpInstanceIn(925070100) # Dojo Floor 1
 
     elif selection == 1: # What is Mu Lung Dojo?
         sm.sendSayOkay("#r//TODO")
@@ -25,8 +22,5 @@ if sm.getFieldID() == dojoHall:
     elif selection == 4: # I'd like to enter the Unity Training Center.
         sm.sendSayOkay("#r//TODO")
 
-else:
-    response = sm.sendAskYesNo("Are you giving up already?")
-
-    if response:
-        sm.warpInstanceOut(dojoHall)
+elif sm.sendAskYesNo("Are you giving up already?"):
+    sm.warpInstanceOut(dojoHall)

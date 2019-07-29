@@ -40,5 +40,3 @@ elif sm.hasQuest(23202):
     sm.warpInstanceIn(927000081, 0)
 else:
     sm.systemMessage("It's too far away to see clearly. I must get closer.")
-
-sm.dispose()

@@ -1,2 +1,2 @@
 if sm.checkParty():
-    sm.warpPartyOut(240093200)
+    sm.warpInstanceOut(240093200)

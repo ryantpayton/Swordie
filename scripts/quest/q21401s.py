@@ -6,8 +6,4 @@ sm.sendNext("But since you awoke, I thought the darkness had gone away. I though
 if sm.sendAskYesNo("Please, Aran. Please stop me from becoming enraged. Only you can control me. It's out of my hands now. Please do whatever it takes to #rstop me from going berserk#k!"):
     sm.startQuest(parentID)
     sm.warpInstanceIn(914020000)
-    sm.createClockForMultiple(20*60, 914020000)
-    sm.invokeAfterDelay(20*60*1000, "warpInstanceOut", 140000000, 0)
-    sm.dispose()
-else:
-    sm.dispose()
+    sm.setInstanceTime(20 * 60, 140000000)

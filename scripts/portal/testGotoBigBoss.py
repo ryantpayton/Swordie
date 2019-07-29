@@ -8,5 +8,5 @@ if response:
     elif not sm.isPartyLeader():
         sm.sendSayOkay("Please have your party leader enter if you wish to face Gollux.")
     elif sm.checkParty():
-        sm.warpPartyIn(863010100)
+        sm.warpInstanceIn(863010100)
 sm.dispose()

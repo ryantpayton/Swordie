@@ -2,5 +2,5 @@
 response = sm.sendAskYesNo("Would you like to leave?")
 
 if response:
-    sm.warpPartyOut(105200000)
+    sm.warpInstanceOut(105200000)
 sm.dispose()

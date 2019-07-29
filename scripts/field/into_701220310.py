@@ -15,6 +15,5 @@ sm.sayMonologue("#fNpc/9310047.img/stand/0# #e#fs30# [Find the Secret Library!]\
                 "3. You will return to your original form if you bump into any obstacles.\r\n"
                 "4. Monsters will attack you in your original form, so be careful!", True)
 
-sm.createClock(time)
-sm.invokeAfterDelay(time *1000, "warpInstaceOut", 701220200)
+sm.setInstanceTime(time, 701220200)
 sm.lockInGameUI(False)
