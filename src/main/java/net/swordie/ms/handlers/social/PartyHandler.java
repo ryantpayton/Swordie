@@ -120,7 +120,7 @@ public class PartyHandler {
     @Handler(op = InHeader.PARTY_RESULT)
     public static void handlePartyResult(Client c, InPacket inPacket) {
         Char chr = c.getChr();
-        byte type = (byte) (inPacket.decodeByte() - 4); // weird offset between ida and what we get in-game
+        byte type = inPacket.decodeByte();
         int partyID = inPacket.decodeInt();
         PartyType pt = PartyType.getByVal(type);
         if (pt == null) {
