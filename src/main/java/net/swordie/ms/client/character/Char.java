@@ -408,6 +408,7 @@ public class Char {
 	private Map<Integer, PsychicLock> psychicLocks;
 	@Transient
 	private Map<Integer, PsychicLockBall> psychicLockBalls;
+	@Transient
 	private Instance instance;
 
 
