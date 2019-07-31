@@ -113,6 +113,7 @@ public class ScriptManagerImpl implements ScriptManager {
 		this.scripts = new HashMap<>();
 		this.isField = chr == null;
 		this.lastActiveScriptType = ScriptType.None;
+		this.fieldTransferInfo = new FieldTransferInfo();
 	}
 
 	public ScriptManagerImpl(Char chr) {
