@@ -6,12 +6,14 @@ import net.swordie.ms.client.character.CharacterStat;
 import net.swordie.ms.client.character.info.HitInfo;
 import net.swordie.ms.client.character.skills.Option;
 import net.swordie.ms.client.character.skills.Skill;
+import net.swordie.ms.client.character.skills.SkillStat;
 import net.swordie.ms.client.character.skills.info.AttackInfo;
 import net.swordie.ms.client.character.skills.info.MobAttackInfo;
 import net.swordie.ms.client.character.skills.info.SkillInfo;
 import net.swordie.ms.client.character.skills.temp.TemporaryStatManager;
 import net.swordie.ms.client.jobs.Job;
 import net.swordie.ms.connection.InPacket;
+import net.swordie.ms.connection.packet.UserLocal;
 import net.swordie.ms.connection.packet.WvsContext;
 import net.swordie.ms.constants.JobConstants;
 import net.swordie.ms.enums.ChatType;
@@ -72,7 +74,8 @@ public class Aran extends Job {
     public static final int FINAL_CHARGE = 21101011;
     public static final int FINAL_CHARGE_COMBO = 21100002; //Special Attack (Stun Debuff) (Special Skill from Key-Command)
 
-    public static final int FINAL_TOSS = 21100015;
+    //public static final int FINAL_TOSS = 21100015;
+    public static final int FINAL_TOSS = 21101016;
     public static final int FINAL_TOSS_COMBO = 21100012;
 
     public static final int ROLLING_SPIN = 21101017;
@@ -98,6 +101,7 @@ public class Aran extends Job {
 
     //Finisher
     public static final int FINISHER_HUNTER_PREY = 21120019;
+    public static final int FINISHER_STORM_OF_FEAR = 21120023;
 
 
     public static int getOriginalSkillByID(int skillID) {
@@ -432,6 +436,34 @@ public class Aran extends Job {
                         mts.createAndAddBurnedInfo(chr, judgementDrawSkill);
                     }
                 }
+                break;
+            case SMASH_WAVE_COMBO:
+                if (chr.hasSkillCDBypass())
+                    return;
+                skill = chr.getSkill(SMASH_WAVE);
+                si = SkillData.getSkillInfoById(skill.getSkillId());
+                slv = skill.getCurrentLevel();
+                skillID = skill.getSkillId();
+
+                int swCDInSec = si.getValue(SkillStat.cooltime, slv);
+                int swCDInMillis = swCDInSec > 0 ? swCDInSec * 1000 : si.getValue(SkillStat.cooltimeMS, slv);
+
+                chr.addSkillCoolTime(SMASH_WAVE, System.currentTimeMillis() + swCDInMillis);
+                chr.write(UserLocal.skillCooltimeSetM(skillID, swCDInMillis));
+                break;
+            case GATHERING_HOOK_COMBO:
+                if (chr.hasSkillCDBypass())
+                    return;
+                skill = chr.getSkill(GATHERING_HOOK);
+                si = SkillData.getSkillInfoById(skill.getSkillId());
+                slv = skill.getCurrentLevel();
+                skillID = skill.getSkillId();
+
+                int ghCDInSec = si.getValue(SkillStat.cooltime, slv);
+                int ghCDInMillis = ghCDInSec > 0 ? ghCDInSec * 1000 : si.getValue(SkillStat.cooltimeMS, slv);
+
+                chr.addSkillCoolTime(GATHERING_HOOK, System.currentTimeMillis() + ghCDInMillis);
+                chr.write(UserLocal.skillCooltimeSetM(skillID, ghCDInMillis));
                 break;
         }
 

@@ -9,4 +9,4 @@ elif sm.sendAskYesNo("Would you like to battle Ranmaru?"):
     elif not sm.isPartyLeader():
         sm.sendSayOkay("Please have your party leader enter if you wish to face Ranmaru.")
     elif sm.checkParty():
-        sm.warpInstanceIn(807300110)
+        sm.warpInstanceIn(807300110, True)

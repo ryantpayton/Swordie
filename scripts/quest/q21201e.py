@@ -16,7 +16,7 @@ sm.sendNext("Aran, it is you! *Sniff sniff* Wait, *ahem* I didn't get emotional,
 if sm.sendAskYesNo("Evn though you've lost your memory, you're still my master. You endured some very tough training in the past, and I'm sure your body still remembers the skills that got you through those hard times. Alright, I'll restore your abilities!"):
     sm.giveItem(1142130)
     sm.setJob(2110)
-    sm.addSP(5)
+    sm.addSP(4)
     sm.completeQuest(parentID)
     sm.sendNext("Your level isn't what it used to be back in your glory days, so I can't restore all of your old abilities. But the few that I can restore should help you level up faster. Now hurry up and train so you can return to the old you.")
     sm.dispose()

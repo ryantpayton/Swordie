@@ -7,4 +7,4 @@ response = sm.sendAskYesNo("Are you sure you want to battle me?")
 
 if response:
     if sm.checkParty():
-        sm.warpInstanceIn(FirstBossMap)
+        sm.warpInstanceIn(FirstBossMap, True)

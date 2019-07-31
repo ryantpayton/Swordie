@@ -25,7 +25,7 @@ if response:
                 break
 
         if chrHasQuest:
-            sm.warpInstanceIn(QUEENS_HIDING_PLACE)
+            sm.warpInstanceIn(QUEENS_HIDING_PLACE, True)
             sm.setInstanceTime(time, FAIRY_FOREST_2)
         else:
             text = ("You may not approach the Queen's Hiding Place. "
