@@ -10,19 +10,19 @@ if sm.isPartyLeader():
                 "#L2#Chaos(Level 135+) #l \r\n")
     if selection == 0:
         sm.warpInstanceIn(240060000, True)
-        sm.setInstanceTime(BossConstants.EASY_HORNTAIL_TIME)
+        sm.setInstanceTime(BossConstants.EASY_HORNTAIL_TIME*10)
         sm.spawnNpc(2083002, 150, 0)
         for partyMember in sm.getParty().getMembers():
             sm.createQuestWithQRValue(GameConstants.EASY_HORNTAIL_QUEST, "1")
     elif selection == 1:
         sm.warpInstanceIn(240060002, True)
-        sm.setInstanceTime(BossConstants.EASY_HORNTAIL_TIME)
+        sm.setInstanceTime(BossConstants.EASY_HORNTAIL_TIME*10)
         sm.spawnNpc(2083002, 150, 0)
         for partyMember in sm.getParty().getMembers():
             sm.createQuestWithQRValue(GameConstants.EASY_HORNTAIL_QUEST, "1")
     elif selection == 2:
         sm.warpInstanceIn(240060001, True)
-        sm.setInstanceTime(BossConstants.EASY_HORNTAIL_TIME)
+        sm.setInstanceTime(BossConstants.EASY_HORNTAIL_TIME*10)
         sm.spawnNpc(2083002, 150, 0)
         for partyMember in sm.getParty().getMembers():
             sm.createQuestWithQRValue(GameConstants.EASY_HORNTAIL_QUEST, "1")
