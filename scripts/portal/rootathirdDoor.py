@@ -7,5 +7,5 @@ if response:
     elif not sm.isPartyLeader():
         sm.sendSayOkay("Please have your party leader enter if you wish to face Crimson Queen.")
     elif sm.checkParty():
-        sm.warpInstanceIn(105200300) # South Garden
+        sm.warpInstanceIn(105200300, True) # South Garden
 sm.dispose()
