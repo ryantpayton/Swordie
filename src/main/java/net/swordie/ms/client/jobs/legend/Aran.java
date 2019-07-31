@@ -74,7 +74,8 @@ public class Aran extends Job {
     public static final int FINAL_CHARGE = 21101011;
     public static final int FINAL_CHARGE_COMBO = 21100002; //Special Attack (Stun Debuff) (Special Skill from Key-Command)
 
-    public static final int FINAL_TOSS = 21100015;
+    //public static final int FINAL_TOSS = 21100015;
+    public static final int FINAL_TOSS = 21101016;
     public static final int FINAL_TOSS_COMBO = 21100012;
 
     public static final int ROLLING_SPIN = 21101017;
@@ -100,6 +101,7 @@ public class Aran extends Job {
 
     //Finisher
     public static final int FINISHER_HUNTER_PREY = 21120019;
+    public static final int FINISHER_STORM_OF_FEAR = 21120023;
 
 
     public static int getOriginalSkillByID(int skillID) {

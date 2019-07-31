@@ -309,6 +309,62 @@ public class JobSkillHandler {
         }
     }
 
+    @Handler(op = InHeader.SKILL_COMMAND_LOCK)
+    public static void handleSkillCommandLock(Client c, InPacket inPacket) {
+        Char chr = c.getChr();
+        int skillID = inPacket.decodeInt();
+        int questID = QuestConstants.SKILL_COMMAND_LOCK_ARAN;
+        Quest quest = chr.getQuestManager().getQuestById(questID);
+        int lockID = -1;
+
+        switch (skillID) {
+            case Aran.COMBAT_STEP:
+                lockID = 0;
+                break;
+            case Aran.SMASH_WAVE:
+                lockID = 1;
+                break;
+            case Aran.FINAL_CHARGE:
+                lockID = 2;
+                break;
+            case Aran.FINAL_TOSS:
+                lockID = 3;
+                break;
+            case Aran.ROLLING_SPIN:
+                lockID = 4;
+                break;
+            case Aran.FINAL_BLOW:
+                lockID = 7;
+                break;
+            case Aran.JUDGEMENT_DRAW:
+                lockID = 5;
+                break;
+            case Aran.GATHERING_HOOK:
+                lockID = 6;
+                break;
+            case Aran.FINISHER_STORM_OF_FEAR:
+                lockID = 8;
+                break;
+            case Aran.FINISHER_HUNTER_PREY:
+                lockID = 9;
+                break;
+        }
+        if (lockID < 0)
+            return;
+        if (quest == null)
+            chr.getScriptManager().createQuestWithQRValue(questID, String.format("%d=1", lockID));
+        else {
+            if (quest.getProperty(lockID + "") == null)
+                quest.setProperty(lockID + "", "1");
+            else
+                quest.setProperty(lockID + "", Integer.parseInt(quest.getProperty(lockID + "")) == 1 ? "0" : "1");
+
+            chr.chatMessage(quest.toString());
+            chr.write(WvsContext.questRecordExMessage(quest));
+        }
+        chr.dispose();
+    }
+
     @Handler(op = InHeader.REQUEST_SET_HP_BASE_DAMAGE)
     public static void handleRequestSetHpBaseDamage(Char chr, InPacket inPacket) {
         if (JobConstants.isDemonAvenger(chr.getJob())) {
