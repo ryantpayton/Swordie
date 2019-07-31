@@ -269,6 +269,14 @@ public class ScriptManagerImpl implements ScriptManager {
 				// This makes it so field scripts won't cancel new field scripts when having a warp() in them.
 				stop(scriptType);
 			}
+			FieldTransferInfo fti = getFieldTransferInfo();
+			if (!fti.isInit()) {
+				if (fti.isField()) {
+					fti.warp(field);
+				} else {
+					fti.warp(chr);
+				}
+			}
 		}
 	}
 
