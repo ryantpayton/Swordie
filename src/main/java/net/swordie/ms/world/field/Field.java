@@ -622,6 +622,9 @@ public class Field {
         if (getClock() != null) {
             getClock().showClock(chr);
         }
+        if (chr.getInstance() != null && chr.getInstance().getWarpOutTimer() != null) {
+            chr.write(FieldPacket.clock(ClockPacket.secondsClock(chr.getInstance().getRemainingTime())));
+        }
         for (Char c : getChars()) {
             if (!c.equals(chr)) {
                 chr.write(UserPool.userEnterField(c));
