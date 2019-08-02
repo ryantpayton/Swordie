@@ -2,13 +2,11 @@ package net.swordie.ms.client.party;
 
 import net.swordie.ms.client.character.Char;
 import net.swordie.ms.connection.Encodable;
-import net.swordie.ms.constants.GameConstants;
-import net.swordie.ms.world.field.Field;
 import net.swordie.ms.connection.OutPacket;
-import net.swordie.ms.world.field.FieldInstanceType;
-import net.swordie.ms.loaders.FieldData;
 import net.swordie.ms.connection.packet.WvsContext;
 import net.swordie.ms.world.World;
+import net.swordie.ms.world.field.Field;
+import net.swordie.ms.world.field.Instance;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -24,7 +22,7 @@ public class Party implements Encodable {
     private int partyLeaderID;
     private World world;
     private Char applyingChar;
-    private Map<Integer, Field> fields = new HashMap<>();
+    private Instance instance;
 
     public boolean isAppliable() {
         return appliable;
@@ -247,50 +245,6 @@ public class Party implements Encodable {
         this.applyingChar = applyingChar;
     }
 
-    public Map<Integer, Field> getFields() {
-        return fields;
-    }
-
-    public void addField(Field field) {
-        getFields().put(field.getId(), field);
-    }
-
-    /**
-     * Clears the current Fields. Will return any character that is currently on any of the Fields to the Field's return field.
-     *
-     * @param warpToID the field id that all chars should be warped to
-     */
-    public void clearFieldInstances(int warpToID) {
-        Set<Char> chrs = new HashSet<>();
-        for(Field f : getFields().values()) {
-            chrs.addAll(f.getChars());
-        }
-        for(Char chr : chrs) {
-            chr.setFieldInstanceType(FieldInstanceType.CHANNEL);
-            int returnMap = warpToID == 0 ? chr.getField().getForcedReturn() : warpToID;
-            if(returnMap != GameConstants.NO_MAP_ID) {
-                Field field = chr.getOrCreateFieldByCurrentInstanceType(returnMap);
-                chr.warp(field);
-            }
-        }
-        getFields().clear();
-    }
-
-    /**
-     * Returns the Field corresponding to the provided fieldID. If there is none, creates one.
-     * @param fieldID The Field's id.
-     * @return The Field corresponding to the given id.
-     */
-    public Field getOrCreateFieldById(int fieldID) {
-        if (getFields().containsKey(fieldID)) {
-            return getFields().get(fieldID);
-        } else {
-            Field field = FieldData.getFieldCopyById(fieldID);
-            addField(field);
-            return field;
-        }
-    }
-
     public boolean isPartyMember(Char chr) {
         return getPartyMemberByID(chr.getId()) != null;
     }
@@ -333,5 +287,13 @@ public class Party implements Encodable {
      */
     public boolean hasPartyMember(int charID) {
         return getPartyMemberByID(charID) != null;
+    }
+
+    public Instance getInstance() {
+        return instance;
+    }
+
+    public void setInstance(Instance instance) {
+        this.instance = instance;
     }
 }

@@ -11,9 +11,9 @@ if sm.hasQuestCompleted(31339) or sm.hasQuest(31339):
     sm.rideVehicle(KUPOS_RIDE)
     sm.lockInGameUI(True, False)
     sm.createStopWatch(TIME)
+    sm.setInstanceTime(TIME, 240091000, 2)
     sm.invokeAfterDelay(TIME*999, "lockInGameUI", False)
     sm.invokeAfterDelay(TIME*1000, "removeCTS", CharacterTemporaryStat.RideVehicle)
-    sm.invokeAfterDelay(TIME*1000, "warpInstanceOut", 240091000, 2)
 else:
     sm.setSpeakerID(KUPO)
     sm.sendSayOkay("Hey Hey Hey.. Where do you think you are going, buddy?\r\n"

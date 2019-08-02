@@ -169,8 +169,8 @@ public class MigrationHandler {
                 chr.warp(chr.getOrCreateFieldByCurrentInstanceType(returnMap));
 
             } else {
-                if (chr.getParty() != null) {
-                    chr.getParty().clearFieldInstances(0);
+                if (chr.getInstance() != null) {
+                    chr.getInstance().removeChar(chr);
                 } else {
                     if (chr.getTransferField() == targetField && chr.getTransferFieldReq() == chr.getField().getId()) {
                         Field toField = chr.getOrCreateFieldByCurrentInstanceType(chr.getTransferField());

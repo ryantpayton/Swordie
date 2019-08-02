@@ -12,7 +12,6 @@ response = sm.sendAskYesNo("Are you ready?")
 if response:
     sm.warpInstanceIn(240091600)
     sm.startQuest(parentID)
-    sm.createStopWatch(TIME)
-    sm.invokeAfterDelay(TIME * 1000, "warpInstanceOut", 240092000, 0)
+    sm.setInstanceTime(TIME, 240092000, 0)
 else:
     sm.sendSayOkay("What are you waiting for?")

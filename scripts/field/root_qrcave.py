@@ -110,4 +110,3 @@ else:
 
     sm.lockInGameUI(False)
     sm.warpInstanceOut(910700200, 0) # Quest Field (Colossal Root)
-    sm.dispose()

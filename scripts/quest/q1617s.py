@@ -12,8 +12,7 @@ if response:
     sm.sendNext("We shall see. Your test is simple enough: Defeat my puppy, Coco. Shall we begin?")
 
     sm.warpInstanceIn(931050510)
-    sm.createClock(time)
-    sm.invokeAfterDelay(time*1000, "warpInstanceOut", 931050500)
+    sm.setInstanceTime(time, 931050500)
     sm.startQuest(parentID)
 
 else:

@@ -29,10 +29,9 @@ sm.setSpeakerID(MYSTIC_GATE)
 response = sm.sendAskYesNo("Do you want to enter?")
 
 if not sm.getFieldID() in maps:
-    sm.sendSayOkay("Sorry I haven't been coded for this map yet. please notify the admins")
+    sm.sendSayOkay("Sorry, I haven't been coded for this map yet. Please notify the devs")
     sm.dispose()
 
 if response:
     sm.warpInstanceIn(maps[sm.getFieldID()], 0)
-    sm.createClock(time)
-    sm.invokeAfterDelay(time*1000, "warpInstanceOut", map, 0)
+    sm.setInstanceTime(time)

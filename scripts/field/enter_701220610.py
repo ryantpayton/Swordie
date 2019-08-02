@@ -6,8 +6,7 @@ CHIEF_PRIEST = 9601068 # mob id
 ZHEUNG_GUAN = 9310046 # Npc id
 time = 30 *60
 
-sm.createClock(time)
-sm.invokeAfterDelay(time * 1000, "warpInstanceOut", 701220601, 0)
+sm.setInstanceTime(time, 701220601, 0)
 sm.chatScript("I told you not to follow me..")
 
 sm.invokeAfterDelay(3000, "showWeatherNotice", "Now, you will be my first victim!", WeatherEffNoticeType.BossChiefPriest)

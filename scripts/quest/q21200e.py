@@ -24,7 +24,7 @@ sm.setSpeakerID(1201002)
 if sm.sendAskYesNo("Sorry doesn't cut it! Do you know how lonely and bored I was for hundreds of years? I don't care what it takes! Remember me! Remember me now!"):
     sm.completeQuest(parentID)
     sm.setPlayerAsSpeaker()
-    sm.sendNext("#b(The voice that claims to be #p1201002#? the #p1201001# is yelling in frustration. You don't think this conversatin is going anywhere. You better go talk to #p1510009# first.)")
+    sm.sendNext("#b(The voice that claims to be #p1201002#? the #p1201001# is yelling in frustration. You don't think this conversation is going anywhere. You better go talk to #p1510009# first.)")
     sm.dispose()
 else:
     sm.dispose()

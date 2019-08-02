@@ -297,6 +297,15 @@ public interface ScriptManager extends Observer {
 	void setAP(int amount);
 
 	/**
+	 * Resets {@Link Char}'s base stats and returns the AP.
+	 * Example: "sm.resetAP()"
+	 *
+	 * @param hpmp
+	 * 		Whether or not to reset HP/MP also.
+	 */
+	void resetAP(boolean hpmp);
+
+	/**
 	 * Sets the STR of {@link Char} to the specified amount.
 	 * Example: "sm.setSTR(15)"
 	 *
@@ -450,33 +459,6 @@ public interface ScriptManager extends Observer {
 	 * @return The id of the linked {@link Field}.
 	 */
 	int getFieldID();
-
-	/**
-	 * Warps a whole party to a given field id. Immediately sets the field instance type to PARTY.
-	 * Example: "sm.warpParty(100)"
-	 *
-	 * @param fieldID
-	 * 		The id of the field to warp to.
-	 */
-	void warpPartyIn(int fieldID);
-
-	/**
-	 * Warps a whole party to a given field id. Immediately sets the field instance type to CHANNEL.
-	 * Example: "sm.warpPartyOut(100)"
-	 *
-	 * @param fieldID
-	 * 		The id of the field to warp to.
-	 */
-	void warpPartyOut(int fieldID);
-
-	/**
-	 * Resets the party's field instance info, ensuring new field instances are created.
-	 * Example: "sm.clearPartyInfo()"
-	 *
-	 * @param warpToID
-	 * 		The field id that all chars should be warped to
-	 */
-	void clearPartyInfo(int warpToID);
 
 	/**
 	 * Warp {@link Char} into the instanced field of the specified id.

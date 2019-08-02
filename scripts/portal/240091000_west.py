@@ -10,4 +10,4 @@ sm.lockInGameUI(True, False)
 sm.createStopWatch(TIME)
 sm.invokeAfterDelay(TIME*999, "lockInGameUI", False)
 sm.invokeAfterDelay(TIME*1000, "removeCTS", CharacterTemporaryStat.RideVehicle)
-sm.invokeAfterDelay(TIME*1000, "warpInstanceOut", 240090000, 4) # Explorer base
+sm.setInstanceTime(TIME, 240090000, 4)

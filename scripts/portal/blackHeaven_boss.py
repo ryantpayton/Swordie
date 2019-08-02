@@ -35,7 +35,7 @@ elif not sm.isPartyLeader():
 elif sm.checkParty() and response != 99:
 	if is_party_eligible(destinations[response][1], sm.getParty()):
 		sm.setPartyDeathCount(destinations[response][3])
-		sm.warpPartyIn(destinations[response][2])
+		sm.warpInstanceIn(destinations[response][2], True)
 
 	else:
 		sm.sendSayOkay("One or more party members are lacking the prerequisite entry quests, or are below level %d." % destinations[response][1])

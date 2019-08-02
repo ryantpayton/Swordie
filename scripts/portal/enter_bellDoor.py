@@ -7,7 +7,6 @@ if answer == 0:
     elif not sm.isPartyLeader():
         sm.sendSay("Please have your party leader enter if you wish to face Velderoth.")
     elif sm.checkParty():
-        sm.warpPartyIn(401053100)
+        sm.warpInstanceIn(401053100, True)
 elif answer == 1:
     sm.warp(401060000)
-sm.dispose()

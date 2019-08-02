@@ -58,10 +58,9 @@ elif sm.getFieldID() == 925100500: # Hidden Street: The Captain's Dignity
     if not sm.hasMobsInField():
         if not sm.isPartyLeader():
             sm.sendSayOkay("Please have your party leader speak to me.")
-            sm.dispose()
         else:
             sm.sendNext("You have done us a great favour, what ever can we do to repay you?")
-        sm.warpPartyIn(925100700)
+        sm.warpInstanceIn(925100700, True)
         # For all party members
         for partyMembers in sm.getParty().getMembers():
             # Sets the Stage2 progress back to 0
@@ -83,7 +82,7 @@ else:
     response = sm.sendAskYesNo("Are you sure you want to leave?")
     if response:
         if not sm.getParty() is None:
-            sm.warpPartyOut(910002000)
+            sm.warpInstanceOut(910002000)
             for partyMembers in sm.getParty().getMembers():
                 sm.setQRValue(partyMembers.getChr(), GameConstants.LORD_PIRATE_QUEST, "0")
         else:
