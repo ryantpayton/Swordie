@@ -1,7 +1,7 @@
 #   [Job Adv] (Lv.60)   Way of the Outlaw
 
 blackCharm = 4031059
-job = "Blade Lord"
+job = "Outlaw"
 
 sm.setSpeakerID(2020013)
 if sm.hasItem(blackCharm, 1):
@@ -14,6 +14,6 @@ else:
 
 sm.consumeItem(blackCharm, 1)
 sm.completeQuestNoRewards(parentID)
-sm.jobAdvance(533) # Blade Lord
+sm.jobAdvance(521) # Blade Lord
 sm.sendSayOkay("You are now a #b"+ job +"#k.")
 sm.dispose()
