@@ -3422,14 +3422,14 @@ public class Char {
 	}
 
 	public void setInstance(Instance instance) {
-		if (this.instance != null && instance == null) {
+		if (this.instance != null && this.instance.getChars().size() == 0 && instance == null) {
 			this.instance.stopEvents();
 		}
 		this.instance = instance;
 	}
 
 	public Instance getInstance() {
-		if (party != null && party.getInstance() != null) {
+		if (party != null && party.getInstance() != null && party.getInstance().getChars().contains(this)) {
 			return party.getInstance();
 		}
 		return instance;

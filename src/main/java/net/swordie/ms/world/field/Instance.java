@@ -268,6 +268,9 @@ public class Instance {
         int fieldId = getForcedReturn();
         int portalId = getForcedReturnPortalId();
         boolean useFieldReturn = fieldId == 0;
+        if (getParty() != null) {
+            getParty().setInstance(null);
+        }
         for (Char chr : getChars()) {
             Field field = chr.getField();
             chr.setDeathCount(-1);
@@ -291,6 +294,7 @@ public class Instance {
     public void stopEvents() {
         if (getWarpOutTimer() != null) {
             getWarpOutTimer().cancel(true);
+            warpOutTimer = null;
         }
         for (Char chr : getChars()) {
             chr.getScriptManager().stopEvents();
