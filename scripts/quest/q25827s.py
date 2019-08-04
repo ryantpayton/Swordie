@@ -27,9 +27,6 @@ if response:
 else:
     sm.dispose()
 
-sm.setJob(6512)
-sm.addSP(5)
-sm.addAP(5)
+sm.jobAdvance(6512)
 sm.giveAndEquip(1352604)
-chr.setSpToCurrentJob(5)
 sm.dispose()

@@ -5,8 +5,7 @@ response = sm.sendAskYesNo("So you want to become a Bowman?")
 
 if response:
     sm.completeQuestNoRewards(parentID)
-    sm.setJob(300) # Archer
-    sm.setSP(5)
+    sm.jobAdvance(300) # Archer
     sm.resetAP(False)
     sm.giveItem(1452051, 1)
     sm.giveItem(2060000, 500)

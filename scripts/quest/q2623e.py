@@ -5,8 +5,7 @@ if sm.sendAskYesNo("So, the Mirror of Insight has chosen you. Very well. I will 
     sm.completeQuest(parentID)
     sm.consumeItem(4032616)
     sm.giveItem(1342000)
-    sm.setJob(430)
-    sm.addSP(5, True)
+    sm.jobAdvance(430)
     sm.sendNext("You are now a #b#eBlade Recruit#n#k. Take pride in that fact.")
 else:
     sm.sendSayOkay("Why hesitate? What are you afraid of?")

@@ -6,8 +6,7 @@ response = sm.sendAskYesNo("So you want to become a Thief?")
 
 if response:
     sm.completeQuestNoRewards(parentID)
-    sm.setJob(400) # Thief
-    sm.setSP(5)
+    sm.jobAdvance(400) # Thief
     sm.resetAP(False)
     sm.giveItem(2070000, 500)
     sm.giveItem(1332063, 1)

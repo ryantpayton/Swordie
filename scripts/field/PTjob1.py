@@ -3,8 +3,7 @@ if (sm.getChr().getJob() == 2003):
     sm.playVideoByScript("phantom.avi")
     sm.levelUntil(10)
 
-    sm.setJob(2400)
-    sm.addSP(5)
+    sm.jobAdvance(2400)
     sm.setSTR(4)
     sm.setINT(4)
     sm.setDEX(4)

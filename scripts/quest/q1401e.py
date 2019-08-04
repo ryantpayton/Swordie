@@ -5,8 +5,7 @@ response = sm.sendAskYesNo("So you want to become a Warrior?")
 
 if response:
     sm.completeQuestNoRewards(parentID)
-    sm.setJob(100)
-    sm.setSP(5)
+    sm.jobAdvance(100)
     sm.resetAP(False)
     sm.giveItem(1302182)
     sm.sendSayOkay("You are now a #bWarrior#k.")

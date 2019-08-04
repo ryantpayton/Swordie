@@ -8,8 +8,7 @@ if sm.sendAskYesNo("Congratulations on passing your trials, do you want to becom
         sm.sendSayOkay("You need inventory space.")
     else:
         if chr.getJob() == 5100:
-            sm.setJob(5110)
-            sm.addSP(3)
+            sm.jobAdvance(5110)
             sm.giveItem(1302038)
             sm.giveItem(1142400)
             sm.completeQuest(20810)

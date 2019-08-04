@@ -14,7 +14,6 @@ else:
 
 sm.consumeItem(darkMarble, 30)
 sm.completeQuestNoRewards(parentID)
-sm.setJob(410) # Night Lord
-sm.addSP(5)
+sm.jobAdvance(410) # Night Lord
 sm.sendNext("You are now a #b"+ job +"#k.")
 sm.dispose()

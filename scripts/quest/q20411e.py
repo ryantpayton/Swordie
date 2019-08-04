@@ -6,8 +6,7 @@ if not sm.canHold(1142402):
     sm.dispose()
 else:
     if chr.getJob() == 5111:
-        sm.setJob(5112)
-        sm.addSP(3)
+        sm.jobAdvance(5112)
         sm.giveItem(1142402)
         sm.dispose()
     else:

@@ -5,8 +5,7 @@ XBOW_ID = 1462092
 
 sm.setSpeakerID(2152003) # Belle
 if chr.getJob() == 3000 and chr.getLevel() >= 10:
-    sm.setJob(3300)
-    sm.addSP(5)
+    sm.jobAdvance(3300)
     sm.completeQuest(23012)
     sm.giveItem(XBOW_ID, 1)
     sm.giveSkill(30001061) # Capture

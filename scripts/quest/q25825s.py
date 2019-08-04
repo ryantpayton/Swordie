@@ -23,9 +23,7 @@ sm.setPlayerAsSpeaker()
 sm.sendNext("I could use some more strength!")
 response = sm.sendAskYesNo("I knew you'd be swayed by a little extra power. Let's strengthen our bond.")
 if response:
-    sm.setJob(6510)
-    sm.addSP(5)
-    sm.addAP(5)
+    sm.jobAdvance(6510)
     sm.dispose()
     sm.completeQuest(25825)
     sm.giveAndEquip(1352602) # secondary

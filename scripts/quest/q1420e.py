@@ -14,7 +14,6 @@ else:
 
 sm.consumeItem(darkMarble, 30)
 sm.completeQuestNoRewards(parentID)
-sm.setJob(320) # Crossbowman
-sm.addSP(5)
+sm.jobAdvance(320) # Crossbowman
 sm.sendNext("You are now a #b"+ job +"#k.")
 sm.dispose()

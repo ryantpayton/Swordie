@@ -38,11 +38,8 @@ sm.setSpeakerID(ESKALADE_NPC_ID)
 response = sm.sendAskYesNo("You have to make sacrifices to be a hero! Don't you want that?")
 if response:
     sm.setPlayerAsSpeaker()
-    sm.setJob(6511)
-    sm.addSP(5)
-    sm.addAP(5)
+    sm.jobAdvance(6511)
     sm.giveAndEquip(1352603)
-    chr.setSpToCurrentJob(5)
     sm.sendNext("I think I just got stronger!")
 sm.dispose()
 
