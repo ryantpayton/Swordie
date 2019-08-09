@@ -942,10 +942,10 @@ public enum InHeader {
     RAISE_REFESH(1042),
     RAISE_UI_STATE(1043),
     RAISE_INC_EXP(1044),
-    RAISE_ADD_PIECE(1045),
-    E_N_D__R_A_I_S_E(1046),
+    RAISE_ADD_PIECE(9999), // Changed from 1045 to 9999 due to duplicate. Fixes Cashshop. Thanks Bar.
+    E_N_D__R_A_I_S_E(9999), // Changed from 1046 to 9999 due to duplicate. Fixes Cashshop. Thanks Bar.
 
-    SEND_MATE_MAIL(1047),
+    SEND_MATE_MAIL(9999), // Changed from 1047 to 9999 due to duplicate. Fixes Cashshop. Thanks Bar.
     REQUEST_GUILD_BOARD_AUTH_KEY(1048),
     REQUEST_CONSULT_AUTH_KEY(1049),
     REQUEST_CLASS_COMPETION_AUTH_KEY(1050),
