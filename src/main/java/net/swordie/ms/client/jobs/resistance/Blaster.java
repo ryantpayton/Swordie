@@ -37,6 +37,8 @@ public class Blaster extends Citizen {
     public static final int CANNON_OVERDRIVE = 37121054;
     public static final int HYPER_MAGNUM_PUNCH = 37121052;
 
+    public static final int DETONATE = 37001004;
+    public static final int DETONATE_UP = 37000005;
 
     //Revolving Cannon
     public static final int REVOLVING_CANNON_RELOAD = 37000010;
@@ -180,6 +182,10 @@ public class Blaster extends Citizen {
         Option o2 = new Option();
         Option o3 = new Option();
         switch (attackInfo.skillId) {
+            case DETONATE:
+            case DETONATE_UP:
+                removeAmmo();
+                break;
             case HAMMER_SMASH_CHARGE:
                 SkillInfo hmc = SkillData.getSkillInfoById(HAMMER_SMASH);
                 AffectedArea hmci = AffectedArea.getPassiveAA(chr, HAMMER_SMASH, (byte) slv);
@@ -296,6 +302,7 @@ public class Blaster extends Citizen {
     }
 
     public void reloadCylinder() {
+        setAmmo(getMaxAmmo());
         TemporaryStatManager tsm = chr.getTemporaryStatManager();
         Option o = new Option();
         o.nOption = 1;
