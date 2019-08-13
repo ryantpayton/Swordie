@@ -8,6 +8,7 @@ sm.sendSay("I gave this mission to YOU for a reason. Those Black Wings you took 
 sm.sendSay("I've been watching you. Not everyone can adjust to a weapon like yours, with the mix of melee combat thrown in. Seriously, kid, not too shabby.")
 if sm.sendAskYesNo("Okay, I think you're ready for the next stage, a stage in which you'll be transformed into an unimaginably strong Blaster..."):
     sm.completeQuest(parentID)
+    sm.consumeItem(4034787)
     sm.jobAdvance(3710)
     sm.giveItem(1142243)
     sm.giveItem(1353401)

@@ -3,7 +3,7 @@ SPECIAL_TRAINING_SUPERIOR = 1142245
 MASTERWORK_CHARGES = 1353403
 
 sm.setSpeakerID(ELEX)
-sm.sendNext("Welcome, #h #. You're quite the hero. Look aroudn at this beautiful town. It's worth fighting for... worth dying for... don't you think?")
+sm.sendNext("Welcome, #h #. You're quite the hero. Look around at this beautiful town. It's worth fighting for... worth dying for... don't you think?")
 
 sm.setPlayerAsSpeaker()
 sm.flipDialogue()
