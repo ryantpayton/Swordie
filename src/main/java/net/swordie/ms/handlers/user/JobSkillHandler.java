@@ -359,7 +359,6 @@ public class JobSkillHandler {
             else
                 quest.setProperty(lockID + "", Integer.parseInt(quest.getProperty(lockID + "")) == 1 ? "0" : "1");
 
-            chr.chatMessage(quest.toString());
             chr.write(WvsContext.questRecordExMessage(quest));
         }
         chr.dispose();
