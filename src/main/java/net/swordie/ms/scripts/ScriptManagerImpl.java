@@ -779,27 +779,33 @@ public class ScriptManagerImpl implements ScriptManager {
 		switch (JobConstants.getJobLevel(jobID)) {
 			case 1:
 				spAmount = 5;
-				if (JobConstants.isCygnusKnight(jobID))
-					--spAmount;
+				if (JobConstants.isCygnusKnight(jobID)) {
+                    --spAmount;
+                }
 				break;
 			case 2:
 				spAmount = 4;
-				if (JobConstants.isDualBlade(jobID))
-					++spAmount;
+				if (JobConstants.isDualBlade(jobID)) {
+                    ++spAmount;
+                }
 				break;
 			case 3:
 				spAmount = 4;
-				if (!JobConstants.isDualBlade(jobID))
-					apAmount = 5;
-				else
-					spAmount = 10;
+				if (!JobConstants.isDualBlade(jobID)) {
+                    apAmount = 5;
+                }
+				else {
+                    spAmount = 10;
+                }
 				break;
 			case 4:
 				spAmount = 3;
-				if (!JobConstants.isDualBlade(jobID))
-					apAmount = 5;
-				else
-					spAmount = 10;
+				if (!JobConstants.isDualBlade(jobID)) {
+                    apAmount = 5;
+                }
+				else {
+                    spAmount = 10;
+                }
 				break;
 			case 5:
 				apAmount = 5;
