@@ -2,8 +2,7 @@
 sm.setSpeakerID(1101002)
 if sm.sendAskYesNo("So you killed all the monsters? Are you ready to advance?"):
     if sm.canHold(1142067):
-        sm.setJob(1110)
-        sm.addSP(3)
+        sm.jobAdvance(1110)
         sm.giveItem(1142067)
         sm.completeQuest(parentID)
         sm.dispose()

@@ -34,11 +34,10 @@ else:
     sm.sendNext("No, no, it's no problem at all. The owner of the house has been gone for years. Just as well that someone get some use out of it.")
     sm.dispose()
 
-sm.setJob(2500)
+sm.jobAdvance(2500)
 sm.setSTR(35)
 sm.setDEX(4)
 sm.setAP(23)
-sm.addSP(5, True)
 sm.addMaxHP(150)
 sm.addMaxMP(50)
 sm.giveItem(3010766)

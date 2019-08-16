@@ -1,3 +1,6 @@
+if sm.getFieldID() == 931000020:
+    sm.sendSayOkay("It's been...a really long time since I've been outside the laboratory.")
+    sm.dispose()
 sm.sendNext("Whoa. Wh-what happened? The glass is broken... Did that vibration earlier break it?")
 
 sm.setPlayerAsSpeaker()

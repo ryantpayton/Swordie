@@ -772,8 +772,53 @@ public class ScriptManagerImpl implements ScriptManager {
 	@Override
 	public void jobAdvance(short jobID) {
 		setJob(jobID);
-		addAP(5); //Standard added AP upon Job Advancing
-		addSP(5); //Standard added SP upon Job Advancing
+
+		int apAmount = 0;
+		int spAmount = 0;
+
+		switch (JobConstants.getJobLevel(jobID)) {
+			case 1:
+				spAmount = 5;
+				if (JobConstants.isCygnusKnight(jobID)) {
+                    --spAmount;
+                }
+				break;
+			case 2:
+				spAmount = 4;
+				if (JobConstants.isDualBlade(jobID)) {
+                    ++spAmount;
+                }
+				break;
+			case 3:
+				spAmount = 4;
+				if (!JobConstants.isDualBlade(jobID)) {
+                    apAmount = 5;
+                }
+				else {
+                    spAmount = 10;
+                }
+				break;
+			case 4:
+				spAmount = 3;
+				if (!JobConstants.isDualBlade(jobID)) {
+                    apAmount = 5;
+                }
+				else {
+                    spAmount = 10;
+                }
+				break;
+			case 5:
+				apAmount = 5;
+				spAmount = 0;
+				break;
+			case 6:
+				apAmount = 5;
+				spAmount = 3;
+				break;
+			}
+
+		addAP(apAmount); //Standard added AP upon Job Advancing
+		addSP(spAmount); //Standard added SP upon Job Advancing
 	}
 
 	@Override

@@ -4,7 +4,6 @@ if sm.sendAskYesNo("Your #bDad#k forgot his Lunch Box when he left for the farm 
     if sm.canHold(4032448):
         sm.sendNext("Heehee, my Evan is such a good kid! Head #bleft after you exit the house#k. Rush over to your Dad, I'm sure he's starving.")
         sm.sendNext("Come back to me if you happen to lose the Lunch Box, I'll make his lunch again.")
-        sm.giveItem(4032448)
         sm.startQuest(parentID)
         sm.dispose()
     else:

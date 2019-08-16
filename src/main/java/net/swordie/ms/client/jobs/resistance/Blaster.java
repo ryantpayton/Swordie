@@ -37,6 +37,8 @@ public class Blaster extends Citizen {
     public static final int CANNON_OVERDRIVE = 37121054;
     public static final int HYPER_MAGNUM_PUNCH = 37121052;
 
+    public static final int DETONATE = 37001004;
+    public static final int DETONATE_UP = 37000005;
 
     //Revolving Cannon
     public static final int REVOLVING_CANNON_RELOAD = 37000010;
@@ -53,19 +55,21 @@ public class Blaster extends Citizen {
     public static final int BUNKER_BUSTER_EXPLOSION_5 = 37000012;
     public static final int BUNKER_BUSTER_EXPLOSION_6 = 37000013;
 
-
     //Blast Shield
     public static final int BLAST_SHIELD = 37000006;
     public static final int SHIELD_TRAINING = 37110008;
     public static final int SHIELD_TRAINING_II = 37120009;
     public static final int VITALITY_SHIELD = 37121005;
 
-
     //Combo Training
     public static final int COMBO_TRAINING = 37110009;
     public static final int COMBO_TRAINING_II = 37120012;
 
-
+    // Charged Skills
+    public static final int CHARGE_MASTERY = 37100006;
+    public static final int ADVANCED_CHARGE_MASTERY = 37120011;
+    public static final int BOBBING_CHARGED = 37100002;
+    public static final int WEAVING_CHARGED = 37110004;
 
     private int[] addedSkills = new int[] {
             SECRET_ASSEMBLY,
@@ -180,7 +184,18 @@ public class Blaster extends Citizen {
         Option o2 = new Option();
         Option o3 = new Option();
         switch (attackInfo.skillId) {
+            case DETONATE:
+            case DETONATE_UP:
+                removeAmmo();
+                break;
+            case BOBBING_CHARGED:
+            case WEAVING_CHARGED:
+                if (chr.hasSkill(CHARGE_MASTERY) && getAmmo() > 0 && getAmmo() < getMaxAmmo())
+                    addAmmo(chr.hasSkill(ADVANCED_CHARGE_MASTERY) ? 2 : 1);
+                break;
             case HAMMER_SMASH_CHARGE:
+                if (chr.hasSkill(CHARGE_MASTERY) && getAmmo() > 0 && getAmmo() < getMaxAmmo())
+                    addAmmo(chr.hasSkill(ADVANCED_CHARGE_MASTERY) ? 2 : 1);
                 SkillInfo hmc = SkillData.getSkillInfoById(HAMMER_SMASH);
                 AffectedArea hmci = AffectedArea.getPassiveAA(chr, HAMMER_SMASH, (byte) slv);
                 hmci.setMobOrigin((byte) 0);
@@ -296,6 +311,7 @@ public class Blaster extends Citizen {
     }
 
     public void reloadCylinder() {
+        setAmmo(getMaxAmmo());
         TemporaryStatManager tsm = chr.getTemporaryStatManager();
         Option o = new Option();
         o.nOption = 1;

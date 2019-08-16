@@ -5,8 +5,7 @@ if sm.sendAskYesNo("Now you're a REAL knight. Would you like to take your Job Ad
         sm.dispose()
     else:
         if chr.getJob() == 5110:
-            sm.setJob(5111)
-            sm.addSP(3)
+            sm.jobAdvance(5111)
             sm.giveItem(1142401)
             sm.dispose()
         else:

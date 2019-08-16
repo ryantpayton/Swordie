@@ -14,7 +14,6 @@ else:
 
 sm.consumeItem(darkMarble, 30)
 sm.completeQuestNoRewards(parentID)
-sm.setJob(110) # Fighter
-sm.addSP(5)
+sm.jobAdvance(110) # Fighter
 sm.sendNext("You are now a #b"+ job +"#k.")
 sm.dispose()

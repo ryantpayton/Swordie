@@ -14,7 +14,6 @@ if sm.sendAskYesNo("I would like to appoint a title to you for your activities a
         chrJobID = sm.getChr().getJob()
         sm.jobAdvance(chrJobID+1)
         sm.giveItem(1142069)
-        sm.addAP(3)
         sm.completeQuest(parentID)
     else:
         sm.sendSay("Please make space in your Equip inventory.")

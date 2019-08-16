@@ -3,6 +3,7 @@ sm.flipSpeaker()
 sm.sendNext("Looks like we lost him. Of course, I could've easily handled him, no problemo, but I wasn't sure I could protect you kiddos at the same time. *chuckle* What're you two doing here anyway? Didn't your parents warn you to steer clear of the mines?")
 
 sm.setSpeakerID(2159007)
+sm.flipDialogue()
 sm.sendSay("It's my fault! #h0# was just trying to help! #h0# rescued me!")
 
 sm.flipSpeaker()
@@ -10,6 +11,7 @@ sm.setSpeakerID(2159010)
 sm.sendSay("Rescued you, eh? Hm, you are dressed kind of funny, little girl. Ooooh. Were you a prisoner of the Black Wings ?")
 
 sm.setSpeakerID(2159007)
+sm.flipDialogue()
 sm.sendSay("#b(Vita quickly explains the situation.)#k")
 
 sm.flipSpeaker()

@@ -7,8 +7,7 @@ if sm.canHold(1142491):
     sm.giveItem(1142491)
     sm.startQuest(parentID)
     sm.completeQuest(parentID)
-    sm.setJob(4110)
-    sm.addSP(5)
+    sm.jobAdvance(4110)
     sm.dispose()
 else:
     sm.sendNext("Please make space in your Equip inventory.")

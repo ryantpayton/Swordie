@@ -5,7 +5,6 @@ if sm.sendAskYesNo("The Queen has appointed you the title of nobility for your a
     sm.sendSay("#h #, from now on you are an elite member. You will be given quests with higher level, but you will manage.")
     chrJobID = sm.getChr().getJob()
     sm.jobAdvance(chrJobID+1)
-    sm.addAP(3)
     sm.completeQuest(parentID)
     sm.dispose()
 else:

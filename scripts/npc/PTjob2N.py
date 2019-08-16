@@ -2,11 +2,10 @@
 if not sm.hasQuest(25103):
     sm.giveItem(1142376)
     sm.startQuestNoCheck(25103)
-    sm.setJob(2410)
+    sm.jobAdvance(2410)
     sm.giveSkill(20031209)
     sm.giveSkill(20031260)
     sm.giveSkill(24100003)
-    sm.addSP(3)
     sm.addMaxHP(300)
     sm.addMaxMP(150)
 

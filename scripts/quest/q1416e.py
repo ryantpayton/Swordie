@@ -14,7 +14,6 @@ else:
 
 sm.consumeItem(darkMarble, 30)
 sm.completeQuestNoRewards(parentID)
-sm.setJob(220) # Mage IL
-sm.addSP(5)
+sm.jobAdvance(220) # Mage IL
 sm.sendNext("You are now a #b"+ job +"#k.")
 sm.dispose()

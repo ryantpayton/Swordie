@@ -13,7 +13,7 @@ sm.setSpeakerID(FERDI)
 if sm.sendAskSelectMenu(1, 0) == 1:
     # Demon Slayer
     sm.giveSkill(30010112, -1)
-    sm.setJob(3100)
+    sm.jobAdvance(3100)
     sm.showEffect("Effect/BasicEff.img/JobChangedDemon", 0, 0, 0, -2, -2, False, 0)
     sm.playSound("tutoCommon/JobChanged", 100)
     sm.setSTR(35)
@@ -21,7 +21,6 @@ if sm.sendAskSelectMenu(1, 0) == 1:
     sm.setAP(23)
     sm.addMaxHP(50)
     # Max MP setting to 10
-    sm.addSP(5, True)
     sm.createQuestWithQRValue(23977, "1", False)
     sm.giveSkill(30010111, 1)
     sm.giveAndEquip(1322122)
@@ -31,14 +30,13 @@ if sm.sendAskSelectMenu(1, 0) == 1:
 else:
     # Demon Avanger
     sm.giveSkill(30010112, -1)
-    sm.setJob(3101)
+    sm.jobAdvance(3101)
     sm.showEffect("Effect/BasicEff.img/JobChangedDemon", 0, 0, 0, -2, -2, False, 0)
     sm.playSound("tutoCommon/JobChanged", 100)
     sm.setSTR(4)
     sm.setDEX(4)
     sm.setAP(23)
     sm.addMaxHP(1190)
-    sm.addSP(2, True)
     sm.createQuestWithQRValue(23977, "1", False)
     sm.giveSkill(30010241, 0)
     sm.giveSkill(30010242, 1)
