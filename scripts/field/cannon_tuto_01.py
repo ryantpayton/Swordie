@@ -1,6 +1,12 @@
 SKIPPER = 1096000
 REITING = 1096001
 
+if sm.sendAskYesNo("Would you like to skip the intro?"):
+    sm.completeQuestNoRewards(2568)
+    sm.addLevel(9)
+    sm.warp(912060500)
+    sm.dispose()
+
 sm.lockInGameUI(True)
 sm.curNodeEventEnd(True)
 sm.forcedInput(0)
