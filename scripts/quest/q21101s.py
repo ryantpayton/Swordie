@@ -10,7 +10,7 @@ if sm.sendAskYesNo("#b(Are you certain that you were the hero that wielded the #
     sm.completeQuest(parentID)
     sm.removeSkill(20000297)
     sm.jobAdvance(2100)
-    sm.resetAP(False)
+    sm.resetAP(False, 2100)
     # 444
     sm.removeSkill(20001296)
     sm.giveSkill(20001296)

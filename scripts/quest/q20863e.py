@@ -2,7 +2,7 @@
 sm.setSpeakerID(1101005) # Irena
 
 sm.jobAdvance(1300) # Wind Archer 1st Job
-sm.resetAP(False)
+sm.resetAP(False, 1300)
 sm.giveItem(1452002) # War Bow
 sm.giveItem(2060000, 1000) # Bow Arrow
 

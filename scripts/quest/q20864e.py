@@ -2,7 +2,7 @@
 sm.setSpeakerID(1101006) # Eckhart
 
 sm.jobAdvance(1400) # Night Walker 1st Job
-sm.resetAP(False)
+sm.resetAP(False, 1400)
 sm.giveItem(1472000) # Garnier
 sm.giveItem(2070000, 500) # Subi Throwing Stars
 

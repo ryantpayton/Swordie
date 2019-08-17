@@ -6,7 +6,7 @@ response = sm.sendAskYesNo("So you want to become a Pirate?")
 if response:
     sm.completeQuestNoRewards(parentID)
     sm.jobAdvance(500) # Pirate
-    sm.resetAP(False)
+    sm.resetAP(False, 500)
     sm.giveItem(1492014)
     sm.giveItem(1482014)
     sm.giveItem(2330006, 500)

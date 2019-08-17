@@ -2,7 +2,7 @@
 sm.setSpeakerID(1101007) # Hawkeye
 
 sm.jobAdvance(1500) # Thunder Breaker 1st Job
-sm.resetAP(False)
+sm.resetAP(False, 1500)
 sm.giveItem(1482000) # Steel Knuckler
 
 sm.completeQuest(parentID)

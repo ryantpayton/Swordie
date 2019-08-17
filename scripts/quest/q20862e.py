@@ -2,7 +2,7 @@
 sm.setSpeakerID(1101004) # Oz
 
 sm.jobAdvance(1200) # Blaze Wizard 1st Job
-sm.resetAP(False)
+sm.resetAP(False, 1200)
 sm.giveItem(1382000) # Wooden Staff
 
 sm.completeQuest(parentID)

@@ -11,7 +11,7 @@ sm.setSpeakerID(ELEX)
 # sm.deleteQuest(parentID)
 if sm.sendAskYesNo("So you've finally decided to become a Blaster, eh? Well, you can still change your mind. Just stop our conversation, forfeit this quest, and talk to another class trainer. So, you sure you want to become a Blaster? I'm not interested in teaching you unless you're a hundred percent sure..."):
     sm.jobAdvance(BLASTER1)
-    sm.resetAP(False)
+    sm.resetAP(False, BLASTER1)
     sm.giveItem(HAND_BUSTER)
     sm.giveItem(SPECIAL_TRAINING_BEGINNER)
     sm.giveAndEquip(RUDIMENTARY_CHARGES)
