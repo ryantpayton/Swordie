@@ -1473,36 +1473,36 @@ public class ScriptManagerImpl implements ScriptManager {
 
 	// Mob methods
 	@Override
-	public void spawnMob(int id) {
-		spawnMob(id, 0, 0, false);
+	public Mob spawnMob(int id) {
+		return spawnMob(id, 0, 0, false);
 	}
 
 	@Override
-	public void spawnMob(int id, boolean respawnable) {
-		spawnMob(id, 0, 0, respawnable);
+	public Mob spawnMob(int id, boolean respawnable) {
+		return spawnMob(id, 0, 0, respawnable);
 	}
 
 	@Override
-	public void spawnMobOnChar(int id) {
-		spawnMob(id, chr.getPosition().getX(), chr.getPosition().getY(), false);
+	public Mob spawnMobOnChar(int id) {
+		return spawnMob(id, chr.getPosition().getX(), chr.getPosition().getY(), false);
 	}
 
 	@Override
-	public void spawnMobOnChar(int id, boolean respawnable) {
-		spawnMob(id, chr.getPosition().getX(), chr.getPosition().getY(), respawnable);
+	public Mob spawnMobOnChar(int id, boolean respawnable) {
+		return spawnMob(id, chr.getPosition().getX(), chr.getPosition().getY(), respawnable);
 	}
 
 	@Override
-	public void spawnMob(int id, int x, int y, boolean respawnable) {
-		spawnMob(id, x, y, respawnable, 0);
+	public Mob spawnMob(int id, int x, int y, boolean respawnable) {
+		return spawnMob(id, x, y, respawnable, 0);
 	}
 
-	public void spawnMob(int id, int x, int y, boolean respawnable, long hp) {
-		chr.getField().spawnMob(id, x, y, respawnable, hp);
+	public Mob spawnMob(int id, int x, int y, boolean respawnable, long hp) {
+		return chr.getField().spawnMob(id, x, y, respawnable, hp);
 	}
 
-	public void spawnMobWithAppearType(int id, int x, int y, int appearType, int option) {
-		chr.getField().spawnMobWithAppearType(id, x, y, appearType, option);
+	public Mob spawnMobWithAppearType(int id, int x, int y, int appearType, int option) {
+		return chr.getField().spawnMobWithAppearType(id, x, y, appearType, option);
 	}
 
 	@Override

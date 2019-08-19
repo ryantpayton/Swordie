@@ -1033,6 +1033,9 @@ public enum OutHeader {
     BINGO_CHECK_NUMBER_ACK(1185),
     BINGO_GAME_STATE(1186),
 
+    //
+    GIVE_SPECIAL_SKILL_BAR(1274), // Used for Skills in certain bosses, such as Demian
+
     // CScriptMan::OnPacket
     SCRIPT_MESSAGE(1281),
 

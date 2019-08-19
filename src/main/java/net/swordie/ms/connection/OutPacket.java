@@ -2,15 +2,13 @@ package net.swordie.ms.connection;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufAllocator;
-import net.swordie.ms.client.guild.Guild;
 import net.swordie.ms.handlers.header.OutHeader;
-import org.apache.log4j.LogManager;
 import net.swordie.ms.util.FileTime;
 import net.swordie.ms.util.Position;
 import net.swordie.ms.util.Rect;
 import net.swordie.ms.util.Util;
+import org.apache.log4j.LogManager;
 
-import java.io.ByteArrayOutputStream;
 import java.time.LocalDateTime;
 import java.util.Arrays;
 
@@ -98,6 +96,15 @@ public class OutPacket extends Packet {
      */
     public void encodeArr(byte[] bArr) {
         baos.writeBytes(bArr);
+    }
+
+    /**
+     * Encodes a byte array to this OutPacket.
+     *
+     * @param arr the byte array, in string format (may contain '|' and whitespace to seperate bytes)
+     */
+    public void encodeArr(String arr) {
+        encodeArr(Util.getByteArrayByString(arr));
     }
 
     /**

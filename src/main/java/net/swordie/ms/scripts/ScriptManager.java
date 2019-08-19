@@ -749,7 +749,7 @@ public interface ScriptManager extends Observer {
 	 * @param mobID
 	 * 		The ID of the mob to spawn.
 	 */
-	void spawnMobOnChar(int mobID);
+	Mob spawnMobOnChar(int mobID);
 
 	/**
 	 * Spawns a mob on the {@link Char} linked to the {@link ScriptManager}.
@@ -760,7 +760,7 @@ public interface ScriptManager extends Observer {
 	 * @param respawnable
 	 * 		The true/false defining if the mob is respawnable.
 	 */
-	void spawnMobOnChar(int mobID, boolean respawnable);
+	Mob spawnMobOnChar(int mobID, boolean respawnable);
 
 	/**
 	 * Spawns a defined mob.
@@ -769,7 +769,7 @@ public interface ScriptManager extends Observer {
 	 * @param mobID
 	 * 		The ID of the mob to spawn.
 	 */
-	void spawnMob(int mobID);
+	Mob spawnMob(int mobID);
 
 	/**
 	 * Spawns a defined mob.
@@ -780,7 +780,7 @@ public interface ScriptManager extends Observer {
 	 * @param respawnable
 	 * 		The true/false defining if the mob is respawnable.
 	 */
-	void spawnMob(int mobID, boolean respawnable);
+	Mob spawnMob(int mobID, boolean respawnable);
 
 	/**
 	 * Spawns a defined mob at an x/y location.
@@ -795,7 +795,7 @@ public interface ScriptManager extends Observer {
 	 * @param respawnable
 	 * 		The true/false defining if the mob is respawnable.
 	 */
-	void spawnMob(int mobID, int x, int y, boolean respawnable);
+	Mob spawnMob(int mobID, int x, int y, boolean respawnable);
 
 	/**
 	 * Spawns a defined mob at an x/y location.
@@ -812,7 +812,7 @@ public interface ScriptManager extends Observer {
 	 * @param hp
 	 * 		The hp that the mob should start out with
 	 */
-	void spawnMob(int mobID, int x, int y, boolean respawnable, long hp);
+	Mob spawnMob(int mobID, int x, int y, boolean respawnable, long hp);
 
 	/**
 	 * Removes the specified mob from the {@link Char}'s field.

@@ -21,11 +21,13 @@ import net.swordie.ms.life.*;
 import net.swordie.ms.life.drop.Drop;
 import net.swordie.ms.life.drop.DropInfo;
 import net.swordie.ms.life.mob.Mob;
+import net.swordie.ms.life.mob.skill.MobSkillStat;
 import net.swordie.ms.life.npc.Npc;
 import net.swordie.ms.loaders.ItemData;
 import net.swordie.ms.loaders.MobData;
 import net.swordie.ms.loaders.SkillData;
 import net.swordie.ms.loaders.containerclasses.ItemInfo;
+import net.swordie.ms.loaders.containerclasses.MobSkillInfo;
 import net.swordie.ms.scripts.ScriptManager;
 import net.swordie.ms.scripts.ScriptManagerImpl;
 import net.swordie.ms.scripts.ScriptType;
@@ -455,6 +457,12 @@ public class Field {
         }
     }
 
+    public void spawnLifeForTime(Life life, int timeMS) {
+        spawnLife(life, null);
+        ScheduledFuture sf = EventManager.addEvent(() -> removeLife(life.getObjectId(), true), timeMS, TimeUnit.MILLISECONDS);
+        addLifeSchedule(life, sf);
+    }
+
     public void spawnLife(Life life, Char onlyChar) {
 
         addLife(life);
@@ -657,8 +665,15 @@ public class Field {
     public void spawnAffectedArea(AffectedArea aa) {
         addLife(aa);
         SkillInfo si = SkillData.getSkillInfoById(aa.getSkillID());
-        if (si != null) {
-            int duration = aa.getDuration() == 0 ? si.getValue(time, aa.getSlv()) * 1000 : aa.getDuration();
+        MobSkillInfo msi = SkillData.getMobSkillInfoByIdAndLevel(aa.getSkillID(), aa.getSlv());
+        if (si != null || (aa.getMobOrigin() > 0 && msi != null)) {
+            int duration = 0;
+            if (aa.getMobOrigin() > 0 && msi != null) {
+                duration = aa.getDuration() == 0 ? msi.getSkillStatIntValue(MobSkillStat.time) * 1000 : aa.getDuration();
+            }
+            if (si != null) {
+                duration = aa.getDuration() == 0 ? si.getValue(time, aa.getSlv()) * 1000 : aa.getDuration();
+            }
             if (duration > 0) {
                 ScheduledFuture sf = EventManager.addEvent(() -> removeLife(aa.getObjectId(), true), duration);
                 addLifeSchedule(aa, sf);
@@ -672,7 +687,7 @@ public class Field {
     public void spawnAffectedAreaAndRemoveOld(AffectedArea aa) {
         AffectedArea oldAA = (AffectedArea) getLifes().values().stream()
                 .filter(l -> l instanceof AffectedArea &&
-                        ((AffectedArea) l).getCharID() == aa.getCharID() &&
+                        ((AffectedArea) l).getOwner() == aa.getOwner() &&
                         ((AffectedArea) l).getSkillID() == aa.getSkillID())
                 .findFirst().orElse(null);
         if (oldAA != null) {
