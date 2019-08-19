@@ -39,6 +39,9 @@ public class Clock {
             case StopWatch:
                 field.broadcastPacket(FieldPacket.clock(ClockPacket.stopWatch(seconds)));
                 break;
+            case TimerGauge:
+                field.broadcastPacket(FieldPacket.clock(ClockPacket.timerGauge(seconds*1000,seconds*1000)));
+                break;
         }
         field.setClock(this);
         clockRemovalTimer = EventManager.addEvent(this::removeClock, seconds, TimeUnit.SECONDS);
@@ -52,6 +55,9 @@ public class Clock {
                     break;
                 case StopWatch:
                     chr.write(FieldPacket.clock(ClockPacket.stopWatch((int) getRemainingTime())));
+                    break;
+                case TimerGauge:
+                    chr.write(FieldPacket.clock(ClockPacket.timerGauge(seconds*1000,seconds*1000)));
                     break;
             }
         }

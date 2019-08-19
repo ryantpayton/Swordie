@@ -1,0 +1,28 @@
+firstPhaseHeadID=9390600
+secondPhaseHeadID=9390601
+thirdPhaseHeadID=9390602
+if sm.golluxMapAlreadyVisited() is not True:
+    sm.spawnGollux(0)
+    sm.addCurrentGolluxMap()
+elif sm.hasMobById(secondPhaseHeadID):
+    sm.changeFootHold("phase2-1", True)
+    sm.changeFootHold("phase2-2", True)
+elif sm.hasMobById(thirdPhaseHeadID):
+    sm.changeFootHold("phase2-1", True)
+    sm.changeFootHold("phase2-2", True)
+    sm.changeFootHold("phase3", True)
+if sm.hasMobById(firstPhaseHeadID):
+    sm.waitForMobDeath(firstPhaseHeadID)
+    sm.changeFootHold("phase2-1", True)
+    sm.changeFootHold("phase2-2", True)
+    sm.spawnGollux(1)
+if sm.hasMobById(secondPhaseHeadID):
+    sm.waitForMobDeath(secondPhaseHeadID)
+    sm.changeFootHold("phase3", True)
+    sm.spawnGollux(2)
+    sm.createTimerGauge(100)
+    sm.invokeAfterDelay(100000,"warpInstanceOut",863010700)
+if sm.hasMobById(thirdPhaseHeadID):
+    sm.waitForMobDeath(thirdPhaseHeadID)
+    sm.warpInstanceOut(863010700)
+    sm.clearGolluxClearedMaps()

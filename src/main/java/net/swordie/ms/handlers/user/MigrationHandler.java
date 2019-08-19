@@ -384,4 +384,14 @@ public class MigrationHandler {
         inPacket.decodeInt(); // tick
     }
 
+    @Handler(op = InHeader.GOLLUX_OUT_REQUEST)
+    public static void handleGolluxOutReqeust(Char chr, InPacket inPacket) {
+        if(chr.getFieldID()/1000000 != 863) {
+            return;
+        }
+        String script = "GolluxOutReqeust";
+        int npcId = 9010000; //admin npc
+        chr.getScriptManager().startScript(npcId, npcId, script, ScriptType.Npc);
+    }
+
 }

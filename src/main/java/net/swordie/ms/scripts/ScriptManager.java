@@ -3,10 +3,7 @@ package net.swordie.ms.scripts;
 import net.swordie.ms.client.character.Char;
 import net.swordie.ms.client.character.skills.temp.CharacterTemporaryStat;
 import net.swordie.ms.client.party.Party;
-import net.swordie.ms.enums.InvType;
-import net.swordie.ms.enums.ObtacleAtomEnum;
-import net.swordie.ms.enums.UIType;
-import net.swordie.ms.enums.WeatherEffNoticeType;
+import net.swordie.ms.enums.*;
 import net.swordie.ms.life.drop.Drop;
 import net.swordie.ms.life.mob.Mob;
 import net.swordie.ms.util.Position;
@@ -867,6 +864,8 @@ public interface ScriptManager extends Observer {
 	 */
 	void spawnReactor(int reactorId, int x, int y);
 
+	void spawnReactorInState(int reactorId, int x, int y, byte state);
+
 	/**
 	 * Returns whether or not there is a Reactor on the {@link Char} field.
 	 *
@@ -1451,6 +1450,8 @@ public interface ScriptManager extends Observer {
 	 */
 	void createClock(int hours, int minutes, int seconds);
 
+	Clock createTimerGauge(int seconds);
+
 	// Other methods ---------------------------------------------------------------------------------------------------
 
 	/**
@@ -1568,4 +1569,24 @@ public interface ScriptManager extends Observer {
 									  int executes, String methodName, Object...args);
 
 	int playVideoByScript(String videoPath);
+
+	void openGolluxPortal();
+
+	void addClearedGolluxMap();
+
+	void updateGolluxMap();
+
+	void addCurrentGolluxMap();
+
+	boolean golluxMapAlreadyVisited();
+
+	GolluxDifficultyType getGolluxDifficulty();
+
+	void spawnGollux(byte phase);
+
+	void changeFootHold(String footHoldName, boolean show);
+
+	boolean hasMobById(int mobID);
+
+	void clearGolluxClearedMaps();
 }
