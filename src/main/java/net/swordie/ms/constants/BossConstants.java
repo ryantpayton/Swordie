@@ -102,5 +102,7 @@ public class BossConstants {
     //  Gollux ---------------------------------------------------------------------------------------------------------
     public static final int[][] GOLLUX_HP_MULTIPLIERS = {{1,60,300,500},{1,10,150,3000},{1,10,300,30000}};
     public static final int GOLLUX_FIRST_MAP = 863010100;
+
+
     // TODO More bosses to be noted down...
 }
