@@ -15,6 +15,7 @@ import net.swordie.ms.client.character.skills.info.ForceAtomInfo;
 import net.swordie.ms.client.jobs.resistance.OpenGate;
 import net.swordie.ms.client.trunk.TrunkDlg;
 import net.swordie.ms.connection.OutPacket;
+import net.swordie.ms.constants.BossConstants;
 import net.swordie.ms.constants.ItemConstants;
 import net.swordie.ms.constants.SkillConstants;
 import net.swordie.ms.enums.*;
@@ -34,10 +35,7 @@ import net.swordie.ms.world.field.obtacleatom.ObtacleAtomInfo;
 import net.swordie.ms.world.field.obtacleatom.ObtacleInRowInfo;
 import net.swordie.ms.world.field.obtacleatom.ObtacleRadianInfo;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Set;
-import java.util.TreeMap;
+import java.util.*;
 
 public class FieldPacket {
 
@@ -983,6 +981,43 @@ public class FieldPacket {
             outPacket.encodeInt(1); // slv (?)
 
             outPacket.encodeArr(new byte[22]); // unknown, from sniff
+        }
+
+        return outPacket;
+    }
+
+    public static OutPacket golluxOpenPortal(Char chr, String action, int show){
+        OutPacket outPacket = new OutPacket(OutHeader.GOLLUX_PORTAL_OPEN);
+
+        outPacket.encodeString(action);
+        outPacket.encodeInt(show);
+
+        return outPacket;
+    }
+
+    public static OutPacket golluxUpdateMiniMap(Char chr){
+        OutPacket outPacket = new OutPacket(OutHeader.GOLLUX_MINIMAP);
+
+        Map<String, Object> golluxMaps = chr.getOrCreateFieldByCurrentInstanceType(BossConstants.GOLLUX_FIRST_MAP).getProperties();
+        outPacket.encodeInt(golluxMaps.size());
+        for(Map.Entry<String, Object> entry:golluxMaps.entrySet()) {
+            outPacket.encodeString(entry.getKey());
+            outPacket.encodeString(String.valueOf(entry.getValue()));
+        }
+        return outPacket;
+    }
+
+    public static OutPacket footholdAppear(String footHoldName, boolean show) {
+        OutPacket outPacket = new OutPacket(OutHeader.FOOT_HOLD_APPEAR);
+
+        int loopSize = 1;
+
+        outPacket.encodeInt(loopSize);
+        for (int i = 0; i < loopSize; i++) {
+            outPacket.encodeString(footHoldName);
+            outPacket.encodeByte(0);
+            outPacket.encodeInt(show ? 1 : 0);
+            outPacket.encodePositionInt(new Position());
         }
 
         return outPacket;
