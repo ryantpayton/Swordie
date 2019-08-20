@@ -63,20 +63,12 @@ public class AdminCommands {
     public static class Test extends AdminCommand {
 
         public static void execute(Char chr, String[] args) {
-            Option o = new Option();
-            o.nOption = 1;
-            o.rOption = 800;
-            o.tOption = 5; // so it fades away
+            Field field = chr.getField();
+            DemianFlyingSword sword = DemianFlyingSword.createDemianFlyingSword(chr, (Mob) field.getLifeByTemplateId(8880110));
 
-            CharacterTemporaryStat cts = CharacterTemporaryStat.getByBitPos(Integer.parseInt(args[1]));
-            if (cts == null) {
-                chr.chatMessage("Could not find cts with bitpos " + args[1]);
-                return;
-            }
-            TemporaryStatManager tsm = chr.getTemporaryStatManager();
-            tsm.putCharacterStatValue(cts, o);
-            tsm.sendSetStatPacket();
-            System.out.println(String.format("CTS %s = %s", args[1], cts));
+            field.spawnLife(sword, null); // create
+            sword.startPath();
+            sword.target();
         }
     }
 
