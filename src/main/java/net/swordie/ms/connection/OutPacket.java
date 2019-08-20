@@ -2,6 +2,8 @@ package net.swordie.ms.connection;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufAllocator;
+import io.netty.buffer.PooledByteBufAllocator;
+import net.swordie.ms.client.guild.Guild;
 import net.swordie.ms.handlers.header.OutHeader;
 import net.swordie.ms.util.FileTime;
 import net.swordie.ms.util.Position;
@@ -21,17 +23,19 @@ public class OutPacket extends Packet {
 
     /**
      * Creates a new OutPacket with a given op. Immediately encodes the op.
+     *
      * @param op The opcode of this OutPacket.
      */
     public OutPacket(short op) {
         super(new byte[]{});
-        baos = ByteBufAllocator.DEFAULT.buffer();
+        baos = PooledByteBufAllocator.DEFAULT.buffer();
         encodeShort(op);
         this.op = op;
     }
 
     /**
      * Creates a new OutPacket with a given op. Immediately encodes the op.
+     *
      * @param op The opcode of this OutPacket.
      */
     public OutPacket(int op) {
@@ -48,6 +52,7 @@ public class OutPacket extends Packet {
 
     /**
      * Creates a new OutPacket with given data.
+     *
      * @param data The data this net.swordie.ms.connection.packet has to be initialized with.
      */
     public OutPacket(byte[] data) {
@@ -58,6 +63,7 @@ public class OutPacket extends Packet {
 
     /**
      * Creates a new OutPacket with a given header. Immediately encodes the header's short value.
+     *
      * @param header The header of this OutPacket.
      */
     public OutPacket(OutHeader header) {
@@ -66,6 +72,7 @@ public class OutPacket extends Packet {
 
     /**
      * Returns the header of this OutPacket.
+     *
      * @return the header of this OutPacket.
      */
     @Override
@@ -75,6 +82,7 @@ public class OutPacket extends Packet {
 
     /**
      * Encodes a single byte to this OutPacket.
+     *
      * @param b The int to encode as a byte. Will be downcast, so be careful.
      */
     public void encodeByte(int b) {
@@ -83,6 +91,7 @@ public class OutPacket extends Packet {
 
     /**
      * Encodes a byte to this OutPacket.
+     *
      * @param b The byte to encode.
      */
     public void encodeByte(byte b) {
@@ -92,6 +101,7 @@ public class OutPacket extends Packet {
     /**
      * Encodes a byte array to this OutPacket.
      * Named like this to prevent autocompletion of "by" to "byteArray" or similar names.
+     *
      * @param bArr The byte array to encode.
      */
     public void encodeArr(byte[] bArr) {
@@ -109,6 +119,7 @@ public class OutPacket extends Packet {
 
     /**
      * Encodes a character to this OutPacket, UTF-8.
+     *
      * @param c The character to encode
      */
     public void encodeChar(char c) {
@@ -117,6 +128,7 @@ public class OutPacket extends Packet {
 
     /**
      * Encodes a boolean to this OutPacket.
+     *
      * @param b The boolean to encode (0/1)
      */
     public void encodeByte(boolean b) {
@@ -125,6 +137,7 @@ public class OutPacket extends Packet {
 
     /**
      * Encodes a short to this OutPacket, in little endian.
+     *
      * @param s The short to encode.
      */
     public void encodeShort(short s) {
@@ -141,6 +154,7 @@ public class OutPacket extends Packet {
 
     /**
      * Encodes an integer to this OutPacket, in little endian.
+     *
      * @param i The integer to encode.
      */
     public void encodeInt(int i) {
@@ -149,6 +163,7 @@ public class OutPacket extends Packet {
 
     /**
      * Encodes a long to this OutPacket, in little endian.
+     *
      * @param l The long to encode.
      */
     public void encodeLong(long l) {
@@ -158,13 +173,14 @@ public class OutPacket extends Packet {
     /**
      * Encodes a String to this OutPacket.
      * Structure: short(size) + char array of <code>s</code>.
+     *
      * @param s The String to encode.
      */
     public void encodeString(String s) {
-        if(s == null) {
+        if (s == null) {
             s = "";
         }
-        if(s.length() > Short.MAX_VALUE) {
+        if (s.length() > Short.MAX_VALUE) {
             log.error("Tried to encode a string that is too big.");
             return;
         }
@@ -175,19 +191,20 @@ public class OutPacket extends Packet {
     /**
      * Writes a String as a character array to this OutPacket.
      * If <code>s.length()</code> is smaller than length, the open spots are filled in with zeros.
-     * @param s The String to encode.
+     *
+     * @param s      The String to encode.
      * @param length The maximum length of the buffer.
      */
     public void encodeString(String s, short length) {
-        if(s == null) {
+        if (s == null) {
             s = "";
         }
-        if(s.length() > 0) {
+        if (s.length() > 0) {
             for (char c : s.toCharArray()) {
                 encodeChar(c);
             }
         }
-        for(int i = s.length(); i < length; i++) {
+        for (int i = s.length(); i < length; i++) {
             encodeByte((byte) 0);
         }
     }
@@ -217,6 +234,7 @@ public class OutPacket extends Packet {
 
     /**
      * Returns the length of the ByteArrayOutputStream.
+     *
      * @return The length of baos.
      */
     @Override
@@ -247,7 +265,7 @@ public class OutPacket extends Packet {
     }
 
     public void encodeFT(FileTime fileTime) {
-        if(fileTime == null) {
+        if (fileTime == null) {
             encodeLong(0);
         } else {
             fileTime.encode(this);
@@ -255,7 +273,7 @@ public class OutPacket extends Packet {
     }
 
     public void encodePosition(Position position) {
-        if(position != null) {
+        if (position != null) {
             encodeShort(position.getX());
             encodeShort(position.getY());
         } else {
