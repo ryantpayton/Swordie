@@ -983,6 +983,7 @@ public class FieldPacket {
         return outPacket;
     }
 
+    
     public static OutPacket golluxOpenPortal(Char chr, String action, int show){
         OutPacket outPacket = new OutPacket(OutHeader.GOLLUX_PORTAL_OPEN);
 

@@ -84,6 +84,8 @@ public class BossConstants {
 //  Cygnus ---------------------------------------------------------------------------------------------------------
     public static final int ARKARIUM_TIME = 30 * 60; // 30 min timer
 
+
+
     //  Demian -------------------------------------------------------------------------------------------------------------
     public static final int BRAND_OF_SACRIFICE = 80001974; // Skill ID
     public static final long DEMIAN_HP = 840000000000L;
