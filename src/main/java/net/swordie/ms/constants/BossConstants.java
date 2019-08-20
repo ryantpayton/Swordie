@@ -63,30 +63,30 @@ public class BossConstants {
     public static final int MAGNUS_PURPLE_ATOM_DAMAGE = 100; // % of Max HP
 
 
-    //  Horntail ---------------------------------------------------------------------------------------------------------
+    //  Horntail -------------------------------------------------------------------------------------------------------
 
     //      General
     public static final int EASY_HORNTAIL_TIME = 75 * 60; // 1 hr, 15 min timer
     public static final int CHAOS_HORNTAIL_TIME = 150 * 60; // 2 hrs, 30 min timer
 
-//  Hilla ---------------------------------------------------------------------------------------------------------
+//  Hilla --------------------------------------------------------------------------------------------------------------
 
     //      General
     public static final int EASY_HILLA_TIME = 30 * 60; // 1 hr, 15 min timer
     public static final int NORMAL_HILLA_TIME = 150 * 60; // 2 hrs, 30 min timer
 
-//  Von Leon ---------------------------------------------------------------------------------------------------------
+//  Von Leon -----------------------------------------------------------------------------------------------------------
     public static final int VON_LEON_TIME = 30 * 60; // 30 min timer
 
-//  Cygnus ---------------------------------------------------------------------------------------------------------
+//  Cygnus -------------------------------------------------------------------------------------------------------------
     public static final int CYGNUS_TIME = 30 * 60; // 30 min timer
 
-//  Cygnus ---------------------------------------------------------------------------------------------------------
+//  Cygnus -------------------------------------------------------------------------------------------------------------
     public static final int ARKARIUM_TIME = 30 * 60; // 30 min timer
 
 
 
-    //  Demian -------------------------------------------------------------------------------------------------------------
+//  Demian -------------------------------------------------------------------------------------------------------------
     public static final int BRAND_OF_SACRIFICE = 80001974; // Skill ID
     public static final long DEMIAN_HP = 840000000000L;
     public static final int DEMIAN_NORMAL_TEMPLATE_ID = 8880110;
@@ -101,9 +101,6 @@ public class BossConstants {
     public static final int DEMIAN_STIGMA_INCINERATE_OBJECT_RESPAWN_TIME = 20 * 1000; // Stigma Pillar spawns every 20seconds
     public static final int DEMIAN_STIGMA_INCINERATE_OBJECT_DURATION_TIME = 10 * 1000; // Stigma Pillar lasts 10 seconds
 
-    //  Gollux ---------------------------------------------------------------------------------------------------------
-    public static final int[][] GOLLUX_HP_MULTIPLIERS = {{1,60,300,500},{1,10,150,3000},{1,10,300,30000}};
-    public static final int GOLLUX_FIRST_MAP = 863010100;
 
 
     // TODO More bosses to be noted down...

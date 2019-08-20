@@ -38,6 +38,7 @@ public class Instance {
     private long warpOutTimeout;
     private List<Char> chars = new ArrayList<>();
     private int forcedReturnPortalId = -1;
+    public boolean initialised = false;
 
     public Instance(Char chr) {
         this.chr = chr;
