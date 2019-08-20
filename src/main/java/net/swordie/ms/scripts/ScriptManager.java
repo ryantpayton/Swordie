@@ -1570,7 +1570,7 @@ public interface ScriptManager extends Observer {
 
 	int playVideoByScript(String videoPath);
 
-	void openGolluxPortal();
+	void openGolluxPortal(String action, int show);
 
 	void addClearedGolluxMap();
 
@@ -1589,4 +1589,6 @@ public interface ScriptManager extends Observer {
 	boolean hasMobById(int mobID);
 
 	void clearGolluxClearedMaps();
+
+	void spawnMobRespawnable(int id, int x, int y, boolean respawnable, long hp, int respawnTime);
 }

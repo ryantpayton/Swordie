@@ -27,6 +27,7 @@ import net.swordie.ms.client.character.quest.QuestManager;
 import net.swordie.ms.client.character.runestones.RuneStone;
 import net.swordie.ms.client.character.skills.*;
 import net.swordie.ms.client.character.skills.info.SkillInfo;
+import net.swordie.ms.client.character.skills.temp.CharacterTemporaryStat;
 import net.swordie.ms.client.character.skills.temp.TemporaryStatManager;
 import net.swordie.ms.client.friend.Friend;
 import net.swordie.ms.client.friend.FriendFlag;
@@ -4743,6 +4744,23 @@ public class Char {
 
 	public void addItemBoughtAmount(long itemId, int amount) {
 		getItemBoughtAmounts().put(itemId, amount);
+	}
+
+	public void increaseGolluxStack() {
+		int maxStack = 5;
+		TemporaryStatManager tsm = getTemporaryStatManager();
+		int stack = tsm.getCurrentStats().get(Stigma)!=null ? tsm.getCurrentStats().get(Stigma).get(0).nOption : 0;
+		stack++;
+		Option o = new Option();
+		o.nOption = stack;
+		o.rOption = 800;
+		tsm.putCharacterStatValue(Stigma, o);
+		// no tOption  as it would probably be permanent (till death)
+		tsm.sendSetStatPacket();
+		chatMessage(String.valueOf(stack));
+		if(stack >= maxStack){
+			this.damage(getHP());
+		}
 	}
 
 }

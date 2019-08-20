@@ -1,9 +1,13 @@
-firstPhaseHeadID=9390600
-secondPhaseHeadID=9390601
-thirdPhaseHeadID=9390602
+firstPhaseHeadID = 9390600
+secondPhaseHeadID = 9390601
+thirdPhaseHeadID = 9390602
+golluxMobID = 9390623
+secondGolluxMobID = 9390622
 if sm.golluxMapAlreadyVisited() is not True:
     sm.spawnGollux(0)
     sm.addCurrentGolluxMap()
+    sm.spawnMobRespawnable(golluxMobID, -850, 0, True, 1, 10)
+    sm.spawnMobRespawnable(secondGolluxMobID, 850, 0, True, 1, 10)
 elif sm.hasMobById(secondPhaseHeadID):
     sm.changeFootHold("phase2-1", True)
     sm.changeFootHold("phase2-2", True)
@@ -21,7 +25,7 @@ if sm.hasMobById(secondPhaseHeadID):
     sm.changeFootHold("phase3", True)
     sm.spawnGollux(2)
     sm.createTimerGauge(100)
-    sm.invokeAfterDelay(100000,"warpInstanceOut",863010700)
+    sm.invokeAfterDelay(100000, "warpInstanceOut", 863010700)
 if sm.hasMobById(thirdPhaseHeadID):
     sm.waitForMobDeath(thirdPhaseHeadID)
     sm.warpInstanceOut(863010700)

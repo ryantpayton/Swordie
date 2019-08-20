@@ -48,6 +48,7 @@ import java.time.LocalDateTime;
 import java.util.*;
 
 import static net.swordie.ms.client.character.skills.temp.CharacterTemporaryStat.RideVehicle;
+import static net.swordie.ms.client.character.skills.temp.CharacterTemporaryStat.Unk459;
 import static net.swordie.ms.enums.AccountType.*;
 import static net.swordie.ms.enums.ChatType.*;
 import static net.swordie.ms.enums.InventoryOperation.Add;
@@ -62,8 +63,20 @@ public class AdminCommands {
     public static class Test extends AdminCommand {
 
         public static void execute(Char chr, String[] args) {
-            Android andr = new Android(Integer.parseInt(args[1]), chr, (short) 0, (short) 1000, (short) 1000, "Sword");
-            chr.write(AndroidPacket.created(andr));
+            Option o = new Option();
+            o.nOption = 1;
+            o.rOption = 800;
+            o.tOption = 5; // so it fades away
+
+            CharacterTemporaryStat cts = CharacterTemporaryStat.getByBitPos(Integer.parseInt(args[1]));
+            if (cts == null) {
+                chr.chatMessage("Could not find cts with bitpos " + args[1]);
+                return;
+            }
+            TemporaryStatManager tsm = chr.getTemporaryStatManager();
+            tsm.putCharacterStatValue(cts, o);
+            tsm.sendSetStatPacket();
+            System.out.println(String.format("CTS %s = %s", args[1], cts));
         }
     }
 

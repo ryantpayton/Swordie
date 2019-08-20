@@ -2588,9 +2588,8 @@ public class ScriptManagerImpl implements ScriptManager {
 		return memory;
 	}
 
-	public void openGolluxPortal() {
-		chr.getField().broadcastPacket(FieldPacket.golluxOpenPortal(chr, "open", 1));
-		chr.getField().broadcastPacket(FieldPacket.golluxOpenPortal(chr, "clear", 1));
+	public void openGolluxPortal(String action, int show) {
+		chr.getField().broadcastPacket(FieldPacket.golluxOpenPortal(chr, action, show));
 	}
 
 	public void addClearedGolluxMap() {
@@ -2648,6 +2647,10 @@ public class ScriptManagerImpl implements ScriptManager {
 
 	public void clearGolluxClearedMaps() {
 		chr.getOrCreateFieldByCurrentInstanceType(BossConstants.GOLLUX_FIRST_MAP).getProperties().clear();
+	}
+
+	public void spawnMobRespawnable(int id, int x, int y, boolean respawnable, long hp, int respawnTime){
+		chr.getField().spawnMobRespawnable(id, x, y, respawnable, hp, respawnTime);
 	}
 
 }

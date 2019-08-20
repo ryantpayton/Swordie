@@ -1421,4 +1421,23 @@ public class Field {
     public boolean getChangeToChannelOnLeave() {
         return changeToChannelOnLeave;
     }
+
+    public Mob spawnMobRespawnable(int id, int x, int y, boolean respawnable, long hp, int respawnTime) {
+        Mob mob = MobData.getMobDeepCopyById(id);
+        Position pos = new Position(x, y);
+        mob.setPosition(pos.deepCopy());
+        mob.setPrevPos(pos.deepCopy());
+        mob.setPosition(pos.deepCopy());
+        mob.setNotRespawnable(!respawnable);
+        if (hp > 0) {
+            mob.setHp(hp);
+            mob.setMaxHp(hp);
+        }
+        if (mob.getField() == null) {
+            mob.setField(this);
+        }
+        spawnLife(mob, null);
+        EventManager.addEvent(() -> spawnMobRespawnable(id, x, y, respawnable, hp, respawnTime), respawnTime*1000); //milliseconds to seconds.
+        return mob;
+    }
 }
