@@ -1,5 +1,6 @@
 package net.swordie.ms.connection.packet;
 
+import jnr.ffi.annotations.Out;
 import net.swordie.ms.client.character.Char;
 import net.swordie.ms.life.DeathType;
 import net.swordie.ms.life.mob.*;
@@ -14,6 +15,7 @@ import net.swordie.ms.loaders.containerclasses.MobSkillInfo;
 import net.swordie.ms.util.Position;
 import net.swordie.ms.util.Rect;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -371,6 +373,17 @@ public class MobPool {
             outPacket.encodeInt(stopDuration);
         }
         outPacket.encodeByte(stopEscort);
+        return outPacket;
+    }
+    public static OutPacket mobAttackBlock(Mob mob, ArrayList<Integer> skillsIDS){
+        OutPacket outPacket = new OutPacket(OutHeader.MOB_ATTACK_BLOCK);
+
+        outPacket.encodeInt(mob.getObjectId());
+        outPacket.encodeInt(skillsIDS.size());
+        for (int skillID : skillsIDS){
+            outPacket.encodeInt(skillID);
+        }
+
         return outPacket;
     }
 }

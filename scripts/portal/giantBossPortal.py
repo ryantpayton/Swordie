@@ -85,4 +85,3 @@ else:
         sm.chat("Defeat all monsters first.")
     else:
         sm.warp(innerDict[parentID][0], innerDict[parentID][1])
-sm.dispose()

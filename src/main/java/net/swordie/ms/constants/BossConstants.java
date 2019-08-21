@@ -104,6 +104,9 @@ public class BossConstants {
         //  Gollux ---------------------------------------------------------------------------------------------------------
     public static final int[][] GOLLUX_HP_MULTIPLIERS = {{1,60,300,500},{1,10,150,3000},{1,10,300,30000}};
     public static final int GOLLUX_FIRST_MAP = 863010100;
+    public static final int GOLLUX_RIGHT_SHOULDER = 863010330;
+    public static final int GOLLUX_LEFT_SHOULDER = 863010430;
+    public static final int GOLLUX_ABDOMEN = 863010240;
 
 
 

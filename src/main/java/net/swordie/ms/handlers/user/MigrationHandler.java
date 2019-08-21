@@ -386,7 +386,7 @@ public class MigrationHandler {
 
     @Handler(op = InHeader.GOLLUX_OUT_REQUEST)
     public static void handleGolluxOutReqeust(Char chr, InPacket inPacket) {
-        if(chr.getFieldID()/1000000 != 863) {
+        if(chr.getFieldID() / 1000000 != 863) {
             return;
         }
         String script = "GolluxOutReqeust";

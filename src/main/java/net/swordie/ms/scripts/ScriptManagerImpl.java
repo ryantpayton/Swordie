@@ -2618,9 +2618,9 @@ public class ScriptManagerImpl implements ScriptManager {
 		Map<String, Object> golluxMaps = chr.getOrCreateFieldByCurrentInstanceType(BossConstants.GOLLUX_FIRST_MAP).getProperties();
 		byte difficulty = 0;
 		ArrayList<Integer> golluxMainParts = new ArrayList<>();
-		golluxMainParts.add(863010240); // Abdomen map id
-		golluxMainParts.add(863010330); // Right shoulder map id
-		golluxMainParts.add(863010430); // Left Shoulder map id
+		golluxMainParts.add(BossConstants.GOLLUX_ABDOMEN);
+		golluxMainParts.add(BossConstants.GOLLUX_RIGHT_SHOULDER);
+		golluxMainParts.add(BossConstants.GOLLUX_LEFT_SHOULDER);
 		for (Map.Entry<String, Object> entry : golluxMaps.entrySet()) {
 			if (golluxMainParts.contains(Integer.valueOf(entry.getKey())) && Integer.valueOf(entry.getValue().toString()) == 2) {
 				difficulty++;
@@ -2631,10 +2631,45 @@ public class ScriptManagerImpl implements ScriptManager {
 
 	public void spawnGollux(byte phase)
 	{
+		if(phase > 2) {
+			return;
+		}
 		int mobId = 9390600 + phase;
 		Mob gollux = MobData.getMobDeepCopyById(mobId);
 		int hpMultiplier = BossConstants.GOLLUX_HP_MULTIPLIERS[phase][3 - getGolluxDifficulty().getVal()];
-		spawnMob(mobId, 0, 0, false, gollux.getHp() * Long.valueOf(hpMultiplier));
+		Mob mob = spawnMob(mobId, 0, 0, false, gollux.getHp() * Long.valueOf(hpMultiplier));
+		//--blocking skills
+		blockGolluxAttacks();
+	}
+
+	public void blockGolluxAttacks(){
+		Mob mob = null;
+		for(int i = 9390600 ; i <= 9390602 ; i++){
+			mob = (Mob) chr.getField().getLifeByTemplateId(i);
+			if(mob != null) {
+				break;
+			}
+		}
+		if(mob == null) {
+			return;
+		}
+		Map<String, Object> golluxMaps = chr.getOrCreateFieldByCurrentInstanceType(BossConstants.GOLLUX_FIRST_MAP).getProperties();
+		ArrayList<Integer> blockedSkills = new ArrayList<>();
+		if((int)golluxMaps.getOrDefault(String.valueOf(BossConstants.GOLLUX_RIGHT_SHOULDER), 0) == 2){
+			blockedSkills.add(3);
+			blockedSkills.add(5);
+			blockedSkills.add(6);
+			blockedSkills.add(8);
+			blockedSkills.add(10); //gollux right arm attacks
+		}
+		if((int)golluxMaps.getOrDefault(String.valueOf(BossConstants.GOLLUX_LEFT_SHOULDER), 0) == 2){
+			blockedSkills.add(2);
+			blockedSkills.add(4);
+			blockedSkills.add(7);
+			blockedSkills.add(9);
+			blockedSkills.add(11); //gollux left arm attacks
+		}
+		mob.getField().broadcastPacket(MobPool.mobAttackBlock(mob,blockedSkills));
 	}
 
 	public void changeFootHold(String footHoldName, boolean show) {

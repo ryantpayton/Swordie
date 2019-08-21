@@ -4752,15 +4752,15 @@ public class Char {
 		int stack = tsm.getCurrentStats().get(Stigma)!=null ? tsm.getCurrentStats().get(Stigma).get(0).nOption : 0;
 		stack++;
 		Option o = new Option();
+		if(stack >= maxStack){
+			this.damage(getHP());
+			stack = maxStack;
+		}
 		o.nOption = stack;
 		o.rOption = 800;
 		tsm.putCharacterStatValue(Stigma, o);
 		// no tOption  as it would probably be permanent (till death)
 		tsm.sendSetStatPacket();
-		chatMessage(String.valueOf(stack));
-		if(stack >= maxStack){
-			this.damage(getHP());
-		}
 	}
 
 }

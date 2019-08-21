@@ -3,6 +3,7 @@ secondPhaseHeadID = 9390601
 thirdPhaseHeadID = 9390602
 golluxMobID = 9390623
 secondGolluxMobID = 9390622
+sm.blockGolluxAttacks()
 if sm.golluxMapAlreadyVisited() is not True:
     sm.spawnGollux(0)
     sm.addCurrentGolluxMap()
