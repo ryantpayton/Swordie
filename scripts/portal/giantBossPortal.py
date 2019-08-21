@@ -76,7 +76,6 @@ fields = {
 fieldID = sm.getFieldID()
 if fieldID not in fields:
     sm.chat("This portal (giantBossPortal.py) is not yet coded for this map (" + str(fieldID) + ")")
-    sm.dispose()
 else:
     innerDict = fields[fieldID]
     if parentID not in innerDict:
