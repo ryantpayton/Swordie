@@ -37,4 +37,3 @@ elif sm.hasQuest(38008):
     sm.giveExp(1200)
     sm.completeQuest(38008)
     sm.startQuest(38009)
-    sm.completeQuest(38009)

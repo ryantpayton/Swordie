@@ -1,3 +1,4 @@
+# Bad Signs is supposed to be completed on a thought bubble pop up after killing all the tigers but it isn't
 if sm.hasMobsInField():
     sm.chatScript("You need to complete the <Bad Signs> quest first.")
 else:
