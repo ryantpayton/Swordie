@@ -42,9 +42,9 @@ if sm.sendAskAccept("Would you like to skip the introduction?"):
         sm.giveSkill(30010230, 1) #Exceed
         sm.giveSkill(30010231, 1) #Hyper Potion Mastery
         sm.giveSkill(30010232, 1) #Star Force Conversion
-        sm.giveSkill(31011000, 1, 20)
-        sm.giveSkill(31011001, 1, 20)
-        sm.giveSkill(31010002, 1, 10)
+        # sm.giveSkill(31011000, 1, 20)
+        # sm.giveSkill(31011001, 1, 20)
+        # sm.giveSkill(31010002, 1, 10)
         sm.giveAndEquip(1232001)
         sm.giveAndEquip(1099006)
         sm.giveItem(1142553)
