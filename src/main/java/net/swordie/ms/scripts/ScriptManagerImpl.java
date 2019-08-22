@@ -2661,6 +2661,9 @@ public class ScriptManagerImpl implements ScriptManager {
 		if((int)golluxMaps.getOrDefault(String.valueOf(BossConstants.GOLLUX_LEFT_SHOULDER), 0) == 2){
 			blockedSkills.addAll(Arrays.stream(BossConstants.GOLLUX_LEFT_HAND_SKILLS).boxed().collect(Collectors.toList()));
 		}
+		if((int)golluxMaps.getOrDefault(String.valueOf(BossConstants.GOLLUX_ABDOMEN), 0) == 2){
+			blockedSkills.add(BossConstants.GOLLUX_BREATH_ATTACK);
+		}
 		mob.getField().broadcastPacket(MobPool.mobAttackBlock(mob,blockedSkills));
 	}
 
