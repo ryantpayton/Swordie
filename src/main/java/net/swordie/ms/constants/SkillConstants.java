@@ -201,7 +201,7 @@ public class SkillConstants {
                 skillId == 22171083 || skillId == 14121004 || skillId == 13111020 || skillId == 13121001 ||
                 skillId == 14111006 || (skillId >= 80001389 && skillId <= 80001392) || skillId == 42121000 ||
                 skillId == 42120003 || skillId == 5700010 || skillId == 5711021 || skillId == 5721001 ||
-                skillId == 5721061 || skillId == 21120018 || skillId == 21120019;
+                skillId == 5721061 || skillId == 21120018 || skillId == 21120019 || skillId == 24121000;
 
     }
 
