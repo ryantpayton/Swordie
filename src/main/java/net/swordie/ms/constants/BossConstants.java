@@ -107,6 +107,8 @@ public class BossConstants {
     public static final int GOLLUX_RIGHT_SHOULDER = 863010330;
     public static final int GOLLUX_LEFT_SHOULDER = 863010430;
     public static final int GOLLUX_ABDOMEN = 863010240;
+    public static final int[] GOLLUX_RIGHT_HAND_SKILLS = new int[] {3, 5, 6, 8, 10};
+    public static final int[] GOLLUX_LEFT_HAND_SKILLS = new int[] {2, 4, 7, 9, 11};
 
 
 
