@@ -1,3 +1,5 @@
+SHADE_THIRD_JOB = 38074
+
 if sm.hasQuest(38074):
     sm.removeEscapeButton()
     sm.setPlayerAsSpeaker()
