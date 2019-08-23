@@ -4,16 +4,17 @@ ELEX = 2151000
 BLASTER1 = 3700
 HAND_BUSTER = 1582000
 RUDIMENTARY_CHARGES = 1353400
-SPECIAL_TRAINING_BEGINNER = 1142242
 
 sm.setSpeakerID(ELEX)
-# sm.sendSayOkay("Due to many issues, Blaster is disabled.")
-# sm.deleteQuest(parentID)
+if not sm.canHold(HAND_BUSTER):
+    sm.sendSayOkay("Please make room in your equip inventory.")
+    sm.dispose()
+
+
 if sm.sendAskYesNo("So you've finally decided to become a Blaster, eh? Well, you can still change your mind. Just stop our conversation, forfeit this quest, and talk to another class trainer. So, you sure you want to become a Blaster? I'm not interested in teaching you unless you're a hundred percent sure..."):
     sm.jobAdvance(BLASTER1)
     sm.resetAP(False, BLASTER1)
     sm.giveItem(HAND_BUSTER)
-    sm.giveItem(SPECIAL_TRAINING_BEGINNER)
     sm.giveAndEquip(RUDIMENTARY_CHARGES)
     sm.completeQuest(parentID)
     
@@ -24,11 +25,10 @@ if sm.sendAskYesNo("So you've finally decided to become a Blaster, eh? Well, you
     # TODO: this needs to show the blaster UI https://i.imgur.com/ERTjfRP.png
     sm.sendSay("You can check your #bAmmo#k and #bDynamo Gauge#k at any time through the UI, as shown above.")
 
-    # Yes, more even more is a GMS thing
-    sm.sendSay("You want more even more details? Teacher's pet, much?")
+    sm.sendSay("You want even more details? Teacher's pet, much?")
 
     # TODO: this needs to show the blaster UI https://i.imgur.com/ZPivqhT.png
-    sm.sendSay("Fine, fine. #bAmmo#k can be loaded into your weapon. It's used ina  skill called #eRevolving Cannon#n. #bAmmo#k reloads automatically when you're out, but you can also hold down the Revolving Cannon hotkey to reload manually.")
+    sm.sendSay("Fine, fine. #bAmmo#k can be loaded into your weapon. It's used in a skill called #eRevolving Cannon#n. #bAmmo#k reloads automatically when you're out, but you can also hold down the Revolving Cannon hotkey to reload manually.")
 
     # TODO: this needs to show the blaster UI https://i.imgur.com/IMDVwTJ.png
     sm.sendSay("Might be smart to reload whenever you're low on #bAmmo#k. Now, #eRevolving Cannon#n can't be used on its own. It can only be used during #bMagnum Punch#k, #bDouble Blast#k, #band Revolving Blast#k.")
