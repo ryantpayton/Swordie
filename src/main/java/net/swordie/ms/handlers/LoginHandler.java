@@ -226,7 +226,7 @@ public class LoginHandler {
                 curSelectedSubJob, gender, skin, face, hair, items);
         JobManager.getJobById(job.getJobId(), chr).setCharCreationStats(chr);
 
-        chr.setFuncKeyMap(FuncKeyMap.getDefaultMapping());
+        chr.setFuncKeyMap(FuncKeyMap.getDefaultMapping(keySettingType));
         DatabaseManager.saveToDB(chr);
         acc.addCharacter(chr);
 
