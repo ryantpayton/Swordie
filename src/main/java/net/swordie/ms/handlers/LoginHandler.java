@@ -135,6 +135,15 @@ public class LoginHandler {
         c.write(Login.sendRecommendWorldMessage(ServerConfig.WORLD_ID, ServerConfig.RECOMMEND_MSG));
     }
 
+    @Handler(op = InHeader.WORLD_INFO_REQUEST)
+    public static void handleWorldInfoRequest(Client c, InPacket packet) {
+        for (World world : Server.getInstance().getWorlds()) {
+            c.write(Login.sendWorldInformation(world, null));
+        }
+        c.write(Login.sendWorldInformationEnd());
+    }
+
+
     @Handler(op = InHeader.SERVERSTATUS_REQUEST)
     public static void handleServerStatusRequest(Client c, InPacket inPacket) {
 //        c.write(Login.sendWorldInformation(null));
