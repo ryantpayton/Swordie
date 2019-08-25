@@ -13,7 +13,7 @@ sm.setPlayerAsSpeaker()
 sm.sendNext("I'm on... #bMaple Island#n?")
 sm.setSpeakerID(MAI)
 sm.sendNext("You sure are. We used to be just some tiny island, but then Explorers started popping out. Now, we even got our own outhouse!")
-sm.sendNext("so, your name is #h #, right? You have two options now. You can listen to some explanations about starting out, take a few small tests, get some free gifts and become my new best friend in the entire world...")
+sm.sendNext("So, your name is #h #, right? You have two options now. You can listen to some explanations about starting out, take a few small tests, get some free gifts and become my new best friend in the entire world...")
 sm.sendNext("Or you can be teleported straight to town, but you'll miss out on my gifts... and I'll be super lonely and sad.")
 
 selection = sm.sendNext("What do you say? \r\n#L0##b I'll be your friend, Mai!(Go through tutorial and get free equipment)#l \r\n #L1#I don't need you, Mai!(Skip tutorial and teleport straight to town.)#l")
