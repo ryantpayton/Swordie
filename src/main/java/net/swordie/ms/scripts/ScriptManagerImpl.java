@@ -2683,4 +2683,10 @@ public class ScriptManagerImpl implements ScriptManager {
 		chr.getField().spawnMobRespawnable(id, x, y, respawnable, hp, respawnTime);
 	}
 
+	public void createFallingCatcherOnCharacter(String name) {
+		ArrayList <Position> positions = new ArrayList<Position>();
+		positions.add(chr.getPosition());
+		chr.getField().broadcastPacket(FieldPacket.createFallingCatcher(name, 1, 1, positions));
+	}
+
 }

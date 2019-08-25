@@ -13,6 +13,7 @@ import net.swordie.ms.client.party.Party;
 import net.swordie.ms.client.party.PartyDamageInfo;
 import net.swordie.ms.connection.OutPacket;
 import net.swordie.ms.connection.packet.*;
+import net.swordie.ms.constants.BossConstants;
 import net.swordie.ms.constants.GameConstants;
 import net.swordie.ms.constants.ItemConstants;
 import net.swordie.ms.enums.BaseStat;
@@ -28,6 +29,8 @@ import net.swordie.ms.life.mob.skill.ShootingMoveStat;
 import net.swordie.ms.loaders.ItemData;
 import net.swordie.ms.loaders.MobData;
 import net.swordie.ms.loaders.SkillData;
+import net.swordie.ms.scripts.ScriptManager;
+import net.swordie.ms.scripts.ScriptManagerImpl;
 import net.swordie.ms.util.Position;
 import net.swordie.ms.util.Rect;
 import net.swordie.ms.util.Util;
@@ -144,6 +147,7 @@ public class Mob extends Life {
     private int currentDestIndex = 0;
     private int escortStopDuration = 0;
     private int mobSpawnerId;
+    private Map<String, Object> properties = new HashMap<String, Object>();
 
     public Mob(int templateId) {
         super(templateId);
@@ -1226,6 +1230,17 @@ public class Mob extends Life {
         setHp(newHp);
         double percDamage = ((double) newHp / maxHP);
         newHp = newHp > Integer.MAX_VALUE ? Integer.MAX_VALUE : newHp;
+        if(oldHp > 0 && newHp <= maxHP * 0.5 && ! hasProperty("triggeredEvent")) {
+            if(getTemplateId() / 10000 == 939) {
+                int chance = getTemplateId() == 9390610 || getTemplateId() == 9390611 ? 100 : BossConstants.GOLLUX_DROP_STONE_CHANCE;
+                Random ran = new Random();
+                if(ran.nextInt(101) <= chance) {
+                    setProperty("triggeredEvent", true);
+                    OutPacket outPacket = FieldPacket.createFallingCatcherGollux(getTemplateId(), getMostDamageChar().getPosition());
+                    getField().broadcastPacket(outPacket);
+                }
+            }
+        }
         if (oldHp > 0 && newHp <= 0) {
             // Boss sponges
             // TODO horntail kills
@@ -1946,5 +1961,25 @@ public class Mob extends Life {
 
     public void setMobSpawnerId(int mobSpawnerId) {
         this.mobSpawnerId = mobSpawnerId;
+    }
+
+    public Map<String, Object> getProperties() {
+        return properties;
+    }
+
+    public boolean hasProperty(String key) {
+        return getProperties().containsKey(key);
+    }
+
+    public Object getProperty(String key) {
+        return getProperties().get(key);
+    }
+
+    public void setProperty(String key, Object value) {
+        getProperties().put(key, value);
+    }
+
+    public void setProperties(Map<String, Object> properties) {
+        this.properties = properties;
     }
 }
