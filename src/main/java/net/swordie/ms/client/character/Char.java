@@ -4758,6 +4758,7 @@ public class Char {
 		}
 		o.nOption = stack;
 		o.rOption = 800;
+		o.bOption = 5;
 		tsm.putCharacterStatValue(Stigma, o);
 		// no tOption  as it would probably be permanent (till death)
 		tsm.sendSetStatPacket();
