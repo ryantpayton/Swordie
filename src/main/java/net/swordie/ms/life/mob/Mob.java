@@ -1230,17 +1230,7 @@ public class Mob extends Life {
         setHp(newHp);
         double percDamage = ((double) newHp / maxHP);
         newHp = newHp > Integer.MAX_VALUE ? Integer.MAX_VALUE : newHp;
-        if(oldHp > 0 && newHp <= maxHP * 0.5 && ! hasProperty("triggeredEvent")) {
-            if(getTemplateId() / 10000 == 939) {
-                int chance = getTemplateId() == 9390610 || getTemplateId() == 9390611 ? 100 : BossConstants.GOLLUX_DROP_STONE_CHANCE;
-                Random ran = new Random();
-                if(ran.nextInt(101) <= chance) {
-                    setProperty("triggeredEvent", true);
-                    OutPacket outPacket = FieldPacket.createFallingCatcherGollux(getTemplateId(), getMostDamageChar().getPosition());
-                    getField().broadcastPacket(outPacket);
-                }
-            }
-        }
+        doOneTimeEvent(oldHp, newHp, maxHP);
         if (oldHp > 0 && newHp <= 0) {
             // Boss sponges
             // TODO horntail kills
@@ -1981,5 +1971,23 @@ public class Mob extends Life {
 
     public void setProperties(Map<String, Object> properties) {
         this.properties = properties;
+    }
+
+    public void doOneTimeEvent (long oldHp, long newHp, long maxHP){
+        if(hasProperty("triggeredEvent")){
+            return;
+        }
+        if(getTemplateId() / 10000 == 939) {
+            if(oldHp > 0 && newHp <= maxHP * 0.5) {
+                int chance = getTemplateId() == 9390610 || getTemplateId() == 9390611 ? 100 : BossConstants.GOLLUX_DROP_STONE_CHANCE;
+                Random ran = new Random();
+                if(ran.nextInt(101) <= chance) {
+                    setProperty("triggeredEvent", true);
+                    OutPacket outPacket = FieldPacket.createFallingCatcherGollux(getTemplateId(), getMostDamageChar().getPosition());
+                    getField().broadcastPacket(outPacket);
+                }
+            }
+        }
+
     }
 }
