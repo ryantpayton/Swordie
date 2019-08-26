@@ -218,7 +218,7 @@ public class Blaster extends Citizen {
                 o1.tOption = si.getValue(time, 1);
                 o1.nReason = si.getValue(v2, 1);
                 tsm.putCharacterStatValue(RWOverHeat, o1);
-                gaugeChange(6 - getGauge());
+                gaugeChange(getMaxAmmo() - getGauge());
                 break;
             case HYPER_MAGNUM_PUNCH:
                 o1.nOption = 5;
@@ -233,7 +233,7 @@ public class Blaster extends Citizen {
                 if(getAmmo() > 0) {
                     removeAmmo();
                 }
-                if(getGauge() < 6) {
+                if(getGauge() < getMaxAmmo()) {
                     addGauge();
                 }
                 lastAttack = skillID;
@@ -307,7 +307,7 @@ public class Blaster extends Citizen {
     public void gaugeChange(int amount) {
         TemporaryStatManager tsm = chr.getTemporaryStatManager();
         Option o = new Option();
-        if (getGauge() <= 6 || (amount < 0 && getGauge() + amount > 0)) {
+        if (getGauge() <= getMaxAmmo() || (amount < 0 && getGauge() + amount > 0)) {
             setGauge(getGauge() + amount);
             o.nOption = 1;
             o.bOption = getAmmo();
