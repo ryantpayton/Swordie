@@ -29,8 +29,6 @@ import net.swordie.ms.life.mob.skill.ShootingMoveStat;
 import net.swordie.ms.loaders.ItemData;
 import net.swordie.ms.loaders.MobData;
 import net.swordie.ms.loaders.SkillData;
-import net.swordie.ms.scripts.ScriptManager;
-import net.swordie.ms.scripts.ScriptManagerImpl;
 import net.swordie.ms.util.Position;
 import net.swordie.ms.util.Rect;
 import net.swordie.ms.util.Util;
@@ -1973,15 +1971,15 @@ public class Mob extends Life {
         this.properties = properties;
     }
 
-    public void doOneTimeEvent (long oldHp, long newHp, long maxHP){
-        if(hasProperty("triggeredEvent")){
+    public void doOneTimeEvent(long oldHp, long newHp, long maxHP) {
+        if (hasProperty("triggeredEvent")) {
             return;
         }
-        if(getTemplateId() / 10000 == 939) {
-            if(oldHp > 0 && newHp <= maxHP * 0.5) {
+        if (getTemplateId() / 10000 == 939 && getField().getId() != 863010600) {
+            if (oldHp > 0 && newHp <= maxHP * 0.5) {
                 int chance = getTemplateId() == 9390610 || getTemplateId() == 9390611 ? 100 : BossConstants.GOLLUX_DROP_STONE_CHANCE;
                 Random ran = new Random();
-                if(ran.nextInt(101) <= chance) {
+                if (ran.nextInt(101) <= chance) {
                     setProperty("triggeredEvent", true);
                     OutPacket outPacket = FieldPacket.createFallingCatcherGollux(getTemplateId(), getMostDamageChar().getPosition());
                     getField().broadcastPacket(outPacket);

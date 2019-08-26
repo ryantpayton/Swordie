@@ -14,7 +14,6 @@ import net.swordie.ms.client.character.cards.MonsterBookInfo;
 import net.swordie.ms.client.character.damage.DamageCalc;
 import net.swordie.ms.client.character.damage.DamageSkinSaveData;
 import net.swordie.ms.client.character.info.*;
-import net.swordie.ms.client.character.items.BodyPart;
 import net.swordie.ms.client.character.items.*;
 import net.swordie.ms.client.character.keys.FuncKeyMap;
 import net.swordie.ms.client.character.monsterbattle.MonsterBattleLadder;
@@ -27,7 +26,6 @@ import net.swordie.ms.client.character.quest.QuestManager;
 import net.swordie.ms.client.character.runestones.RuneStone;
 import net.swordie.ms.client.character.skills.*;
 import net.swordie.ms.client.character.skills.info.SkillInfo;
-import net.swordie.ms.client.character.skills.temp.CharacterTemporaryStat;
 import net.swordie.ms.client.character.skills.temp.TemporaryStatManager;
 import net.swordie.ms.client.friend.Friend;
 import net.swordie.ms.client.friend.FriendFlag;
@@ -61,7 +59,10 @@ import net.swordie.ms.life.*;
 import net.swordie.ms.life.drop.Drop;
 import net.swordie.ms.life.mob.Mob;
 import net.swordie.ms.life.pet.Pet;
-import net.swordie.ms.loaders.*;
+import net.swordie.ms.loaders.EtcData;
+import net.swordie.ms.loaders.ItemData;
+import net.swordie.ms.loaders.SkillData;
+import net.swordie.ms.loaders.StringData;
 import net.swordie.ms.loaders.containerclasses.AndroidInfo;
 import net.swordie.ms.loaders.containerclasses.ItemInfo;
 import net.swordie.ms.scripts.ScriptManagerImpl;
@@ -81,8 +82,8 @@ import javax.persistence.*;
 import java.awt.*;
 import java.io.IOException;
 import java.time.LocalDateTime;
-import java.util.*;
 import java.util.List;
+import java.util.*;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Predicate;
@@ -4749,10 +4750,10 @@ public class Char {
 	public void increaseGolluxStack() {
 		int maxStack = 5;
 		TemporaryStatManager tsm = getTemporaryStatManager();
-		int stack = tsm.getCurrentStats().get(Stigma)!=null ? tsm.getCurrentStats().get(Stigma).get(0).nOption : 0;
+		int stack = tsm.getCurrentStats().get(Stigma) != null ? tsm.getCurrentStats().get(Stigma).get(0).nOption : 0;
 		stack++;
 		Option o = new Option();
-		if(stack >= maxStack){
+		if (stack >= maxStack) {
 			this.damage(getHP());
 			stack = maxStack;
 		}

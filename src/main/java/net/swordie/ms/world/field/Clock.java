@@ -40,7 +40,7 @@ public class Clock {
                 field.broadcastPacket(FieldPacket.clock(ClockPacket.stopWatch(seconds)));
                 break;
             case TimerGauge:
-                field.broadcastPacket(FieldPacket.clock(ClockPacket.timerGauge(seconds*1000,seconds*1000)));
+                field.broadcastPacket(FieldPacket.clock(ClockPacket.timerGauge(seconds * 1000, seconds * 1000)));
                 break;
         }
         field.setClock(this);
@@ -57,7 +57,7 @@ public class Clock {
                     chr.write(FieldPacket.clock(ClockPacket.stopWatch((int) getRemainingTime())));
                     break;
                 case TimerGauge:
-                    chr.write(FieldPacket.clock(ClockPacket.timerGauge(seconds*1000,seconds*1000)));
+                    chr.write(FieldPacket.clock(ClockPacket.timerGauge(seconds * 1000, seconds * 1000)));
                     break;
             }
         }

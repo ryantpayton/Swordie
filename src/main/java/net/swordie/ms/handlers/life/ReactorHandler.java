@@ -82,10 +82,10 @@ public class ReactorHandler {
         Char chr = c.getChr();
         int objID = inPacket.decodeInt();
         int lifeID = inPacket.decodeInt();
-        Mob mob = (Mob)chr.getField().getLifeByObjectID(lifeID);
+        Mob mob = (Mob) chr.getField().getLifeByObjectID(lifeID);
         mob.die(false);
         Field field = chr.getField();
-        for (Char character : field.getChars()){
+        for (Char character : field.getChars()) {
             character.increaseGolluxStack();
         }
     }

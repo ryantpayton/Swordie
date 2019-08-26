@@ -1,6 +1,5 @@
 package net.swordie.ms.connection.packet;
 
-import javafx.geometry.Pos;
 import net.swordie.ms.client.character.Char;
 import net.swordie.ms.client.character.CharacterStat;
 import net.swordie.ms.client.character.MarriageRecord;
@@ -36,7 +35,6 @@ import net.swordie.ms.world.field.obtacleatom.ObtacleAtomInfo;
 import net.swordie.ms.world.field.obtacleatom.ObtacleInRowInfo;
 import net.swordie.ms.world.field.obtacleatom.ObtacleRadianInfo;
 
-import java.lang.reflect.Array;
 import java.util.*;
 
 public class FieldPacket {
@@ -988,7 +986,7 @@ public class FieldPacket {
         return outPacket;
     }
 
-    public static OutPacket golluxOpenPortal(Char chr, String action, int show){
+    public static OutPacket golluxOpenPortal(Char chr, String action, int show) {
         OutPacket outPacket = new OutPacket(OutHeader.GOLLUX_PORTAL_OPEN);
 
         outPacket.encodeString(action);
@@ -997,12 +995,12 @@ public class FieldPacket {
         return outPacket;
     }
 
-    public static OutPacket golluxUpdateMiniMap(Char chr){
+    public static OutPacket golluxUpdateMiniMap(Char chr) {
         OutPacket outPacket = new OutPacket(OutHeader.GOLLUX_MINIMAP);
 
         Map<String, Object> golluxMaps = chr.getOrCreateFieldByCurrentInstanceType(BossConstants.GOLLUX_FIRST_MAP).getProperties();
         outPacket.encodeInt(golluxMaps.size());
-        for(Map.Entry<String, Object> entry:golluxMaps.entrySet()) {
+        for (Map.Entry<String, Object> entry : golluxMaps.entrySet()) {
             outPacket.encodeString(entry.getKey());
             outPacket.encodeString(String.valueOf(entry.getValue()));
         }
@@ -1025,7 +1023,7 @@ public class FieldPacket {
         return outPacket;
     }
 
-    public static OutPacket createFallingCatcher(String name, int index, int count, List <Position> positions) {
+    public static OutPacket createFallingCatcher(String name, int index, int count, List<Position> positions) {
         OutPacket outPacket = new OutPacket(OutHeader.CREATE_FALLING_CATCHER);
 
         outPacket.encodeString(name);
@@ -1041,7 +1039,7 @@ public class FieldPacket {
     }
 
     public static OutPacket createFallingCatcherGollux(int mobId, Position position) {
-        ArrayList <Position> pos = new ArrayList<Position>();
+        ArrayList<Position> pos = new ArrayList<Position>();
         pos.add(position);
         switch (mobId) {
             case 9390610:

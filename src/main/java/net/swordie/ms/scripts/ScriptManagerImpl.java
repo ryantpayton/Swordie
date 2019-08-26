@@ -60,7 +60,6 @@ import org.apache.log4j.Logger;
 import javax.script.*;
 import java.io.File;
 import java.io.IOException;
-import java.lang.reflect.Array;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.nio.charset.Charset;
@@ -2612,7 +2611,7 @@ public class ScriptManagerImpl implements ScriptManager {
 	}
 
 	public boolean golluxMapAlreadyVisited() {
-		return  chr.getOrCreateFieldByCurrentInstanceType(BossConstants.GOLLUX_FIRST_MAP).getProperties().keySet().contains(String.valueOf(chr.getFieldID()));
+		return chr.getOrCreateFieldByCurrentInstanceType(BossConstants.GOLLUX_FIRST_MAP).getProperties().keySet().contains(String.valueOf(chr.getFieldID()));
 	}
 
 	public GolluxDifficultyType getGolluxDifficulty() {
@@ -2630,9 +2629,8 @@ public class ScriptManagerImpl implements ScriptManager {
 		return GolluxDifficultyType.getByVal(difficulty);
 	}
 
-	public void spawnGollux(byte phase)
-	{
-		if(phase > 2) {
+	public void spawnGollux(byte phase) {
+		if (phase > 2) {
 			return;
 		}
 		int mobId = 9390600 + phase;
@@ -2642,29 +2640,29 @@ public class ScriptManagerImpl implements ScriptManager {
 		blockGolluxAttacks();
 	}
 
-	public void blockGolluxAttacks(){
+	public void blockGolluxAttacks() {
 		Mob mob = null;
-		for(int i = 9390600 ; i <= 9390602 ; i++){
+		for (int i = 9390600; i <= 9390602; i++) {
 			mob = (Mob) chr.getField().getLifeByTemplateId(i);
-			if(mob != null) {
+			if (mob != null) {
 				break;
 			}
 		}
-		if(mob == null) {
+		if (mob == null) {
 			return;
 		}
 		Map<String, Object> golluxMaps = chr.getOrCreateFieldByCurrentInstanceType(BossConstants.GOLLUX_FIRST_MAP).getProperties();
 		ArrayList<Integer> blockedSkills = new ArrayList<>();
-		if((int)golluxMaps.getOrDefault(String.valueOf(BossConstants.GOLLUX_RIGHT_SHOULDER), 0) == 2){
+		if ((int) golluxMaps.getOrDefault(String.valueOf(BossConstants.GOLLUX_RIGHT_SHOULDER), 0) == 2) {
 			blockedSkills.addAll(Arrays.stream(BossConstants.GOLLUX_RIGHT_HAND_SKILLS).boxed().collect(Collectors.toList()));
 		}
-		if((int)golluxMaps.getOrDefault(String.valueOf(BossConstants.GOLLUX_LEFT_SHOULDER), 0) == 2){
+		if ((int) golluxMaps.getOrDefault(String.valueOf(BossConstants.GOLLUX_LEFT_SHOULDER), 0) == 2) {
 			blockedSkills.addAll(Arrays.stream(BossConstants.GOLLUX_LEFT_HAND_SKILLS).boxed().collect(Collectors.toList()));
 		}
-		if((int)golluxMaps.getOrDefault(String.valueOf(BossConstants.GOLLUX_ABDOMEN), 0) == 2){
+		if ((int) golluxMaps.getOrDefault(String.valueOf(BossConstants.GOLLUX_ABDOMEN), 0) == 2) {
 			blockedSkills.add(BossConstants.GOLLUX_BREATH_ATTACK);
 		}
-		mob.getField().broadcastPacket(MobPool.mobAttackBlock(mob,blockedSkills));
+		mob.getField().broadcastPacket(MobPool.mobAttackBlock(mob, blockedSkills));
 	}
 
 	public void changeFootHold(String footHoldName, boolean show) {
@@ -2679,12 +2677,12 @@ public class ScriptManagerImpl implements ScriptManager {
 		chr.getOrCreateFieldByCurrentInstanceType(BossConstants.GOLLUX_FIRST_MAP).getProperties().clear();
 	}
 
-	public void spawnMobRespawnable(int id, int x, int y, boolean respawnable, long hp, int respawnTime){
+	public void spawnMobRespawnable(int id, int x, int y, boolean respawnable, long hp, int respawnTime) {
 		chr.getField().spawnMobRespawnable(id, x, y, respawnable, hp, respawnTime);
 	}
 
 	public void createFallingCatcherOnCharacter(String name) {
-		ArrayList <Position> positions = new ArrayList<Position>();
+		ArrayList<Position> positions = new ArrayList<Position>();
 		positions.add(chr.getPosition());
 		chr.getField().broadcastPacket(FieldPacket.createFallingCatcher(name, 1, 1, positions));
 	}
