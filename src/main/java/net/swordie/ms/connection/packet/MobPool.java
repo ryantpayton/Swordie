@@ -1,19 +1,19 @@
 package net.swordie.ms.connection.packet;
 
 import net.swordie.ms.client.character.Char;
+import net.swordie.ms.connection.OutPacket;
+import net.swordie.ms.handlers.header.OutHeader;
 import net.swordie.ms.life.DeathType;
 import net.swordie.ms.life.mob.*;
 import net.swordie.ms.life.mob.skill.BurnedInfo;
 import net.swordie.ms.life.mob.skill.MobSkillID;
 import net.swordie.ms.life.mob.skill.MobSkillStat;
-import net.swordie.ms.connection.OutPacket;
-import net.swordie.ms.life.mob.MobStat;
-import net.swordie.ms.handlers.header.OutHeader;
 import net.swordie.ms.life.movement.MovementInfo;
 import net.swordie.ms.loaders.containerclasses.MobSkillInfo;
 import net.swordie.ms.util.Position;
 import net.swordie.ms.util.Rect;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -371,6 +371,18 @@ public class MobPool {
             outPacket.encodeInt(stopDuration);
         }
         outPacket.encodeByte(stopEscort);
+        return outPacket;
+    }
+
+    public static OutPacket mobAttackBlock(Mob mob, ArrayList<Integer> skillsIDS) {
+        OutPacket outPacket = new OutPacket(OutHeader.MOB_ATTACK_BLOCK);
+
+        outPacket.encodeInt(mob.getObjectId());
+        outPacket.encodeInt(skillsIDS.size());
+        for (int skillID : skillsIDS) {
+            outPacket.encodeInt(skillID);
+        }
+
         return outPacket;
     }
 }

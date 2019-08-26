@@ -48,6 +48,7 @@ import java.time.LocalDateTime;
 import java.util.*;
 
 import static net.swordie.ms.client.character.skills.temp.CharacterTemporaryStat.RideVehicle;
+import static net.swordie.ms.client.character.skills.temp.CharacterTemporaryStat.Unk459;
 import static net.swordie.ms.enums.AccountType.*;
 import static net.swordie.ms.enums.ChatType.*;
 import static net.swordie.ms.enums.InventoryOperation.Add;

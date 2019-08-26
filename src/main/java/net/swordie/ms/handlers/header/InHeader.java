@@ -918,6 +918,8 @@ public enum InHeader {
     E_N_D__B_O_S_S__D_E_M_I_A_N__F_L_Y_I_N_G_S_W_O_R_D(1026),
     E_N_D__F_I_E_L_D(1027),
 
+    GOLLUX_OUT_REQUEST(1030),
+
     CHECK_S_P_W_CREATE_NEW_CHARACTER(1039),
     SET_S_P_W(1040),
 

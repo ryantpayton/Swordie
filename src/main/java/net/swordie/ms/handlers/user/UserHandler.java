@@ -503,5 +503,10 @@ public class UserHandler {
         chr.setQuickslotKeys(quickslotKeys);
     }
 
+    @Handler(op = InHeader.USER_CATCH_DEBUFF_COLLISION)
+    public static void handleUserCatchDebuffCollision(Char chr, InPacket inPacket) {
+        int hpPerc = inPacket.decodeInt();
+        chr.damage(chr.getMaxHP() * hpPerc / 100);
+    }
 
 }
