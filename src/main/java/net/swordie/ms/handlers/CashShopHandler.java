@@ -114,6 +114,7 @@ public class CashShopHandler {
                     return;
                 }
                 trunk.getLocker().remove(cii);
+                cii.setItem(null);
                 chr.addItemToInventory(item);
                 c.write(CCashShop.resMoveLtoSDone(item));
                 break;
