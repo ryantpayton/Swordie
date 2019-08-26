@@ -14,15 +14,24 @@ import net.swordie.ms.constants.JobConstants;
 import net.swordie.ms.enums.ChatType;
 import net.swordie.ms.enums.MessageType;
 import net.swordie.ms.enums.QuestStatus;
+import net.swordie.ms.handlers.EventManager;
 import net.swordie.ms.handlers.Handler;
 import net.swordie.ms.handlers.header.InHeader;
 import net.swordie.ms.handlers.header.OutHeader;
+import net.swordie.ms.life.AffectedArea;
 import net.swordie.ms.life.DeathType;
 import net.swordie.ms.life.Life;
 import net.swordie.ms.life.mob.EscortDest;
 import net.swordie.ms.life.mob.Mob;
 import net.swordie.ms.life.mob.MobStat;
 import net.swordie.ms.life.mob.MobTemporaryStat;
+import net.swordie.ms.life.mob.boss.demian.stigma.DemianStigma;
+import net.swordie.ms.life.mob.boss.demian.stigma.DemianStigmaIncinerateObject;
+import net.swordie.ms.life.mob.boss.demian.stigma.StigmaDeliveryType;
+import net.swordie.ms.life.mob.boss.demian.sword.DemianFlyingSword;
+import net.swordie.ms.life.mob.boss.demian.sword.DemianFlyingSwordPath;
+import net.swordie.ms.life.mob.boss.demian.sword.DemianFlyingSwordPathIdx;
+import net.swordie.ms.life.mob.boss.demian.sword.DemianFlyingSwordType;
 import net.swordie.ms.life.mob.skill.MobSkill;
 import net.swordie.ms.life.mob.skill.MobSkillID;
 import net.swordie.ms.life.mob.skill.MobSkillStat;
@@ -31,6 +40,7 @@ import net.swordie.ms.loaders.SkillData;
 import net.swordie.ms.loaders.containerclasses.MobSkillInfo;
 import net.swordie.ms.util.Position;
 import net.swordie.ms.util.Randomizer;
+import net.swordie.ms.util.Rect;
 import net.swordie.ms.util.Util;
 import net.swordie.ms.util.container.Tuple;
 import net.swordie.ms.world.field.Field;
@@ -39,6 +49,7 @@ import net.swordie.ms.world.field.fieldeffect.FieldEffect;
 import org.apache.log4j.Logger;
 
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 public class MobHandler {
@@ -373,6 +384,96 @@ public class MobHandler {
             if (collision == mob.getEscortDest().size()) {
                 mob.clearEscortDest();// finished escort
             }
+        }
+    }
+
+    @Handler(op = InHeader.DEMIAN_OBJECT_NODE_END)
+    public static void handleDemianObjectNodeEnd(Char chr, InPacket inPacket) {
+        Field field = chr.getField();
+
+        DemianFlyingSword flyingSword = (DemianFlyingSword) field.getLifeByObjectID(inPacket.decodeInt());
+        short pathIdx = inPacket.decodeShort(); // pathIdx
+        short nodeIdx = inPacket.decodeShort(); // nodeIdx that just ended
+        Position swordPosition = inPacket.decodePositionInt(); // sword position
+        Position targetChrPosition = inPacket.decodePositionInt(); // targeted character position
+
+        flyingSword.setPosition(swordPosition);
+        DemianFlyingSwordPathIdx path = DemianFlyingSwordPathIdx.getByVal(pathIdx);
+        if (nodeIdx == flyingSword.getDemianFlyingSwordPath().getNodes().size() - 2 || path.equals(DemianFlyingSwordPathIdx.Creation)) {
+            switch (path) {
+                case Creation: // Creation -> Bouncing1 or Bouncing2
+                    flyingSword.setDemianFlyingSwordPath(DemianFlyingSwordPath.flyingSwordBouncingPath(DemianFlyingSwordPath.flyingSwordPathBouncing2));
+                    EventManager.addEvent(flyingSword::startPath, 1800, TimeUnit.MILLISECONDS);
+                    break;
+                case Bouncing1: // Bouncing -> Targeting
+                case Bouncing2: // Bouncing -> Targeting
+                    flyingSword.setDemianFlyingSwordPath(DemianFlyingSwordPath.flyingSwordTargetingPath(targetChrPosition));
+                    flyingSword.startPath();
+                    break;
+                case Targeting: // Targeting -> AA and FlyingSwordTarget OutPacket
+                    flyingSword.target();
+
+                    // Create Affected Area
+                    Mob mob = flyingSword.getOwner();
+                    if (mob == null) {
+                        return;
+                    }
+                    MobSkillInfo msi = SkillData.getMobSkillInfoByIdAndLevel(131, 28);
+                    AffectedArea aa = AffectedArea.getMobAA(mob, (short) 131, (short) 28, SkillData.getMobSkillInfoByIdAndLevel(131, 28));
+                    Rect rect = new Rect(msi.getLt(), msi.getRb());
+                    Position position = new Position(swordPosition.getX(), 16);
+                    aa.setPosition(position);
+                    aa.setRect(position.getRectAround(rect));
+                    aa.setOption(5);
+                    aa.setIdk(flyingSword.getObjectId());
+                    field.spawnAffectedArea(aa);
+                    break;
+            }
+
+        }
+    }
+
+    @Handler(op = InHeader.DEMIAN_OBJECT_ERR__RECREATE)
+    public static void handleDemianObjectErrRecreate(Char chr, InPacket inPacket) {
+        Field field = chr.getField();
+
+        DemianFlyingSword sword = (DemianFlyingSword) field.getLifeByObjectID(inPacket.decodeInt());
+        DemianFlyingSwordType type = DemianFlyingSwordType.getValBy(inPacket.decodeInt());
+
+        field.removeLife(sword);
+
+        sword.startPath();
+        sword.target();
+        Mob mob = field.getMobs().stream().findFirst().orElse(null);
+        if (mob != null) {
+            DemianFlyingSword newSword = DemianFlyingSword.createDemianFlyingSword(chr, mob);
+            newSword.setSwordType(type);
+            newSword.setPosition(sword.getPosition());
+            newSword.setDemianFlyingSwordPath(sword.getDemianFlyingSwordPath());
+            field.spawnLife(newSword, null);
+            newSword.startPath();
+            newSword.target();
+        }
+
+    }
+
+    @Handler(op = InHeader.STIGMA_DELEVERY_REQUEST)
+    public static void handleStigmaDeliveryRequest(Char chr, InPacket inPacket) {
+        Field field = chr.getField();
+
+        int stigmaDelivery = inPacket.decodeInt();
+        int unk = inPacket.decodeInt();
+        int chrId = inPacket.decodeInt();
+        StigmaDeliveryType stigmaDeliveryType = StigmaDeliveryType.getValBy(stigmaDelivery);
+
+        if (stigmaDeliveryType.equals(StigmaDeliveryType.Success)) {
+            DemianStigmaIncinerateObject o = (DemianStigmaIncinerateObject) field.getLifes().values().stream().filter(l -> l instanceof DemianStigmaIncinerateObject).findFirst().orElse(null);
+            if (o == null) {
+                return;
+            }
+            field.removeLife(o); // remove pillar
+            DemianStigma.resetStigma(chr); // reset stigma
+            field.broadcastPacket(DemianFieldPacket.stigmaEffect(chr.getId(), false)); // show stigma reset effect
         }
     }
 }

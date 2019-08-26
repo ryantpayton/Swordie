@@ -21,7 +21,6 @@ import net.swordie.ms.enums.*;
 import net.swordie.ms.handlers.PsychicLock;
 import net.swordie.ms.handlers.header.OutHeader;
 import net.swordie.ms.life.AffectedArea;
-import net.swordie.ms.life.Dragon;
 import net.swordie.ms.life.mob.Mob;
 import net.swordie.ms.life.pet.Pet;
 import net.swordie.ms.loaders.containerclasses.MakingSkillRecipe;
@@ -60,7 +59,11 @@ public class FieldPacket {
 
         outPacket.encodeInt(aa.getObjectId());
         outPacket.encodeByte(aa.getMobOrigin());
-        outPacket.encodeInt(aa.getCharID());
+        if (aa.getMobOrigin() > 0) {
+            outPacket.encodeInt(aa.getMobOwnerOID());
+        } else {
+            outPacket.encodeInt(aa.getOwner().getId());
+        }
         outPacket.encodeInt(aa.getSkillID());
         outPacket.encodeByte(aa.getSlv());
         outPacket.encodeShort(aa.getDelay());
@@ -71,7 +74,7 @@ public class FieldPacket {
         outPacket.encodeInt(aa.getForce());
         outPacket.encodeInt(aa.getOption());
         outPacket.encodeByte(aa.getOption() != 0);
-        outPacket.encodeInt(aa.getIdk()); // ?
+        outPacket.encodeInt(aa.getDuration());
         if(SkillConstants.isFlipAffectAreaSkill(aa.getSkillID())) {
             outPacket.encodeByte(aa.isFlip());
         }
@@ -949,6 +952,37 @@ public class FieldPacket {
         outPacket.encodeShort(extraSkillIds.size());
         for (int extraSkillId : extraSkillIds) {
             outPacket.encodeInt(extraSkillId);
+        }
+
+        return outPacket;
+    }
+
+    public static OutPacket playSound(String dir) {
+        OutPacket outPacket = new OutPacket(OutHeader.PLAY_SOUND);
+
+        outPacket.encodeString(dir);
+
+        return outPacket;
+    }
+
+    public static OutPacket giveSpecialSkillBar(int skillID) {
+        OutPacket outPacket = new OutPacket(OutHeader.GIVE_SPECIAL_SKILL_BAR);
+
+        if (skillID == 0) {
+            outPacket.encodeInt(0);
+        } else {
+            // Unknown Packet Structure..
+            // This is entirely from a sniff.
+            // Can't find this packet anywhere in KMST idb nor v206 idb
+            outPacket.encodeInt(13); // unknown, from sniff
+            outPacket.encodeInt(13); // unknown, from sniff
+            outPacket.encodeByte(1); // unknown, from sniff
+            outPacket.encodeInt(0); // unknown, from sniff
+
+            outPacket.encodeInt(skillID);
+            outPacket.encodeInt(1); // slv (?)
+
+            outPacket.encodeArr(new byte[22]); // unknown, from sniff
         }
 
         return outPacket;

@@ -1,7 +1,9 @@
 package net.swordie.ms.life;
 
 import net.swordie.ms.client.character.Char;
-import net.swordie.ms.client.character.skills.*;
+import net.swordie.ms.client.character.skills.Option;
+import net.swordie.ms.client.character.skills.Skill;
+import net.swordie.ms.client.character.skills.SkillStat;
 import net.swordie.ms.client.character.skills.info.AttackInfo;
 import net.swordie.ms.client.character.skills.info.SkillInfo;
 import net.swordie.ms.client.character.skills.temp.TemporaryStatManager;
@@ -16,17 +18,23 @@ import net.swordie.ms.client.jobs.legend.Shade;
 import net.swordie.ms.client.jobs.resistance.Xenon;
 import net.swordie.ms.client.jobs.sengoku.Kanna;
 import net.swordie.ms.connection.packet.FieldPacket;
+import net.swordie.ms.life.mob.Mob;
 import net.swordie.ms.life.mob.MobStat;
+import net.swordie.ms.life.mob.MobTemporaryStat;
+import net.swordie.ms.life.mob.boss.demian.sword.DemianFlyingSword;
+import net.swordie.ms.life.mob.boss.demian.sword.DemianFlyingSwordPath;
 import net.swordie.ms.life.mob.skill.MobSkillStat;
 import net.swordie.ms.loaders.SkillData;
 import net.swordie.ms.loaders.containerclasses.MobSkillInfo;
+import net.swordie.ms.util.Position;
 import net.swordie.ms.util.Rect;
-import net.swordie.ms.life.mob.Mob;
-import net.swordie.ms.life.mob.MobTemporaryStat;
 import net.swordie.ms.world.field.Field;
 
-import static net.swordie.ms.client.character.skills.temp.CharacterTemporaryStat.*;
+import java.util.List;
+import java.util.Random;
+
 import static net.swordie.ms.client.character.skills.SkillStat.*;
+import static net.swordie.ms.client.character.skills.temp.CharacterTemporaryStat.*;
 
 /**
  * Created on 1/6/2018.
@@ -46,6 +54,7 @@ public class AffectedArea extends Life {
     private boolean flip;
     private int duration;
     private boolean removeSkill;
+    private int mobOwnerOID;
 
     public AffectedArea(int templateId) {
         super(templateId);
@@ -54,6 +63,8 @@ public class AffectedArea extends Life {
     public static AffectedArea getMobAA(Mob mob, short skill, short slv, MobSkillInfo msi) {
         AffectedArea aa = new AffectedArea(0);
 
+        aa.setMobOrigin((byte) 1);
+        aa.setMobOwnerOID(mob.getObjectId());
         aa.setSkillID(skill);
         aa.setSlv((byte) slv);
         aa.setDuration(msi.getSkillStatIntValue(MobSkillStat.time) * 1000);
@@ -162,6 +173,14 @@ public class AffectedArea extends Life {
         this.removeSkill = removeSkill;
     }
 
+    public int getMobOwnerOID() {
+        return mobOwnerOID;
+    }
+
+    public void setMobOwnerOID(int mobOwnerOID) {
+        this.mobOwnerOID = mobOwnerOID;
+    }
+
     public static AffectedArea getAffectedArea(Char chr, AttackInfo attackInfo) {
         AffectedArea aa = new AffectedArea(-1);
         aa.setSkillID(attackInfo.skillId);
@@ -184,6 +203,9 @@ public class AffectedArea extends Life {
     }
 
     public void handleMobInside(Mob mob) {
+        if (getOwner() == null) {
+            return;
+        }
         Char chr = getField().getCharByID(getCharID());
         if (chr == null) {
             return;
@@ -240,6 +262,9 @@ public class AffectedArea extends Life {
     }
 
     public void handleCharInside(Char chr) {
+        if (getOwner() == null) {
+            return;
+        }
         TemporaryStatManager tsm = chr.getTemporaryStatManager();
         if (tsm.hasAffectedArea(this)) {
             return;
@@ -309,6 +334,34 @@ public class AffectedArea extends Life {
         tsm.sendSetStatPacket();
     }
 
+    public void handleAARemoved() {
+        Field field = getField();
+
+        // Mob Affected Areas
+        if (getMobOrigin() > 0) {
+
+            // Demian Flying Sword Affected Area.
+            if (getSkillID() == 131 && getSlv() == 28) {
+                DemianFlyingSword sword = (DemianFlyingSword) field.getLifeByObjectID(getIdk());
+                if (sword != null) {
+                    List<Position> path;
+                    if (new Random().nextBoolean()) {
+                        path = DemianFlyingSwordPath.flyingSwordPathBouncing1;
+                    } else {
+                        path = DemianFlyingSwordPath.flyingSwordPathBouncing2;
+                    }
+                    sword.setDemianFlyingSwordPath(DemianFlyingSwordPath.flyingSwordBouncingPath(path));
+                    sword.startPath();
+                    sword.target();
+                }
+            }
+
+        // Char Affected Areas
+        } else {
+
+        }
+    }
+
     public int getDuration() {
         return duration;
     }
@@ -327,6 +380,9 @@ public class AffectedArea extends Life {
     @Override
     public void broadcastLeavePacket() {
         Field field = getField();
+
+        handleAARemoved(); // Used for special cases, where something has to happen upon removal of AA.
+
         field.broadcastPacket(FieldPacket.affectedAreaRemoved(this, false));
         for (Char chr : field.getChars()) {
             TemporaryStatManager tsm = chr.getTemporaryStatManager();

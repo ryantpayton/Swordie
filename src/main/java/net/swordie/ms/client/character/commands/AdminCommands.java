@@ -22,11 +22,11 @@ import net.swordie.ms.constants.ItemConstants;
 import net.swordie.ms.constants.JobConstants.JobEnum;
 import net.swordie.ms.enums.*;
 import net.swordie.ms.handlers.header.OutHeader;
-import net.swordie.ms.life.Android;
 import net.swordie.ms.life.Life;
 import net.swordie.ms.life.mob.Mob;
 import net.swordie.ms.life.mob.MobStat;
 import net.swordie.ms.life.mob.MobTemporaryStat;
+import net.swordie.ms.life.mob.boss.demian.sword.DemianFlyingSword;
 import net.swordie.ms.life.npc.Npc;
 import net.swordie.ms.loaders.*;
 import net.swordie.ms.loaders.containerclasses.SkillStringInfo;
@@ -62,10 +62,34 @@ public class AdminCommands {
     public static class Test extends AdminCommand {
 
         public static void execute(Char chr, String[] args) {
-            Android andr = new Android(Integer.parseInt(args[1]), chr, (short) 0, (short) 1000, (short) 1000, "Sword");
-            chr.write(AndroidPacket.created(andr));
+            Field field = chr.getField();
+            DemianFlyingSword sword = DemianFlyingSword.createDemianFlyingSword(chr, (Mob) field.getLifeByTemplateId(8880110));
+
+            field.spawnLife(sword, null); // create
+            sword.startPath();
+            sword.target();
         }
     }
+
+    @Command(names = {"packet"}, requiredType = Admin)
+    public static class TestPacket extends AdminCommand {
+
+        public static void execute(Char chr, String[] args) {
+            if (args.length < 3) {
+                chr.chatMessage("Usage: !packet <op> <data>");
+                return;
+            }
+            OutPacket outPacket = new OutPacket(Short.parseShort(args[1]));
+            StringBuilder data = new StringBuilder();
+            for (int i = 2; i < args.length; i++) {
+                data.append(" ").append(args[i]);
+            }
+            outPacket.encodeArr(data.toString());
+            chr.write(outPacket);
+
+        }
+    }
+
 
     @Command(names = {"showinvinfo", "invinfo"}, requiredType = Tester)
     public static class ShowInvInfo extends AdminCommand {
