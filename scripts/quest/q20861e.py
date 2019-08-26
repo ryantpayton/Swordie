@@ -1,13 +1,10 @@
 # The Path of a Dawn Warrior - Completion
-from net.swordie.ms.enums import Stat
+sm.setSpeakerID(1101003)  # Mihile
 
-sm.jobAdvance(1100) # Dawn Warrior 1st Job
-curLevel = sm.getChr().getLevel()
-if sm.getChr().getStat(Stat.str) >= 50:
-    sm.getChr().addStatAndSendPacket(Stat.str, -(curLevel * 5)) # deduct automatic AP given to str while leveling
-    sm.getChr().addStatAndSendPacket(Stat.ap, (curLevel * 5)) # and add it back to AP
-sm.setSpeakerID(1101003) # Mihile
-sm.sendSayOkay("Congratulations, you are now a thunder breaker! I have added 4 SP, enjoy your journey!")
+sm.jobAdvance(1100)  # Dawn Warrior 1st Job
+sm.resetAP(False, 1100)
+sm.giveItem(1402001)  # Wooden Sword (2H)
+sm.giveItem(1142066)
+
 sm.completeQuest(parentID)
-sm.giveItem(1402001) # Wooden Sword (2H)
-sm.dispose()
+sm.sendSayOkay("Congratulations, you are now a thunder breaker! I have added 4 SP, enjoy your journey!")

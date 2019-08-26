@@ -223,8 +223,8 @@ public class Warrior extends Beginner {
                 o2.rOption = skillID;
                 tsm.putCharacterStatValue(EnrageCrDamMin, o2);
                 o3.nOption = si.getValue(x, slv);
-                o2.rOption = skillID;
-                tsm.putCharacterStatValue(EnrageCr, o3);
+                o3.rOption = skillID;
+                tsm.putCharacterStatValue(DamR, o3);
                 break;
             case COMBAT_ORDERS:
                 o1.nOption = si.getValue(x, slv);

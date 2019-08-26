@@ -6,6 +6,7 @@ if sm.hasQuest(38023):
     sm.sendNext("Wow, this is... really nice. This medal means they've accepted me. No more tests, no more suspicion. Is this... what having a family is like?")
     sm.sendSay("It's been so long. The Black Mage, the seal, Maple World. Everything feels like a dream. I've gotten used to things around here. Maybe someday I can go back to Maple World... but do I even want to?")
     sm.giveItem(1142671)
+    sm.completeQuestNoRewards(32024)
     sm.completeQuest(38023)
     sm.giveExp(4000)
 elif sm.hasQuest(38018):
@@ -37,4 +38,3 @@ elif sm.hasQuest(38008):
     sm.giveExp(1200)
     sm.completeQuest(38008)
     sm.startQuest(38009)
-    sm.completeQuest(38009)

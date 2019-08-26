@@ -306,6 +306,17 @@ public interface ScriptManager extends Observer {
 	void resetAP(boolean hpmp);
 
 	/**
+	 * Resets {@Link Char}'s base stats and adds it into primary stat of specified Job.
+	 * Example: "sm.resetAP(false, 2112)"
+	 *
+	 * @param hpmp
+	 * 		Whether or not to reset HP/MP also.
+	 * @param jobID
+	 * 		The jobID of the character or job advancement.
+	 */
+	void resetAP(boolean hpmp, short jobID);
+
+	/**
 	 * Sets the STR of {@link Char} to the specified amount.
 	 * Example: "sm.setSTR(15)"
 	 *

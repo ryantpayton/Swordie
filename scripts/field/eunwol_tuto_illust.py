@@ -1,4 +1,35 @@
 # 927030050
+FOX_POINT_PATH = 940200060
+CURSE_YOUR_HUMAN_LEGS = 38000
+SHADE_SKIP_QR = 37999
+
+QUESTS_TO_SKIP = [38000, 38001, 38002, 38003, 38004, 38005, 38006, 38007, 38008, 38009, 38010, 38011, 38012, 38013, 38014, 38015, 38016, 38017, 38018, 38019, 38020, 38021, 38022, 38023, 38024, 38025, 38026, 38027]
+
+sm.setSpeakerID(2007)
+sm.setBoxChat()
+if sm.sendAskAccept("Would you like to complete #r#eall quests up to 2nd job advancement#k#n? (You'll have to grind until level 27.)"):
+    sm.addLevel(9)
+    sm.jobAdvance(2500)
+    sm.giveAndEquip(1353100)
+    sm.giveItem(1142671)
+    sm.completeQuestNoRewards(32024)
+    sm.giveItem(3010766)
+    sm.resetAP(False, 2500)
+    sm.giveSkill(20051284)
+    sm.giveSkill(20050285)
+    sm.giveSkill(25001002, 0, 25)
+    sm.warp(410000000)
+    for q in QUESTS_TO_SKIP:
+        sm.startQuestNoCheck(q)
+        sm.completeQuestNoRewards(q)
+    sm.consumeItem(4033998, 4)
+    sm.dispose()
+
+if sm.sendAskYesNo("Would you like to skip the tutorial cutscene?"):
+    sm.createQuestWithQRValue(SHADE_SKIP_QR, "SKIPPED_ILLUST")
+    sm.warp(FOX_POINT_PATH)
+    sm.dispose()
+
 sm.lockInGameUI(True, False)
 sm.hideUser(True)
 sm.forcedInput(0)

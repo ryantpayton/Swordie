@@ -687,27 +687,44 @@ public class ScriptManagerImpl implements ScriptManager {
 
 	@Override
 	public void resetAP(boolean hpmp) {
-		int addSTR = chr.getAvatarData().getCharacterStat().getStr() - 4;
-		int addDEX = chr.getAvatarData().getCharacterStat().getDex() - 4;
-		int addLUK = chr.getAvatarData().getCharacterStat().getLuk() - 4;
-		int addINT = chr.getAvatarData().getCharacterStat().getInt() - 4;
-		int currentAP = chr.getAvatarData().getCharacterStat().getAp();
-		int goalAP = currentAP + addSTR + addDEX + addLUK + addINT;
-
-		chr.setStat(Stat.str, 4);
-		chr.setStat(Stat.dex, 4);
-		chr.setStat(Stat.luk, 4);
-		chr.setStat(Stat.inte, 4);
-		chr.setStat(Stat.ap, goalAP);
-
-		Map<Stat, Object> stats = new HashMap<>();
-		stats.put(Stat.str, (short) 4);
-		stats.put(Stat.dex, (short) 4);
-		stats.put(Stat.luk, (short) 4);
-		stats.put(Stat.inte, (short) 4);
-		stats.put(Stat.ap, (short) goalAP);
-		chr.getClient().write(WvsContext.statChanged(stats));
+	    resetAP(hpmp, (short) 0);
 	}
+
+	@Override
+    public void resetAP(boolean hpmp, short jobID) {
+        Map<Stat, Object> stats = new HashMap<>();
+        stats.put(Stat.str,  chr.getAvatarData().getCharacterStat().getStr());
+        stats.put(Stat.dex,  chr.getAvatarData().getCharacterStat().getDex());
+        stats.put(Stat.luk,  chr.getAvatarData().getCharacterStat().getLuk());
+        stats.put(Stat.inte, chr.getAvatarData().getCharacterStat().getInt());
+        stats.put(Stat.ap,   chr.getAvatarData().getCharacterStat().getAp());
+
+        // Identify Primary Stat, special case only exist for Thief (Xenon) & Pirates (Also including Xenon)
+        Stat primaryStat = JobConstants.isWarriorEquipJob(jobID) ? Stat.str : JobConstants.isArcherEquipJob(jobID) ? Stat.dex : JobConstants.isMageEquipJob(jobID) ? Stat.inte : JobConstants.isThiefEquipJob(jobID) ? Stat.luk : Stat.ap;
+        if (JobConstants.isXenon(jobID) || JobConstants.isAdventurerPirate(jobID) && !JobConstants.isBuccaneer(jobID) && !JobConstants.isCorsair(jobID) && !JobConstants.isCannonShooter(jobID)) {
+            primaryStat = Stat.ap; // If we are a xenon or a 1st job adventurer pirate put points back into AP
+        }
+        else if (JobConstants.isBuccaneer(jobID) || JobConstants.isThunderBreaker(jobID) || JobConstants.isShade(jobID) || JobConstants.isCannonShooter(jobID)) {
+            primaryStat = Stat.str; // Handle STR pirates
+        }
+        else if (JobConstants.isPirateEquipJob(jobID)) {
+            primaryStat = Stat.dex; // if none of the above conditions apply & we're a pirate, only remaining choice is DEX, otherwise we leave primary stat as AP
+        }
+
+        int buffer = 0; // Difference between the stat's current value and its minimum (0 for AP, 4 for the four traditional stats)
+        for (Map.Entry<Stat, Object> stat : stats.entrySet()) {
+            if (stat.getKey() != primaryStat) {
+                buffer = ((short) stat.getValue() - (stat.getKey() != Stat.ap ? 4 : 0));
+                if (buffer > 0) {
+                    stat.setValue((short)((short) stat.getValue() - buffer));
+                    stats.put(primaryStat, (short)((short) stats.get(primaryStat) + buffer));
+                    chr.setStat(stat.getKey(), (short)stats.get(stat.getKey()));
+                    chr.setStat(primaryStat, (short)stats.get(primaryStat));
+                }
+            }
+        }
+        chr.getClient().write(WvsContext.statChanged(stats));
+    }
 
 	@Override
 	public void setSTR(short amount) {
