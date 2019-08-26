@@ -7,10 +7,10 @@ if not sm.hasItem(GELIMERS_KEY_CARD):
     sm.dispose()
 
 validJobIDs = {
-    3211 : 931000300,
-    3311 : 931000301,
-    3511 : 931000302,
-    3711 : 931000303,
+    3211: 931000300,
+    3311: 931000301,
+    3511: 931000302,
+    3711: 931000303,
 }
 
 charJobID = sm.getChr().getJob()

@@ -4,7 +4,6 @@ if sm.getQRValue(24007) != "1":
     sm.setPlayerAsSpeaker()
     sm.sendNext("Elders! You're okay! But...but the village...!")
 
-
     sm.setSpeakerID(1033202)
     sm.sendSay("A fierce, frozen curse has fallen upon the town. Your Highness, I see it has fallen upon you as well.")
 
@@ -99,4 +98,3 @@ if sm.getQRValue(24007) != "1":
     sm.sendSay("There are some things we should take care of first. I believe #p1033204# wants to speak with you.")
     sm.createQuestWithQRValue(24007, "1")
     # sm.startQuestNoCheck(24000)
-    sm.dispose()

@@ -10,6 +10,3 @@ if sm.sendAskYesNo("Anyways, I just noticed how high of a level you've reached. 
     sm.jobAdvance(2112)
     sm.sendNext("Your skills have been restored. Those skills have been dormant for so long that you'll have to re-train yourself. but you'll be as good as new once you complete your training.")
     sm.sendNext("Even with all that, however, you still have a long way to go until you return to the old you.")
-    sm.dispose()
-else:
-    sm.dispose()

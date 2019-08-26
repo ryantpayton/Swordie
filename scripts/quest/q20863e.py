@@ -1,10 +1,10 @@
 # Path of a Wind Archer - Completion
-sm.setSpeakerID(1101005) # Irena
+sm.setSpeakerID(1101005)  # Irena
 
-sm.jobAdvance(1300) # Wind Archer 1st Job
+sm.jobAdvance(1300)  # Wind Archer 1st Job
 sm.resetAP(False, 1300)
-sm.giveItem(1452002) # War Bow
-sm.giveItem(2060000, 1000) # Bow Arrow
+sm.giveItem(1452002)  # War Bow
+sm.giveItem(2060000, 1000)  # Bow Arrow
 sm.giveItem(1142066)
 
 sm.completeQuest(parentID)

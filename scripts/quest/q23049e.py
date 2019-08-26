@@ -10,5 +10,3 @@ if sm.sendAskYesNo("But it's too early to celebrate. #p2154009# will show up wit
     sm.completeQuest(parentID)
     sm.consumeItem(GELIMERS_KEY_CARD)
     sm.warpInstanceOut(SECRET_PLAZA, 0)
-else:
-    sm.dispose()

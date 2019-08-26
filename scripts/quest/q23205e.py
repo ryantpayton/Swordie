@@ -5,6 +5,6 @@ sm.completeQuestNoRewards(parentID)
 sm.deleteQuest(parentID)
 for i in range(5):
     if sm.hasSkill(SKILLS[i]):
-        sm.removeSkill(SKILLS[i])# remove the skill
+        sm.removeSkill(SKILLS[i])  # remove the skill
 sm.removeNpc(ARKARIUM)
 sm.warpInstanceIn(927000070, 0)

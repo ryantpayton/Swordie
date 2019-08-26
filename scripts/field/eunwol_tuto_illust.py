@@ -29,6 +29,7 @@ if sm.sendAskYesNo("Would you like to skip the tutorial cutscene?"):
     sm.createQuestWithQRValue(SHADE_SKIP_QR, "SKIPPED_ILLUST")
     sm.warp(FOX_POINT_PATH)
     sm.dispose()
+
 sm.lockInGameUI(True, False)
 sm.hideUser(True)
 sm.forcedInput(0)

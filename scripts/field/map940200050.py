@@ -54,5 +54,3 @@ else:
     sm.spawnMob(9300811, -300, 85, False)
     sm.createQuestWithQRValue(38022, "")
     sm.lockInGameUI(False)
-
-

@@ -17,7 +17,7 @@ if sm.sendAskYesNo("So you've finally decided to become a Blaster, eh? Well, you
     sm.giveItem(HAND_BUSTER)
     sm.giveAndEquip(RUDIMENTARY_CHARGES)
     sm.completeQuest(parentID)
-    
+
     sm.removeEscapeButton()
     sm.sendNext("Great! You're now an official member of the Resistance! Let me give you a brief explanation on Blaster skills to celebrate becoming a Blaster.")
     sm.sendSay("The two major mechanics of a Blaster are #bAmmo#k and the #bDynamo Gauge#k. In combat, you use #bAmmo#k to reload the #bDynamo Gauge#k. You can then use the powerful #eBunker Buster#n skill with the reloaded #bDynamo Gauge#k.")
@@ -38,7 +38,7 @@ if sm.sendAskYesNo("So you've finally decided to become a Blaster, eh? Well, you
     # TODO: this needs to show the blaster UI https://i.imgur.com/8n9tNV9.png
     sm.sendSay("Now, you're probably wondering about the #bDynamo Gauge#k. Every time you consume a suitable amount of #bAmmo#k, a bar in your #bDynamo Gauge#k will fill up.")
 
-    # TODO: this needs to show the blaster UI https://i.imgur.com/H0j9ILE.png    
+    # TODO: this needs to show the blaster UI https://i.imgur.com/H0j9ILE.png
     sm.sendSay("When the #bDynamo Gauge#k loads up, it'll overheat, causing you to deal more damage. You can use a powerful skill called #eBunker Blaster#n when at least 3 bars in the #bDynamo Gauge#k are filled. You won't be able to use it again until you reload the #bDynamo Gauge#k or wait a bit, though.")
 
     sm.sendSay("You'll have to practice using up #bAmmo#k and reloading the #bDynamo Gauge#k quickly to get the hang of enabling #eBunker Blaster#n. Power takes effort, you know?")

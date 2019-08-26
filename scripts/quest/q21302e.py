@@ -10,6 +10,3 @@ if sm.sendAskYesNo("Okay, now that I have the power of Red Jade, I'll restore mo
     sm.jobAdvance(2111)
     sm.consumeItem(4032312)
     sm.sendNext("Please get back all of your abilities soon. I want to explore with you like we did in the good old days.")
-    sm.dispose()
-else:
-    sm.dispose()

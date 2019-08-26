@@ -13,4 +13,3 @@ if sm.sendAskYesNo("Would you like to become a Battle Mage?"):
     sm.sendSayOkay("Congratulations, you are now a battle mage! I have given you some SP and items to start out with, enjoy!")
 else:
     sm.sendSayOkay("Of course, you need more time.")
-sm.dispose()

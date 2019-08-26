@@ -87,4 +87,3 @@ if sm.getQRValue(37999) != "SKIP_FOXVILLAGE":
 sm.lockInGameUI(False)
 sm.startQuest(38028)
 sm.warp(410000000, 6)
-

@@ -1,6 +1,6 @@
 # 23013 - Mechanic 1st job advancement quest
 
-sm.setSpeakerID(2151004) # Checky
+sm.setSpeakerID(2151004)  # Checky
 if sm.sendAskYesNo("Would you like to become a Mechanic?"):
     if not sm.canHold(1492000) or not sm.canHold(2330000):
         sm.sendSayOkay("Please make some space in your Equipment or Use Inventory.")
@@ -13,4 +13,3 @@ if sm.sendAskYesNo("Would you like to become a Mechanic?"):
     sm.sendSayOkay("Congratulations, you are now a Mechanic! I have given you some SP and items to start out with, enjoy!")
 else:
     sm.sendSayOkay("Come back when you're ready.")
-sm.dispose()

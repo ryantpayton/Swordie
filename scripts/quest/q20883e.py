@@ -7,7 +7,5 @@ if sm.sendAskYesNo("The Queen has appointed you the title of nobility for your a
     sm.jobAdvance(chrJobID+1)
     sm.completeQuest(parentID)
     sm.giveItem(1142068)
-    sm.dispose()
 else:
     sm.sendSayOkay("Let me know when you wish to accept the title.")
-    sm.dispose()

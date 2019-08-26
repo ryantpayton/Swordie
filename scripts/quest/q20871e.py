@@ -5,10 +5,7 @@ if sm.sendAskYesNo("So you killed all the monsters? Are you ready to advance?"):
         sm.completeQuest(parentID)
         sm.jobAdvance(1110)
         sm.giveItem(1142067)
-        sm.dispose()
-    else :
+    else:
         sm.sendSay("Please make room in your Equip inventory.")
-        sm.dispose()
 else:
     sm.sendSay("Please speak to me after You've defeated all monsters required.")
-    sm.dispose()

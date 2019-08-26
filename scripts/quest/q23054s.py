@@ -22,5 +22,3 @@ if sm.sendAskYesNo("No, the problem is... you! You've become too strong. I'm sup
     sm.sendNext("I've also given you some skills that I know of but haven't mastered yet. I have a hunch that you'll be able to master them. After all, you're like the Resistance's hero now.")
     sm.sendSay("Could this be my last lesson with you? Nah, can't be. You may be stronger, but I'm still smarter. I'm sure there's plenty more you can learn from me. So I'll see you at your next lesson...whenever that is...")
     sm.sendPrev("I look forward to seeing what you accomplish.")
-else:
-    sm.dispose()

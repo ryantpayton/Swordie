@@ -21,6 +21,3 @@ if sm.sendAskYesNo("Evn though you've lost your memory, you're still my master. 
     sm.giveItem(1142130)
     sm.jobAdvance(2110)
     sm.sendNext("Your level isn't what it used to be back in your glory days, so I can't restore all of your old abilities. But the few that I can restore should help you level up faster. Now hurry up and train so you can return to the old you.")
-    sm.dispose()
-else:
-    sm.dispose()

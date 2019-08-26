@@ -32,6 +32,6 @@ if sm.getQRValue(37999) != "SKIP_RAIN_EXPLAIN":
 
     sm.removeNpc(SNIFFS)
 sm.startQuestNoCheck(38019)
-sm.startQuestNoCheck(38903) # interestingly enough if you do the skip in GMS it doesn't start raining so this quest isn't started
+sm.startQuestNoCheck(38903)  # interestingly enough if you do the skip in GMS it doesn't start raining so this quest isn't started
 sm.lockInGameUI(False)
 sm.warp(410000001, 0)
