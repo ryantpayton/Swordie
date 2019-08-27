@@ -50,6 +50,10 @@ public class Blaster extends Citizen {
     public static final int REVOLVING_CANNON_PLUS_II = 37110007;
     public static final int REVOLVING_CANNON_PLUS_III = 37120008;
 
+
+    public static final int BUNKER_BUSTER_EXPLOSION_0 = 37110010;
+    public static final int BUNKER_BUSTER_EXPLOSION_1 = 37100009;
+    public static final int BUNKER_BUSTER_EXPLOSION_2 = 37000008;
     public static final int BUNKER_BUSTER_EXPLOSION_3 = 37001002;
     public static final int BUNKER_BUSTER_EXPLOSION_4 = 37000011;
     public static final int BUNKER_BUSTER_EXPLOSION_5 = 37000012;
@@ -204,19 +208,36 @@ public class Blaster extends Citizen {
                 hmci.setDelay((short) 5);
                 chr.getField().spawnAffectedArea(hmci);
                 break;
-            case BUNKER_BUSTER_EXPLOSION_3:
-            case BUNKER_BUSTER_EXPLOSION_4:
-            case BUNKER_BUSTER_EXPLOSION_5:
-            case BUNKER_BUSTER_EXPLOSION_6:
-
+            case BUNKER_BUSTER_EXPLOSION_2:
+                if (getGauge() < 3 || tsm.hasStat(RWOverHeat)) {
+                    return;
+                }
+                si = SkillData.getSkillInfoById(BUNKER_BUSTER_EXPLOSION_4);
+                o1.nOption = si.getValue(v2, 1);
+                o1.rOption = BUNKER_BUSTER_EXPLOSION_4;
+                o1.tOption = si.getValue(time, 1);
+                o1.nReason = si.getValue(v2, 1);
+                tsm.putCharacterStatValue(RWOverHeat, o1);
+                gaugeChange(getMaxAmmo() - getGauge());
                 break;
-
             case HYPER_MAGNUM_PUNCH:
                 o1.nOption = 5;
                 o1.rOption = skillID;
                 o1.tOption = 10;
                 tsm.putCharacterStatValue(RWMagnumBlow, o1);
                 tsm.sendSetStatPacket();
+                break;
+            case REVOLVING_CANNON_3:
+            case REVOLVING_CANNON_2:
+            case REVOLVING_CANNON:
+                if(getAmmo() > 0) {
+                    removeAmmo();
+                }
+                if(getGauge() < getMaxAmmo()) {
+                    addGauge();
+                }
+                lastAttack = skillID;
+                //c.write(UserLocal.rwMultiChargeCancelRequest((byte)1, skillID));
                 break;
         }
         super.handleAttack(c, attackInfo);
@@ -257,7 +278,7 @@ public class Blaster extends Citizen {
     public void ammoChange(int amount) {
         TemporaryStatManager tsm = chr.getTemporaryStatManager();
         Option o = new Option();
-        if(getAmmo() > 0) {
+        if (getAmmo() > 0 && getAmmo() + amount <= getMaxAmmo()) {
             setAmmo(getAmmo() + amount);
             o.nOption = 1;
             o.bOption = getAmmo();
@@ -286,7 +307,7 @@ public class Blaster extends Citizen {
     public void gaugeChange(int amount) {
         TemporaryStatManager tsm = chr.getTemporaryStatManager();
         Option o = new Option();
-        if(getGauge() < getMaxAmmo()) {
+        if (getGauge() <= getMaxAmmo() || (amount < 0 && getGauge() + amount > 0)) {
             setGauge(getGauge() + amount);
             o.nOption = 1;
             o.bOption = getAmmo();
@@ -322,23 +343,49 @@ public class Blaster extends Citizen {
     }
 
     private void incrementComboTraining(int skillId, TemporaryStatManager tsm) {
-        Option o = new Option();
+        if (!chr.hasSkill(COMBO_TRAINING)) {
+            return;
+        }
         SkillInfo chargeInfo = SkillData.getSkillInfoById(COMBO_TRAINING);
         int amount = 1;
-        if(tsm.hasStat(RWCombination)) {
+        if (tsm.hasStat(RWCombination)) {
             amount = tsm.getOption(RWCombination).nOption;
             if (lastAttack == skillId) {
                 return;
             }
-            if(amount < chargeInfo.getValue(z, 1)) {
+            if (amount < chargeInfo.getValue(z, 1)) {
                 amount++;
             }
         }
         lastAttack = skillId;
+        Option o = new Option();
         o.nOption = amount;
-        o.rOption = COMBO_TRAINING;
+        o.rOption = chr.hasSkill(COMBO_TRAINING_II) ? COMBO_TRAINING_II : COMBO_TRAINING;
         o.tOption = 10;
         tsm.putCharacterStatValue(RWCombination, o);
+        if (amount >= chargeInfo.getValue(w, 1)) { //if combo higher than w value give attack speed, for both passives
+            Option o1 = new Option();
+            o1.nValue = -1;
+            o1.rOption = COMBO_TRAINING;
+            o1.tStart = (int) System.currentTimeMillis();
+            o1.tTerm = 10;
+            tsm.putCharacterStatValue(IndieBooster, o1);
+        }
+        chargeInfo = SkillData.getSkillInfoById(COMBO_TRAINING_II);
+        Option o2 = new Option();
+        o2.nOption = chr.hasSkill(COMBO_TRAINING_II) ? (3 + (chr.getSkillLevel(COMBO_TRAINING_II) / 10)) * amount : chr.getSkillLevel(COMBO_TRAINING) / 3 * amount; //diff calculation depends if player has combo training 2
+        o2.rOption = chargeInfo.getCurrentLevel();
+        o2.tOption = 10;
+        tsm.putCharacterStatValue(DamR, o2);
+
+        if (!chr.hasSkill(COMBO_TRAINING_II)) {
+            return;
+        }
+        Option o3 = new Option();
+        o3.nOption = chr.getSkillLevel(COMBO_TRAINING_II) / 10 * amount;
+        o3.rOption = chargeInfo.getCurrentLevel();
+        o3.tOption = 10;
+        tsm.putCharacterStatValue(CriticalBuff, o3);
         tsm.sendSetStatPacket();
     }
 
@@ -374,17 +421,6 @@ public class Blaster extends Citizen {
                     break;
                 case REVOLVING_CANNON_RELOAD:
                     reloadCylinder();
-                    break;
-                case REVOLVING_CANNON_3:
-                case REVOLVING_CANNON_2:
-                case REVOLVING_CANNON:
-                    if(getAmmo() > 0) {
-                        removeAmmo();
-                    }
-                    if(getGauge() < 6) {
-                        addGauge();
-                    }
-                    //c.write(UserLocal.rwMultiChargeCancelRequest((byte)1, skillID));
                     break;
                 case VITALITY_SHIELD:
                     resetBlastShield();
