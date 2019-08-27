@@ -12,8 +12,8 @@ import net.swordie.ms.client.character.skills.info.MobAttackInfo;
 import net.swordie.ms.client.character.skills.info.SkillInfo;
 import net.swordie.ms.client.character.skills.temp.TemporaryStatManager;
 import net.swordie.ms.connection.InPacket;
-import net.swordie.ms.connection.packet.FieldPacket;
 import net.swordie.ms.connection.packet.Effect;
+import net.swordie.ms.connection.packet.FieldPacket;
 import net.swordie.ms.connection.packet.UserPacket;
 import net.swordie.ms.connection.packet.UserRemote;
 import net.swordie.ms.constants.JobConstants;
@@ -64,6 +64,7 @@ public class Archer extends Beginner {
 
     public static final int SHARP_EYES_BOW = 3121002;
     public static final int SHARP_EYES_BOW_IED_H = 3120044;
+    public static final int SHARP_EYES_BOW_CR_H = 3120045;
     public static final int ILLUSION_STEP_BOW = 3121007;
     public static final int ENCHANTED_QUIVER = 3121016;
     public static final int BINDING_SHOT = 3121014;
@@ -81,6 +82,7 @@ public class Archer extends Beginner {
     public static final int ARROW_ILLUSION = 3221014;
     public static final int SHARP_EYES_XBOW = 3221002;
     public static final int SHARP_EYES_XBOW_IED_H = 3220044;
+    public static final int SHARP_EYES_XBOW_CR_H = 3220045;
     public static final int ARMOR_BREAK = 3120018;
     public static final int ILLUSION_STEP_XBOW = 3221006;
 
@@ -251,16 +253,16 @@ public class Archer extends Beginner {
                 break;
             case SHARP_EYES_BOW:
             case SHARP_EYES_XBOW:
-                o1.nOption = si.getValue(x, slv);
-                o1.rOption = skillID;
-                o1.tOption = si.getValue(time, slv);
-                tsm.putCharacterStatValue(CriticalBuff, o1);
-                o2.nOption = si.getValue(y, slv);
+                int cr = si.getValue(x, slv);
+                int crDmg = si.getValue(y, slv);
+                cr += SkillData.getSkillInfoById(SHARP_EYES_BOW_CR_H).getValue(x, chr.getSkillLevel(SHARP_EYES_BOW_CR_H)) + SkillData.getSkillInfoById(SHARP_EYES_XBOW_CR_H).getValue(x, chr.getSkillLevel(SHARP_EYES_XBOW_CR_H));
+                o2.nOption = (cr << 8) + crDmg;
+                o2.nValue = si.getValue(y, slv);
                 o2.rOption = skillID;
                 o2.tOption = si.getValue(time, slv);
 
                 //mOption is for the hyper passive
-                if(chr.hasSkill(SHARP_EYES_BOW_IED_H) || chr.hasSkill(SHARP_EYES_XBOW_IED_H)) {
+                if (chr.hasSkill(SHARP_EYES_BOW_IED_H) || chr.hasSkill(SHARP_EYES_XBOW_IED_H)) {
                     o2.mOption = si.getValue(ignoreMobpdpR, slv);
 
                 }
@@ -331,7 +333,7 @@ public class Archer extends Beginner {
                 tsm.putCharacterStatValue(Preparation, o3); //preparation = BD%
                 break;
             case BULLSEYE_SHOT:
-                o1.nOption = 1;
+                o1.nOption = si.getValue(x, slv);
                 o1.rOption = skillID;
                 o1.tOption = si.getValue(time, slv);
                 tsm.putCharacterStatValue(BullsEye, o1);
@@ -345,10 +347,6 @@ public class Archer extends Beginner {
                 o3.tStart = (int) System.currentTimeMillis();
                 o3.tTerm = si.getValue(time, slv);
                 tsm.putCharacterStatValue(IndieIgnoreMobpdpR, o3);
-                o4.nOption = si.getValue(y, slv);
-                o4.rOption = skillID;
-                o4.tOption = si.getValue(time, slv);
-                tsm.putCharacterStatValue(SharpEyes, o4);   //Max Crit Dmg%
                 o5.nReason = skillID;
                 o5.nValue = si.getValue(x, slv);
                 o5.tStart = (int) System.currentTimeMillis();
