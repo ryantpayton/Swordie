@@ -8,6 +8,7 @@ import net.swordie.ms.client.trunk.Trunk;
 import net.swordie.ms.connection.db.DatabaseManager;
 import net.swordie.ms.constants.ItemConstants;
 import net.swordie.ms.constants.SkillConstants;
+import net.swordie.ms.life.Merchant.EmployeeTrunk;
 import net.swordie.ms.loaders.StringData;
 import net.swordie.ms.util.Util;
 import org.apache.log4j.Logger;
@@ -34,6 +35,9 @@ public class Account {
     @JoinColumn(name = "trunkID")
     @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true)
     private Trunk trunk;
+    @JoinColumn(name = "employeetrunkID")
+    @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true)
+    private EmployeeTrunk employeeTrunk;
     @JoinColumn(name = "monsterCollectionID")
     @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true)
     private MonsterCollection monsterCollection;
@@ -259,5 +263,14 @@ public class Account {
     public void setCurrentChr(Char currentChr) {
         this.currentChr = currentChr;
     }
+
+    public EmployeeTrunk getEmployeeTrunk() {
+        if (employeeTrunk == null) {
+            employeeTrunk = new EmployeeTrunk();
+        }
+
+        return employeeTrunk;
+    }
+
 
 }

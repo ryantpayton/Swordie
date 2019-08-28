@@ -1,14 +1,15 @@
 package net.swordie.ms.world;
 
+import net.swordie.ms.ServerStatus;
 import net.swordie.ms.client.Account;
 import net.swordie.ms.client.Client;
 import net.swordie.ms.client.alliance.Alliance;
 import net.swordie.ms.client.character.Char;
 import net.swordie.ms.client.guild.Guild;
 import net.swordie.ms.client.party.Party;
-import net.swordie.ms.ServerStatus;
 import net.swordie.ms.connection.OutPacket;
 import net.swordie.ms.connection.db.DatabaseManager;
+import net.swordie.ms.life.Merchant.Merchant;
 
 import java.util.*;
 
@@ -29,6 +30,7 @@ public class World {
     private int partyIDCounter = 1;
     private boolean charCreateBlock;
     private boolean reboot;
+    private ArrayList<Merchant> merchants = new ArrayList<Merchant>();
 
     public World(int worldId, String name, int worldState, String worldEventDescription, int worldEventEXP_WSE,
                  int worldEventDrop_WSE, int boomUpEventNotice, int amountOfChannels, boolean starplanet, boolean reboot) {
@@ -332,5 +334,17 @@ public class World {
 
     public Map<Integer, Client> getConnectedChatClients(){
         return connectedChatClients;
+    }
+
+    public void addMerchant(Merchant merchant) {
+        this.merchants.add(merchant);
+    }
+
+    public void removeMerchant(Merchant merchant) {
+        this.merchants.remove(merchant);
+    }
+
+    public ArrayList<Merchant> getMerchants() {
+        return this.merchants;
     }
 }

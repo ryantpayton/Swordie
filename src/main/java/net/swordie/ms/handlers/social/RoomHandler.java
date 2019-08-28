@@ -2,11 +2,14 @@ package net.swordie.ms.handlers.social;
 
 import net.swordie.ms.client.Client;
 import net.swordie.ms.client.anticheat.Offense;
+import net.swordie.ms.client.character.BroadcastMsg;
 import net.swordie.ms.client.character.Char;
 import net.swordie.ms.client.character.CharacterStat;
 import net.swordie.ms.client.character.TradeRoom;
+import net.swordie.ms.client.character.items.Equip;
 import net.swordie.ms.client.character.items.Item;
 import net.swordie.ms.connection.InPacket;
+import net.swordie.ms.connection.db.DatabaseManager;
 import net.swordie.ms.connection.packet.Effect;
 import net.swordie.ms.connection.packet.MiniroomPacket;
 import net.swordie.ms.connection.packet.WvsContext;
@@ -15,14 +18,20 @@ import net.swordie.ms.enums.InvType;
 import net.swordie.ms.enums.MiniRoomType;
 import net.swordie.ms.enums.PopularityResultType;
 import net.swordie.ms.enums.Stat;
+import net.swordie.ms.handlers.EventManager;
 import net.swordie.ms.handlers.Handler;
 import net.swordie.ms.handlers.header.InHeader;
+import net.swordie.ms.life.Life;
+import net.swordie.ms.life.Merchant.Merchant;
+import net.swordie.ms.life.Merchant.MerchantItem;
 import net.swordie.ms.loaders.ItemData;
 import net.swordie.ms.util.FileTime;
+import net.swordie.ms.world.World;
 import net.swordie.ms.world.field.Field;
 import org.apache.log4j.Logger;
 
 import java.time.LocalDateTime;
+import java.util.concurrent.TimeUnit;
 
 public class RoomHandler {
 
@@ -136,7 +145,22 @@ public class RoomHandler {
                 break;
             case Accept:
                 if (tradeRoom == null) {
-                    chr.chatMessage("Your trade partner cancelled the trade.");
+                    int objectid = inPacket.decodeInt();
+                    Life life = chr.getField().getLifeByObjectID(objectid);
+                    if (life instanceof Merchant) {
+                        Merchant merchant = (Merchant) life;
+                        if (!merchant.getOpen()) {
+                            chr.chatMessage("This shop is in maintenance");
+                            return;
+                        } else if (merchant.getVisitors().size() >= GameConstants.MAX_MERCHANT_VISITORS) {
+                            chr.chatMessage("Shop is full");
+                        } else {
+                            merchant.addVisitor(chr);
+                            chr.setVisitingmerchant(merchant);
+                            chr.getClient().write(MiniroomPacket.enterMerchant(chr, merchant, false));
+                        }
+                    }
+
                     return;
                 }
                 chr.write(MiniroomPacket.enterTrade(tradeRoom, chr));
@@ -186,9 +210,161 @@ public class RoomHandler {
                     tradeRoom.cancelTrade();
                     tradeRoom.getOtherChar(chr).write(MiniroomPacket.cancelTrade());
                 }
+                if (chr.getVisitingmerchant() != null) {
+                    chr.getVisitingmerchant().removeVisitor(chr);
+                    chr.setVisitingmerchant(null);
+                }
                 break;
             case TradeConfirmRemoteResponse:
                 // just an ack by the client?
+                break;
+            case Merchant:
+                if (chr.getMerchant() != null) {
+                    chr.chatMessage("You already got an open merchant.");
+                    return;
+                }
+                if (chr.getAccount().getEmployeeTrunk().getMoney() > 0 || !chr.getAccount().getEmployeeTrunk().getItems().isEmpty()) {
+                    chr.chatMessage("You must retrieve your items from fredrick before opening a merchant.");
+                    return;
+                }
+                inPacket.decodeByte(); //tick
+                String text = inPacket.decodeString();
+                inPacket.decodeByte(); //tick
+                byte slot = inPacket.decodeByte();
+                inPacket.decodeByte(); //tick
+                inPacket.decodeInt();  //tock
+                int itemid = chr.getCashInventory().getItemBySlot(slot).getItemId();
+                Merchant merchant = new Merchant(0);
+                merchant.setStartTime(System.currentTimeMillis());
+                merchant.setPosition(chr.getPosition());
+                merchant.setOwnerID(chr.getId());
+                merchant.setOwnerName(chr.getName());
+                merchant.setOpen(false);
+                merchant.setMessage(text);
+                merchant.setItemID(itemid);
+                merchant.setFh(chr.getFoothold());
+                merchant.setWorldId(chr.getWorld().getWorldId());
+                merchant.setEmployeeTrunk(chr.getAccount().getEmployeeTrunk());
+                chr.setMerchant(merchant);
+                merchant.setField(chr.getField());
+                chr.getField().addLife(merchant);
+                chr.getWorld().getMerchants().add(merchant);
+                chr.getClient().write(MiniroomPacket.enterMerchant(chr, chr.getMerchant(), true));
+                break;
+            case OwnerEnterMerchant:
+                //
+                inPacket.decodeByte();
+                type = inPacket.decodeByte();
+                String pic = inPacket.decodeString();
+                int objId = inPacket.decodeInt();
+                Life life = chr.getField().getLifeByObjectID(objId);
+                if (life instanceof Merchant) {
+                    merchant = (Merchant) life;
+                    if (merchant.getOwnerID() != chr.getId()) {
+                        return;
+                    }
+                    merchant.setOpen(false);
+                    for (Char visitor : chr.getMerchant().getVisitors()) {
+                        chr.getMerchant().removeVisitor(visitor);
+                    }
+                    chr.getClient().write(MiniroomPacket.enterMerchant(chr, chr.getMerchant(), false));
+                }
+                //
+                break;
+            case Open1:
+            case Open2:
+            case OPEN3:
+                merchant = chr.getMerchant();
+                merchant.setOpen(true);
+                chr.getField().broadcastPacket(MiniroomPacket.openShop(merchant));
+                EventManager.addEvent(() -> merchant.closeMerchant(), TimeUnit.HOURS.toMillis(24)); //remove merchant in 24 hours
+                break;
+            case AddItem1:
+            case AddItem2:
+            case AddItem3:
+            case AddItem4:
+                merchant = chr.getMerchant();
+                final InvType invType1 = InvType.getInvTypeByVal(inPacket.decodeByte());
+                slot = (byte) inPacket.decodeShort();
+                final short bundles = inPacket.decodeShort();
+                final short perBundle = inPacket.decodeShort();
+                final int price = inPacket.decodeInt();
+                item = chr.getInventoryByType(invType1).getItemBySlot(slot);
+                int totalQuantity = bundles * perBundle;
+                if (item == null) {
+                    chr.getOffenseManager().addOffense("Tried to add a non-existing item to store.");
+                }
+                if (totalQuantity > 0 && totalQuantity <= item.getQuantity() && merchant.getItems().size() < GameConstants.MAX_MERCHANT_SLOTS) {
+                    Item itemCopy = item.deepCopy();
+                    if (item instanceof Equip) {
+                        chr.consumeItem(item);
+                    } else {
+                        chr.consumeItem(item.getItemId(), totalQuantity);
+                    }
+                    itemCopy.setQuantity(perBundle);
+                    MerchantItem mi = new MerchantItem(itemCopy, bundles, price);
+                    merchant.getItems().add(mi);
+                    chr.getAccount().getEmployeeTrunk().getItems().add(mi);
+                    chr.getClient().write(MiniroomPacket.shopItemUpdate(merchant));
+                    DatabaseManager.saveToDB(mi);
+                    DatabaseManager.saveToDB(chr.getAccount().getEmployeeTrunk());
+                }
+                break;
+            case CloseMerchant:
+                if (chr.getMerchant() == null) {
+                    return;
+                }
+                chr.getMerchant().closeMerchant();
+                chr.getClient().write(WvsContext.broadcastMsg(BroadcastMsg.popUpMessage("Please visit fredrick for your items.")));
+                chr.setMerchant(null);
+                chr.getItemsFromEmployeeTrunk();
+                break;
+            case OwnerLeaveMerchant:
+                if (chr.getMerchant() != null) {
+                    chr.getMerchant().setOpen(true);
+                }
+                break;
+            case BuyItem:
+            case BuyItem1:
+            case BuyItem2:
+            case BuyItem3:
+                int itempos = inPacket.decodeByte();
+                quantity = inPacket.decodeShort();
+                merchant = chr.getVisitingmerchant();
+                if (merchant == null) {
+                    return;
+                }
+                merchant.buyItem(chr, itempos, quantity);
+                break;
+            case RemoveItem:
+                inPacket.decodeByte();
+                slot = (byte) inPacket.decodeShort();
+                merchant = chr.getMerchant();
+                if (merchant == null || merchant.getOwnerID() != chr.getId() || merchant.getItems().size() == 0) {
+                    return;
+                }
+                MerchantItem merchantItem = merchant.getItems().get(slot);
+                if (merchantItem == null || merchantItem.bundles <= 0) {
+                    return;
+                }
+                item = merchantItem.item;
+                long amount = merchantItem.bundles * item.getQuantity();
+                if (amount <= 0 || amount > 32767) {
+                    return;
+                }
+                Item newCopy = item.deepCopy();
+                newCopy.setQuantity((int) amount);
+                if (!chr.getInventoryByType(newCopy.getInvType()).canPickUp(newCopy)) {
+                    return;
+                }
+                chr.addItemToInventory(newCopy);
+                merchant.getItems().remove(merchantItem);
+                chr.getAccount().getEmployeeTrunk().getItems().remove(merchantItem);
+                chr.getClient().write(MiniroomPacket.shopItemUpdate(chr.getMerchant()));
+                DatabaseManager.deleteFromDB(merchantItem);
+                break;
+            case TidyMerchant:
+                chr.getMerchant().tidyMerchant(chr);
                 break;
             default:
                 log.error(String.format("Unhandled miniroom type %s", mrt));
@@ -231,5 +407,12 @@ public class RoomHandler {
     @Handler(op = InHeader.LIKE_POINT)
     public static void handleLikePoint(Client c, InPacket inPacket) {
         //TODO
+    }
+
+    @Handler(op = InHeader.USER_ENTRUSTED_SHOP_REQUEST)
+    public static void handleUserEntrustedShopRequest(Client c, InPacket inPacket) {
+        Char chr = c.getChr();
+        World world = c.getWorld();
+        chr.write(WvsContext.merchantResult());
     }
 }
