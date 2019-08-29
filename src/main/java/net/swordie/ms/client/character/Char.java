@@ -4803,7 +4803,7 @@ public class Char {
 
 	public void getItemsFromEmployeeTrunk() {
 		EmployeeTrunk employeeTrunk = getAccount().getEmployeeTrunk();
-		Long earnings = employeeTrunk.getMoney();
+		long earnings = employeeTrunk.getMoney();
 		if (getMerchant() != null) {
 			chatMessage("You have still got an open merchant at room: " + getMerchant().getField().getId() % 10 + " at channel: " + getMerchant().getField().getChannel());
 			return;
@@ -4826,9 +4826,6 @@ public class Char {
 		employeeTrunk.getItems().removeAll(itemsMoved);
 		if (getMerchant() != null) { //merchant can be null after server restart
 			merchant.getItems().removeAll(itemsMoved);
-		}
-		for (MerchantItem merchantItem : itemsMoved) { //removing from db all the merchantItems the character recieved
-			DatabaseManager.deleteFromDB(merchantItem);
 		}
 		addMoney(earnings);
 		employeeTrunk.setMoney(0);

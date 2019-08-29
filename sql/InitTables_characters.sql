@@ -93,7 +93,6 @@ create table cashiteminfos(
     storebank boolean,
     itemid int,
     trunkid int,
-    employeetrunkid int,
     position int,
     primary key (id)
 );
