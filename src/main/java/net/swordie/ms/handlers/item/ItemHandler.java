@@ -124,7 +124,7 @@ public class ItemHandler {
                 chr.chatMessage("Could not find that pet.");
                 return;
             }
-            boolean add = itemID >= 5190014; // add property doesn't include the "Slimming Medicine"
+            boolean add = itemID < 5190014; // add property doesn't include the "Slimming Medicine"
             PetItem petItem = (PetItem) pi;
             if (add) {
                 petItem.addPetSkill(ps);
