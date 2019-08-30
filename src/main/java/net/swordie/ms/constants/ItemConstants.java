@@ -7,10 +7,10 @@ import net.swordie.ms.enums.*;
 import net.swordie.ms.life.drop.DropInfo;
 import net.swordie.ms.life.pet.PetSkill;
 import net.swordie.ms.loaders.ItemData;
-import net.swordie.ms.loaders.containerclasses.ItemInfo;
 import net.swordie.ms.loaders.containerclasses.EquipDrop;
-import org.apache.log4j.LogManager;
+import net.swordie.ms.loaders.containerclasses.ItemInfo;
 import net.swordie.ms.util.Util;
+import org.apache.log4j.LogManager;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -1416,6 +1416,14 @@ public class ItemConstants {
             itemJob = ItemJob.BEGINNER;
         }
         return equipDropsPerLevel.getOrDefault(itemJob, new HashMap<>()).getOrDefault(level, new HashSet<>());
+    }
+
+    public static boolean isMiuMiuMerchant(int itemID) {
+        return itemID == 5450000 || itemID == 5450003 || itemID == 5450007 || itemID == 5450012 || itemID == 5450013 || itemID == 5450004;
+    }
+
+    public static boolean isPortableStorage(int itemID) {
+        return itemID == 5450009 || itemID == 5450008 || itemID == 5450005;
     }
 }
 
