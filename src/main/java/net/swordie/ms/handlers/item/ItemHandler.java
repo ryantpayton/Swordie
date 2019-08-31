@@ -452,7 +452,10 @@ public class ItemHandler {
                 }
                 inPacket.decodeInt();
                 inPacket.decodeInt();
-                boolean safeGuard = inPacket.decodeByte() != 0;
+                boolean safeGuard = false;
+                if (equip.canSafeguardHyperUpgrade()) {
+                    safeGuard = inPacket.decodeByte() != 0;
+                }
                 boolean equippedInv = eqpPos < 0;
                 inv = equippedInv ? chr.getEquippedInventory() : chr.getEquipInventory();
                 equip = (Equip) inv.getItemBySlot(Math.abs(eqpPos));
@@ -561,10 +564,13 @@ public class ItemHandler {
              break;*/
             case HyperUpgradeDisplay:
                 ePos = inPacket.decodeInt();
-                safeGuard = inPacket.decodeByte() != 0;
                 inv = ePos < 0 ? chr.getEquippedInventory() : chr.getEquipInventory();
                 ePos = Math.abs(ePos);
                 equip = (Equip) inv.getItemBySlot(ePos);
+                safeGuard = false;
+                if (equip.canSafeguardHyperUpgrade()) {
+                    safeGuard = inPacket.decodeByte() != 0;
+                }
                 if (equip == null || equip.hasSpecialAttribute(EquipSpecialAttribute.Vestige) || !ItemConstants.isUpgradable(equip.getItemId())) {
                     chr.getOffenseManager().addOffense(String.format("Character %d tried to enchant a non-enchantable equip (pos %d, itemid %d).",
                             chr.getId(), ePos, equip == null ? 0 : equip.getItemId()));
