@@ -26,6 +26,7 @@ import net.swordie.ms.life.mob.Mob;
 import net.swordie.ms.life.mob.MobStat;
 import net.swordie.ms.life.mob.MobTemporaryStat;
 import net.swordie.ms.loaders.SkillData;
+import net.swordie.ms.util.Position;
 import net.swordie.ms.util.Rect;
 import net.swordie.ms.util.Util;
 import net.swordie.ms.world.field.Field;
@@ -335,11 +336,17 @@ public class WildHunter extends Citizen {
                 tsm.putCharacterStatValue(IndieDamR, o1);
                 break;
             case DRILL_SALVO:
-                summon = Summon.getSummonBy(c.getChr(), DRILL_SALVO, slv);
-                field = c.getChr().getField();
-                summon.setFlyMob(false);
-                summon.setMoveAbility(MoveAbility.Stop);
-                field.spawnSummon(summon);
+                AffectedArea aa = AffectedArea.getPassiveAA(chr, skillID, slv);
+                aa.setMobOrigin((byte) 0);
+                aa.setPosition(chr.getPosition());
+                Rect rect = aa.getPosition().getRectAround(si.getRects().get(0));
+                if(!chr.isLeft()) {
+                    rect = rect.horizontalFlipAround(chr.getPosition().getX());
+                }
+                aa.setRect(rect);
+                aa.setFlip(!chr.isLeft());
+                aa.setDelay((short) 8);
+                chr.getField().spawnAffectedAreaAndRemoveOld(aa);
                 break;
         }
         tsm.sendSetStatPacket();
