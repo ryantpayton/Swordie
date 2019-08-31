@@ -56,6 +56,9 @@ import net.swordie.ms.handlers.ClientSocket;
 import net.swordie.ms.handlers.EventManager;
 import net.swordie.ms.handlers.PsychicLock;
 import net.swordie.ms.life.*;
+import net.swordie.ms.life.Merchant.EmployeeTrunk;
+import net.swordie.ms.life.Merchant.Merchant;
+import net.swordie.ms.life.Merchant.MerchantItem;
 import net.swordie.ms.life.drop.Drop;
 import net.swordie.ms.life.mob.Mob;
 import net.swordie.ms.life.pet.Pet;
@@ -412,6 +415,10 @@ public class Char {
 	private Map<Integer, PsychicLockBall> psychicLockBalls;
 	@Transient
 	private Instance instance;
+	@Transient
+	private Merchant merchant;
+	@Transient
+	private Merchant visitingmerchant;
 
 
 	public Char() {
@@ -4765,4 +4772,63 @@ public class Char {
 		tsm.sendSetStatPacket();
 	}
 
+	public Merchant getVisitingmerchant() {
+		return visitingmerchant;
+	}
+
+	public void setVisitingmerchant(Merchant visitingmerchant) {
+		this.visitingmerchant = visitingmerchant;
+	}
+
+	public Merchant getMerchant() {
+		if (merchant == null) {
+			findMerchant();
+		}
+		return merchant;
+	}
+
+	public void setMerchant(Merchant merchant) {
+		this.merchant = merchant;
+	}
+
+	public void findMerchant() {
+		ArrayList<Merchant> allmerchants = this.getWorld().getMerchants();
+		for (Merchant m : allmerchants) {
+			if (m.getOwnerID() == this.getId()) {
+				this.setMerchant(m);
+				break;
+			}
+		}
+	}
+
+	public void getItemsFromEmployeeTrunk() {
+		EmployeeTrunk employeeTrunk = getAccount().getEmployeeTrunk();
+		long earnings = employeeTrunk.getMoney();
+		if (getMerchant() != null) {
+			chatMessage("You have still got an open merchant at room: " + getMerchant().getField().getId() % 10 + " at channel: " + getMerchant().getField().getChannel());
+			return;
+		}
+		if (!canAddMoney(earnings)) {
+			chatMessage("You cannot hold that much mesos.");
+			return;
+		}
+		List<MerchantItem> itemsMoved = new ArrayList<MerchantItem>();
+		for (MerchantItem mi : employeeTrunk.getItems()) {
+			Item i = mi.item.deepCopy();
+			i.setQuantity(mi.bundles * i.getQuantity());
+			if (getInventoryByType(i.getInvType()).canPickUp(i)) {
+				if (mi.bundles > 0) {    //remove MerchantItem from merchant and database but if bundles <= 0 but don't add to char inv
+					addItemToInventory(i);
+				}
+				itemsMoved.add(mi);
+			}
+		}
+		employeeTrunk.getItems().removeAll(itemsMoved);
+		if (getMerchant() != null) { //merchant can be null after server restart
+			merchant.getItems().removeAll(itemsMoved);
+		}
+		addMoney(earnings);
+		employeeTrunk.setMoney(0);
+		DatabaseManager.saveToDB(employeeTrunk);
+	}
 }

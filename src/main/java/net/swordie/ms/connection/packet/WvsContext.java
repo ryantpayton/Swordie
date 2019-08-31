@@ -24,7 +24,6 @@ import net.swordie.ms.client.party.PartyMember;
 import net.swordie.ms.client.party.PartyResult;
 import net.swordie.ms.connection.OutPacket;
 import net.swordie.ms.enums.*;
-import net.swordie.ms.enums.MessageType;
 import net.swordie.ms.handlers.header.OutHeader;
 import net.swordie.ms.util.AntiMacro;
 import net.swordie.ms.util.FileTime;
@@ -1051,6 +1050,12 @@ public class WvsContext {
 
         outPacket.encodeInt(oxyzen); // casted to long in client side
 
+        return outPacket;
+    }
+
+    public static OutPacket merchantResult() {
+        OutPacket outPacket = new OutPacket(OutHeader.ENTRUSTED_SHOP_CHECK_RESULT);
+        outPacket.encodeInt(7);
         return outPacket;
     }
 }

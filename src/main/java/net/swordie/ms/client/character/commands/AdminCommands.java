@@ -23,10 +23,10 @@ import net.swordie.ms.constants.JobConstants.JobEnum;
 import net.swordie.ms.enums.*;
 import net.swordie.ms.handlers.header.OutHeader;
 import net.swordie.ms.life.Life;
+import net.swordie.ms.life.Merchant.EmployeeTrunk;
 import net.swordie.ms.life.mob.Mob;
 import net.swordie.ms.life.mob.MobStat;
 import net.swordie.ms.life.mob.MobTemporaryStat;
-import net.swordie.ms.life.mob.boss.demian.sword.DemianFlyingSword;
 import net.swordie.ms.life.npc.Npc;
 import net.swordie.ms.loaders.*;
 import net.swordie.ms.loaders.containerclasses.SkillStringInfo;
@@ -48,7 +48,6 @@ import java.time.LocalDateTime;
 import java.util.*;
 
 import static net.swordie.ms.client.character.skills.temp.CharacterTemporaryStat.RideVehicle;
-import static net.swordie.ms.client.character.skills.temp.CharacterTemporaryStat.Unk459;
 import static net.swordie.ms.enums.AccountType.*;
 import static net.swordie.ms.enums.ChatType.*;
 import static net.swordie.ms.enums.InventoryOperation.Add;
@@ -63,12 +62,7 @@ public class AdminCommands {
     public static class Test extends AdminCommand {
 
         public static void execute(Char chr, String[] args) {
-            Field field = chr.getField();
-            DemianFlyingSword sword = DemianFlyingSword.createDemianFlyingSword(chr, (Mob) field.getLifeByTemplateId(8880110));
-
-            field.spawnLife(sword, null); // create
-            sword.startPath();
-            sword.target();
+            chr.getItemsFromEmployeeTrunk();
         }
     }
 

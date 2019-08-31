@@ -2704,4 +2704,8 @@ public class ScriptManagerImpl implements ScriptManager {
 		chr.getField().broadcastPacket(FieldPacket.createFallingCatcher(name, 1, 1, positions));
 	}
 
+	public void getItemsFromTrunkEmployee() {
+		chr.getItemsFromEmployeeTrunk();
+	}
+
 }

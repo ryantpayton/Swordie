@@ -26,17 +26,36 @@ public enum MiniRoomType {
 
     TradeRestraintItem(15),
 
+    Merchant(16),
+
     Accept(19),
     EnterTrade(20),
     TradeInviteRequest(21),
     InviteResultStatic(22),
 
     Chat(24),
+    Open1(25),
+    Open2(26),
 
     Avatar(27),
     ExitTrade(28),
 
     CheckSSN2(30),
+
+    OwnerEnterMerchant(31),
+    AddItem1(33),
+    AddItem2(34),
+    AddItem3(35),
+    AddItem4(36),
+    BuyItem(37),
+    BuyItem1(38),
+    BuyItem2(39),
+    BuyItem3(40),
+    RemoveItem(49),
+    OwnerLeaveMerchant(50),
+    TidyMerchant(51),
+    CloseMerchant(52),
+    OPEN3(80),
     ;
 
     private byte val;
