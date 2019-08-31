@@ -208,7 +208,7 @@ public class MiniroomPacket {
         outPacket.encodeInt(merchant.getOwnerID());
         outPacket.encodeInt(merchant.getItemID());
         outPacket.encodePosition(merchant.getPosition());
-        outPacket.encodeShort(0);
+        outPacket.encodeShort(merchant.getFh());
         outPacket.encodeString(merchant.getOwnerName());
         int itemID = merchant.getItemID();
         byte type = 6;
@@ -249,7 +249,7 @@ public class MiniroomPacket {
     public static OutPacket shopItemUpdate(Merchant merchant) {
         OutPacket outPacket = new OutPacket(OutHeader.MINI_ROOM_BASE_DLG);
 
-        outPacket.encodeByte(77);
+        outPacket.encodeByte(MiniRoomType.Update.getVal());
         outPacket.encodeLong(0L);
         outPacket.encodeByte(merchant.getItems().size());
         for (MerchantItem item : merchant.getItems()) {

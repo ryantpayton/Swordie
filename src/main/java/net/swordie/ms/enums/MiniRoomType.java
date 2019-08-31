@@ -55,6 +55,7 @@ public enum MiniRoomType {
     OwnerLeaveMerchant(50),
     TidyMerchant(51),
     CloseMerchant(52),
+    Update(77),
     OPEN3(80),
     ;
 
