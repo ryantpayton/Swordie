@@ -461,6 +461,9 @@ public class MobSkill {
                         msi.getSkillStatIntValue(castingTime), false, false));
                 break;
             case BounceAttack:
+                if (slv == 6 || slv == 13) { // these are different lotus attacks that gotta be handled differently, or will cause runtime error
+                    return;
+                }
                 mob.getField().broadcastPacket(MobPool.createBounceAttackSkill(mob, msi, false));
                 break;
             case LaserAttack:
@@ -473,6 +476,9 @@ public class MobSkill {
                 break;
             case LaserControl:
                 // Not needed? Automatically handled well by the controller
+                break;
+            case Toos:
+                //todo Lotus toss attack
                 break;
             case Unk:
                 log.warn(String.format("[MobSkill::applyEffect] Unknown mob skillID %d, slv = %d", skill, slv));

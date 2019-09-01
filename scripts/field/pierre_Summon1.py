@@ -1,5 +1,5 @@
 from net.swordie.ms.enums import WeatherEffNoticeType
-PIERRE = 8900100
+PIERRE = 8900000
 
 sm.spawnMob(PIERRE, 1155, 551, False)
 sm.showFieldEffect("Map/Effect.img/rootabyss/firework") # "Welcome" effect
