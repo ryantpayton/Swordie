@@ -1,1 +1,0 @@
-sm.chat(str(asd))
