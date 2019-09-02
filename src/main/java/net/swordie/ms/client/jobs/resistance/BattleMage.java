@@ -454,6 +454,7 @@ public class BattleMage extends Citizen {
     private int doCondemnationAttack(int killCount) {
         TemporaryStatManager tsm = chr.getTemporaryStatManager();
         if(lastCondemnationAttack + (getCondemnationCooldown() * 1000) < System.currentTimeMillis()) {
+            spawnDeath(getCondemnationSkill().getSkillId(), (byte)1);
             death = tsm.getOption(IndieEmpty).summon;
             chr.write(Summoned.summonedAssistAttackRequest(death));
             killCount = 0;
