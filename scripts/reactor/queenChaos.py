@@ -6,4 +6,3 @@ sm.showWeatherNotice("Please allow me to mourn over your imminent demise.", Weat
 if reactor.getHitCount() == 5:
     sm.spawnMob(chaosQueenId, 37, 135, False)
     sm.removeReactor()
-    sm.dispose()

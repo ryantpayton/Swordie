@@ -15,4 +15,3 @@ elif not sm.isPartyLeader():
     sm.sendSayOkay("Please have your party leader enter if you wish to face Crimson Queen.")
 elif sm.checkParty():
     sm.warpInstanceIn(mapId, True) # South Garden
-sm.dispose()
