@@ -17,7 +17,7 @@ else:
 
 if sm.sendAskYesNo(dialog):
 	if sm.getChr().getField().getChars().size() == 1:
-		sm.clearPartyInfo(BLACK_HEAVEN_CORE_ENTRANCE)
+		sm.warpInstanceOut(BLACK_HEAVEN_CORE_ENTRANCE)
 
 	else:
 		sm.warp(BLACK_HEAVEN_CORE_ENTRANCE)

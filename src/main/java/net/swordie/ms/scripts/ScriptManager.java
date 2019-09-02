@@ -1606,4 +1606,6 @@ public interface ScriptManager extends Observer {
 	void blockGolluxAttacks();
 
 	void getItemsFromTrunkEmployee();
+
+	void spawnLotus (byte phase, byte difficulty);
 }

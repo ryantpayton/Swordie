@@ -6,7 +6,9 @@ package net.swordie.ms.constants;
 public class BossConstants {
 
     //  Lotus ----------------------------------------------------------------------------------------------------------
-
+    public final static int LOTUS_MOBID = 8950000;
+    public static final long[][] LOTUS_HP_PHASE_DIFFICULTY = {{400000000000L, 1600000000000L}, {400000000000L, 7000000000000L}, {700000000000L, 24000000000000L}};
+    public static final int LOTUS_BOUNCING_BALL_DURATION = 20000;
     //      Obstacle Atoms
     public static final int LOTUS_OBSTACLE_ATOM_VELOCITY = 15; // Velocity at which the Obstacle Atoms fall down.
 

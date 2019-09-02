@@ -37,11 +37,14 @@ import net.swordie.ms.life.Life;
 import net.swordie.ms.life.Reactor;
 import net.swordie.ms.life.drop.Drop;
 import net.swordie.ms.life.mob.Mob;
+import net.swordie.ms.life.mob.skill.MobSkill;
+import net.swordie.ms.life.mob.skill.MobSkillID;
 import net.swordie.ms.life.npc.Npc;
 import net.swordie.ms.life.npc.NpcMessageType;
 import net.swordie.ms.life.npc.NpcScriptInfo;
 import net.swordie.ms.loaders.*;
 import net.swordie.ms.loaders.containerclasses.ItemInfo;
+import net.swordie.ms.loaders.containerclasses.MobSkillInfo;
 import net.swordie.ms.util.FileTime;
 import net.swordie.ms.util.Position;
 import net.swordie.ms.util.Rect;
@@ -74,6 +77,7 @@ import java.util.stream.Collectors;
 
 import static net.swordie.ms.client.character.skills.temp.CharacterTemporaryStat.RideVehicle;
 import static net.swordie.ms.enums.ChatType.*;
+import static net.swordie.ms.life.mob.skill.MobSkillStat.fixDamR;
 import static net.swordie.ms.life.npc.NpcMessageType.*;
 
 /**
@@ -2706,6 +2710,23 @@ public class ScriptManagerImpl implements ScriptManager {
 
 	public void getItemsFromTrunkEmployee() {
 		chr.getItemsFromEmployeeTrunk();
+	}
+
+	public void spawnLotus(byte phase, byte difficulty) {
+		if (phase > 2 || difficulty > 1) {
+			return;
+		}
+		int lotusId = BossConstants.LOTUS_MOBID + phase; // phases start from 0 to 2
+		long hp = BossConstants.LOTUS_HP_PHASE_DIFFICULTY[phase][difficulty];
+		Mob lotus = spawnMob(lotusId, 0, -16, false, hp);
+		if (phase == 0) {
+			MobSkillInfo msi = SkillData.getMobSkillInfoByIdAndLevel(MobSkillID.LaserAttack.getVal(), 1);
+			MobSkill mobSkill = new MobSkill();
+			mobSkill.setLevel(5); //at this level there are 4 lasers and 100% damr
+			mobSkill.setSkillID(MobSkillID.LaserAttack.getVal());
+			mobSkill.setFixDamR(msi.getSkillStatIntValue(fixDamR));
+			mobSkill.applyEffect(lotus);
+		}
 	}
 
 }
