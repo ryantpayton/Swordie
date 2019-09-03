@@ -10,6 +10,7 @@ import net.swordie.ms.client.jobs.legend.Shade;
 import net.swordie.ms.client.jobs.nova.AngelicBuster;
 import net.swordie.ms.client.jobs.nova.Kaiser;
 import net.swordie.ms.client.jobs.resistance.BattleMage;
+import net.swordie.ms.client.jobs.resistance.Blaster;
 import net.swordie.ms.client.jobs.resistance.Demon;
 import net.swordie.ms.client.jobs.resistance.WildHunter;
 import net.swordie.ms.connection.OutPacket;
@@ -225,7 +226,7 @@ public class Effect {
             outPacket.encodeInt(getArg6()); // ptStartY
         } else if (SkillConstants.isUnregisteredSkill(skillID)) {
             outPacket.encodeByte(getArg5()); // bLeft
-        } else if (skillID == 37001001) {
+        } else if (skillID == 37001001 || skillID == Blaster.REVOLVING_CANNON_RELOAD) {
             outPacket.encodeInt(getArg5());
         }
     }
