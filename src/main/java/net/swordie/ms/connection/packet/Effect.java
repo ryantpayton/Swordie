@@ -225,6 +225,8 @@ public class Effect {
             outPacket.encodeInt(getArg6()); // ptStartY
         } else if (SkillConstants.isUnregisteredSkill(skillID)) {
             outPacket.encodeByte(getArg5()); // bLeft
+        } else if (skillID == 37001001) {
+            outPacket.encodeInt(getArg5());
         }
     }
 
