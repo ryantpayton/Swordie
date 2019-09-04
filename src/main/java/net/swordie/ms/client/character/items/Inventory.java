@@ -42,7 +42,11 @@ public class Inventory {
 
     public Inventory deepCopy() {
         Inventory inventory = new Inventory(getType(), getSlots());
-        inventory.setItems(new CopyOnWriteArrayList<>(getItems()));
+        ArrayList<Item> items = new ArrayList<Item>();
+        for (Item item : getItems()) {
+            items.add(item.deepCopy());
+        }
+        inventory.setItems(items);
         return inventory;
     }
 
