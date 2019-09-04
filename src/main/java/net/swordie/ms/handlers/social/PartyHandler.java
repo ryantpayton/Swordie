@@ -93,8 +93,9 @@ public class PartyHandler {
                 break;
             case PartyReq_ChangePartyBoss:
                 int newLeaderID = inPacket.decodeInt();
+                PartyMember leader = new PartyMember(chr.getWorld().getCharByID(newLeaderID));
                 party.setPartyLeaderID(newLeaderID);
-                party.broadcast(WvsContext.partyResult(PartyResult.changePartyBoss(party, newLeaderID)));
+                party.broadcast(WvsContext.partyResult(PartyResult.changePartyBoss(party, 0, leader)));
                 break;
             case PartyReq_ApplyParty:
                 int partyID = inPacket.decodeInt();

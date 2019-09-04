@@ -112,10 +112,11 @@ public class PartyResult implements Encodable {
         return pr;
     }
 
-    public static PartyResult changePartyBoss(Party party, int reason) {
+    public static PartyResult changePartyBoss(Party party, int reason, PartyMember leader) {
         PartyResult pr = new PartyResult(PartyType.PartyRes_ChangePartyBoss_Done);
         pr.party = party;
         pr.arg1 = reason;
+        pr.member = leader;
         return pr;
     }
 
