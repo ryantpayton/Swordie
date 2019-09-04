@@ -13,9 +13,7 @@ import net.swordie.ms.world.shop.cashshop.CashItemInfo;
 
 import javax.persistence.*;
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
@@ -55,6 +53,9 @@ public class Trunk {
     }
 
     public void setSlotCount(byte slotCount) {
+        if (slotCount > GameConstants.MAX_LOCKER_SIZE) {
+            return;
+        }
         this.slotCount = slotCount;
     }
 
@@ -156,4 +157,6 @@ public class Trunk {
     public boolean isFull() {
         return getLocker().size() >= GameConstants.MAX_LOCKER_SIZE;
     }
+
+    public void addSlots(byte amount) {setSlotCount((byte) (getSlotCount() + amount));}
 }
