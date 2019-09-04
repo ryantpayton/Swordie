@@ -1,6 +1,7 @@
 package net.swordie.ms.client.character.items;
 
 import net.swordie.ms.connection.db.DatabaseManager;
+import net.swordie.ms.constants.GameConstants;
 import net.swordie.ms.enums.InvType;
 import net.swordie.ms.loaders.ItemData;
 import net.swordie.ms.loaders.containerclasses.ItemInfo;
@@ -58,6 +59,9 @@ public class Inventory {
     }
 
     public void setSlots(byte slots) {
+        if (slots > GameConstants.MAX_LOCKER_SIZE) {
+            return;
+        }
         this.slots = slots;
     }
 
@@ -174,4 +178,6 @@ public class Inventory {
     public int getEmptySlots() {
         return getSlots() - getItems().size();
     }
+
+    public void addSlots(byte amount){setSlots((byte) (getSlots() + amount));}
 }
