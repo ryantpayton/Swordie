@@ -353,7 +353,7 @@ public class Blaster extends Citizen {
             tsm.putCharacterStatValue(RWCylinder, o);
             tsm.sendSetStatPacket();
             int time = tsm.hasStat(RWMaximizeCannon) ? 500 : 1500;
-            EventManager.addEvent(() -> reloadCylinder(),  time);
+            EventManager.addEvent(() -> reloadCylinder(), time);
         }
         if (!chr.hasSkill(COMBO_TRAINING)) {
             return;

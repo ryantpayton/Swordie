@@ -1612,4 +1612,6 @@ public interface ScriptManager extends Observer {
 	void addStorageSlots(byte amount);
 
 	void addInventorySlotsByInvType(byte amount, byte type);
+
+	int getSlotsLeftToAddByInvType(byte type);
 }
