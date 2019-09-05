@@ -44,6 +44,10 @@ public class Inventory {
         Inventory inventory = new Inventory(getType(), getSlots());
         List<Item> items = new CopyOnWriteArrayList<>();
         for (Item item : getItems()) {
+            if (item instanceof PetItem) {
+                items.add(ItemData.getItemDeepCopy(item.getItemId())); //item.deepCopy cannot be used on pets, still putting it in different if state because other items can have quantity
+                break;
+            }
             items.add(item.deepCopy());
         }
         inventory.setItems(items);
