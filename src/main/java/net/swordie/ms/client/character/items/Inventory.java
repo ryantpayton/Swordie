@@ -42,7 +42,7 @@ public class Inventory {
 
     public Inventory deepCopy() {
         Inventory inventory = new Inventory(getType(), getSlots());
-        List<Item> items = new CopyOnWriteArrayList<Item>(new ArrayList<>());
+        List<Item> items = new CopyOnWriteArrayList<>();
         for (Item item : getItems()) {
             items.add(item.deepCopy());
         }
@@ -64,6 +64,7 @@ public class Inventory {
 
     public void setSlots(byte slots) {
         if (slots > GameConstants.MAX_INVENTORY_SLOTS) {
+            slots = (byte) GameConstants.MAX_INVENTORY_SLOTS;
             return;
         }
         this.slots = slots;
