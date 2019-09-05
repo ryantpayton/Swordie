@@ -23,7 +23,6 @@ import net.swordie.ms.constants.JobConstants.JobEnum;
 import net.swordie.ms.enums.*;
 import net.swordie.ms.handlers.header.OutHeader;
 import net.swordie.ms.life.Life;
-import net.swordie.ms.life.Merchant.EmployeeTrunk;
 import net.swordie.ms.life.mob.Mob;
 import net.swordie.ms.life.mob.MobStat;
 import net.swordie.ms.life.mob.MobTemporaryStat;
@@ -62,7 +61,7 @@ public class AdminCommands {
     public static class Test extends AdminCommand {
 
         public static void execute(Char chr, String[] args) {
-            Effect effect = Effect.skillUse(Integer.valueOf(args [1]), (byte) 1, 0);
+            Effect effect = Effect.skillUse(Integer.valueOf(args[1]), (byte) 1, 0);
             chr.getField().broadcastPacket(
                     UserRemote.effect(chr.getId(), effect));
             chr.write(UserPacket.effect(effect));

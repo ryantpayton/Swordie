@@ -53,7 +53,7 @@ public class Trunk {
     }
 
     public void setSlotCount(byte slotCount) {
-        if (slotCount > GameConstants.MAX_LOCKER_SIZE) {
+        if (slotCount > GameConstants.MAX_INVENTORY_SLOTS) {
             return;
         }
         this.slotCount = slotCount;
