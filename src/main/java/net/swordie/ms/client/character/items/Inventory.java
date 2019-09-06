@@ -67,11 +67,7 @@ public class Inventory {
     }
 
     public void setSlots(byte slots) {
-        if (slots > GameConstants.MAX_INVENTORY_SLOTS) {
-            slots = (byte) GameConstants.MAX_INVENTORY_SLOTS;
-            return;
-        }
-        this.slots = slots;
+        this.slots = (byte) Math.min(slots, GameConstants.MAX_INVENTORY_SLOTS);
     }
 
     public void addItem(Item item) {

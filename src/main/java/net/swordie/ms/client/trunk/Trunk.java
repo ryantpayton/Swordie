@@ -53,11 +53,7 @@ public class Trunk {
     }
 
     public void setSlotCount(byte slotCount) {
-        if (slotCount > GameConstants.MAX_INVENTORY_SLOTS) {
-            this.slotCount = (byte) GameConstants.MAX_INVENTORY_SLOTS;
-            return;
-        }
-        this.slotCount = slotCount;
+        this.slotCount = (byte) Math.min(slotCount, GameConstants.MAX_INVENTORY_SLOTS);
     }
 
     public void encodeItems(OutPacket outPacket) {
