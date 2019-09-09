@@ -46,9 +46,9 @@ public class Inventory {
         for (Item item : getItems()) {
             if (item instanceof PetItem) {
                 items.add(ItemData.getItemDeepCopy(item.getItemId())); //item.deepCopy cannot be used on pets, still putting it in different if state because other items can have quantity
-                break;
+            } else {
+                items.add(item.deepCopy());
             }
-            items.add(item.deepCopy());
         }
         inventory.setItems(items);
         return inventory;
@@ -184,5 +184,7 @@ public class Inventory {
         return getSlots() - getItems().size();
     }
 
-    public void addSlots(byte amount){setSlots((byte) (getSlots() + amount));}
+    public void addSlots(byte amount) {
+        setSlots((byte) (getSlots() + amount));
+    }
 }
