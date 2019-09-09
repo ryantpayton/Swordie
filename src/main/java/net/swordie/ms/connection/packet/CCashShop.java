@@ -11,6 +11,7 @@ import net.swordie.ms.enums.CashItemType;
 import net.swordie.ms.enums.CashShopActionType;
 import net.swordie.ms.enums.CashShopInfoType;
 import net.swordie.ms.handlers.header.OutHeader;
+import net.swordie.ms.loaders.ItemData;
 import net.swordie.ms.util.FileTime;
 import net.swordie.ms.world.shop.cashshop.CashItemInfo;
 import net.swordie.ms.world.shop.cashshop.CashShop;
@@ -248,8 +249,12 @@ public class CCashShop {
         outPacket.encodeShort(lockerSize);
         locker.forEach(item -> {
             item.encode(outPacket);
-            outPacket.encodeInt(0); // bonus items' sn size
         });
+        int size = 0;
+        outPacket.encodeInt(size);
+        for (int i = 0; i < size; i++) {
+            outPacket.encode(new Item()); // bonus items
+        }
         outPacket.encodeShort(GameConstants.MAX_LOCKER_SIZE);
         outPacket.encodeShort(account.getUser().getCharacterSlots());
         outPacket.encodeShort(0);
