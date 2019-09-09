@@ -7,10 +7,10 @@ import net.swordie.ms.enums.*;
 import net.swordie.ms.life.drop.DropInfo;
 import net.swordie.ms.life.pet.PetSkill;
 import net.swordie.ms.loaders.ItemData;
-import net.swordie.ms.loaders.containerclasses.ItemInfo;
 import net.swordie.ms.loaders.containerclasses.EquipDrop;
-import org.apache.log4j.LogManager;
+import net.swordie.ms.loaders.containerclasses.ItemInfo;
 import net.swordie.ms.util.Util;
+import org.apache.log4j.LogManager;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -62,6 +62,20 @@ public class ItemConstants {
             1122151, // Chaos Horntail Necklace (+2)
             1122249, // Dream Horntail Necklace
             1122278, // Mystic Horntail Necklace
+    };
+
+    public static final int EXP_2X_COUPON[] = {
+            5680484,
+            5680342,
+            5680275,
+            5211122,
+            5211121,
+            5211120,
+            5211049,
+            5211048,
+            5211047,
+            5211046,
+            5211000
     };
 
     public static final short MAX_HAMMER_SLOTS = 2;
@@ -1416,6 +1430,18 @@ public class ItemConstants {
             itemJob = ItemJob.BEGINNER;
         }
         return equipDropsPerLevel.getOrDefault(itemJob, new HashMap<>()).getOrDefault(level, new HashSet<>());
+    }
+
+    public static boolean isMiuMiuMerchant(int itemID) {
+        return itemID == 5450000 || itemID == 5450003 || itemID == 5450007 || itemID == 5450012 || itemID == 5450013 || itemID == 5450004;
+    }
+
+    public static boolean isPortableStorage(int itemID) {
+        return itemID == 5450009 || itemID == 5450008 || itemID == 5450005;
+    }
+
+    public static boolean is2XDropCoupon(int itemId) {
+        return itemId <= 5360057 && itemId >= 5360000;
     }
 }
 

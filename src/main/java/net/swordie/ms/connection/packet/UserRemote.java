@@ -130,7 +130,7 @@ public class UserRemote {
                 outPacket.encodeInt(ai.keyDown);
             } else if(SkillConstants.isSuperNovaSkill(ai.skillId) || SkillConstants.isScreenCenterAttackSkill(ai.skillId)
                     || ai.skillId == 101000202 || ai.skillId == 101000102 || ai.skillId == 80001762) {
-                outPacket.encodePosition(ai.ptAttackRefPoint);
+                outPacket.encodePositionInt(ai.ptAttackRefPoint);
             }
             if(SkillConstants.isKeydownSkillRectMoveXY(ai.skillId)) {
                 outPacket.encodePosition(ai.keyDownRectMoveXY);

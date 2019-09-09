@@ -1,19 +1,20 @@
 package net.swordie.ms.connection.packet;
 
 import net.swordie.ms.client.character.Char;
+import net.swordie.ms.connection.OutPacket;
+import net.swordie.ms.constants.BossConstants;
+import net.swordie.ms.handlers.header.OutHeader;
 import net.swordie.ms.life.DeathType;
 import net.swordie.ms.life.mob.*;
 import net.swordie.ms.life.mob.skill.BurnedInfo;
 import net.swordie.ms.life.mob.skill.MobSkillID;
 import net.swordie.ms.life.mob.skill.MobSkillStat;
-import net.swordie.ms.connection.OutPacket;
-import net.swordie.ms.life.mob.MobStat;
-import net.swordie.ms.handlers.header.OutHeader;
 import net.swordie.ms.life.movement.MovementInfo;
 import net.swordie.ms.loaders.containerclasses.MobSkillInfo;
 import net.swordie.ms.util.Position;
 import net.swordie.ms.util.Rect;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -264,10 +265,10 @@ public class MobPool {
                 outPacket.encodeInt(mob.getObjectId() + i + 1); // nObjectSN
                 outPacket.encodePositionInt(msi.getLt());
             }
-            outPacket.encodeInt(0); // nFriction
-            outPacket.encodeInt(0); // nRestitution
-            outPacket.encodeInt(0); // tDestroyDelay
-            outPacket.encodeInt(msi.getSkillStatIntValue(MobSkillStat.delay)); // tStartDelay
+            outPacket.encodeInt(msi.getSkillStatIntValue(MobSkillStat.z)); // nFriction
+            outPacket.encodeInt(msi.getSkillStatIntValue(MobSkillStat.w)); // nRestitution
+            outPacket.encodeInt(BossConstants.LOTUS_BOUNCING_BALL_DURATION); // tDestroyDelay
+            outPacket.encodeInt(100); // tStartDelay
             outPacket.encodeByte(msi.getSkillStatIntValue(MobSkillStat.noGravity)); // bNoGravity
             boolean notDestroyByCollide = msi.getSkillStatIntValue(MobSkillStat.notDestroyByCollide) != 0;
             outPacket.encodeByte(notDestroyByCollide); // bNotDestroyByCollide
@@ -277,8 +278,8 @@ public class MobPool {
             if (notDestroyByCollide) {
                 outPacket.encodeInt(1); // nIncScale
                 outPacket.encodeInt(100); // nMaxScale
-                outPacket.encodeInt(100); // nDecRadius
-                outPacket.encodeInt(100); // fAngle
+                outPacket.encodeInt(40); // nDecRadius
+                outPacket.encodeInt(60); // fAngle
             }
         }
 
@@ -371,6 +372,18 @@ public class MobPool {
             outPacket.encodeInt(stopDuration);
         }
         outPacket.encodeByte(stopEscort);
+        return outPacket;
+    }
+
+    public static OutPacket mobAttackBlock(Mob mob, ArrayList<Integer> skillsIDS) {
+        OutPacket outPacket = new OutPacket(OutHeader.MOB_ATTACK_BLOCK);
+
+        outPacket.encodeInt(mob.getObjectId());
+        outPacket.encodeInt(skillsIDS.size());
+        for (int skillID : skillsIDS) {
+            outPacket.encodeInt(skillID);
+        }
+
         return outPacket;
     }
 }

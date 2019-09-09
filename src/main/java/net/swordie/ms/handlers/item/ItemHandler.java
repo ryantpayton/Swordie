@@ -11,7 +11,6 @@ import net.swordie.ms.client.character.skills.info.SkillInfo;
 import net.swordie.ms.client.character.skills.temp.CharacterTemporaryStat;
 import net.swordie.ms.client.character.skills.temp.TemporaryStatManager;
 import net.swordie.ms.connection.InPacket;
-import net.swordie.ms.connection.OutPacket;
 import net.swordie.ms.connection.packet.*;
 import net.swordie.ms.constants.GameConstants;
 import net.swordie.ms.constants.ItemConstants;
@@ -19,7 +18,6 @@ import net.swordie.ms.constants.SkillConstants;
 import net.swordie.ms.enums.*;
 import net.swordie.ms.handlers.Handler;
 import net.swordie.ms.handlers.header.InHeader;
-import net.swordie.ms.handlers.header.OutHeader;
 import net.swordie.ms.life.pet.PetSkill;
 import net.swordie.ms.loaders.FieldData;
 import net.swordie.ms.loaders.ItemData;
@@ -37,7 +35,10 @@ import net.swordie.ms.world.field.Portal;
 import org.apache.log4j.Logger;
 
 import java.text.NumberFormat;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
 
 import static net.swordie.ms.enums.ChatType.*;
 import static net.swordie.ms.enums.EquipBaseStat.tuc;
@@ -124,7 +125,7 @@ public class ItemHandler {
                 chr.chatMessage("Could not find that pet.");
                 return;
             }
-            boolean add = itemID >= 5190014; // add property doesn't include the "Slimming Medicine"
+            boolean add = itemID < 5190014; // add property doesn't include the "Slimming Medicine"
             PetItem petItem = (PetItem) pi;
             if (add) {
                 petItem.addPetSkill(ps);
@@ -133,6 +134,14 @@ public class ItemHandler {
             }
             petItem.updateToChar(chr);
             chr.consumeItem(item);
+        } else if (ItemConstants.isMiuMiuMerchant(itemID)) {
+
+            chr.getScriptManager().openShop(9201060);
+
+        } else if (ItemConstants.isPortableStorage(itemID)) {
+
+            chr.getScriptManager().openTrunk(1022005);
+
         } else {
 
             Equip medal = (Equip) chr.getEquippedInventory().getFirstItemByBodyPart(BodyPart.Medal);
@@ -335,7 +344,7 @@ public class ItemHandler {
                     return;
             }
         }
-        if (itemID != 5040004) {
+        if (itemID != 5040004 && itemID / 10000 != 545 ) { //tp rock and portable potions stores / storage
             chr.consumeItem(item);
         }
         chr.dispose();
@@ -443,7 +452,10 @@ public class ItemHandler {
                 }
                 inPacket.decodeInt();
                 inPacket.decodeInt();
-                boolean safeGuard = inPacket.decodeByte() != 0;
+                boolean safeGuard = false;
+                if (equip.canSafeguardHyperUpgrade()) {
+                    safeGuard = inPacket.decodeByte() != 0;
+                }
                 boolean equippedInv = eqpPos < 0;
                 inv = equippedInv ? chr.getEquippedInventory() : chr.getEquipInventory();
                 equip = (Equip) inv.getItemBySlot(Math.abs(eqpPos));
@@ -552,10 +564,13 @@ public class ItemHandler {
              break;*/
             case HyperUpgradeDisplay:
                 ePos = inPacket.decodeInt();
-                safeGuard = inPacket.decodeByte() != 0;
                 inv = ePos < 0 ? chr.getEquippedInventory() : chr.getEquipInventory();
                 ePos = Math.abs(ePos);
                 equip = (Equip) inv.getItemBySlot(ePos);
+                safeGuard = false;
+                if (equip.canSafeguardHyperUpgrade()) {
+                    safeGuard = inPacket.decodeByte() != 0;
+                }
                 if (equip == null || equip.hasSpecialAttribute(EquipSpecialAttribute.Vestige) || !ItemConstants.isUpgradable(equip.getItemId())) {
                     chr.getOffenseManager().addOffense(String.format("Character %d tried to enchant a non-enchantable equip (pos %d, itemid %d).",
                             chr.getId(), ePos, equip == null ? 0 : equip.getItemId()));

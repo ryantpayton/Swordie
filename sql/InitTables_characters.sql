@@ -40,6 +40,7 @@ avatarlook,
 equips,
 petitems,
 items,
+merchantitems,
 inventories,
 questprogressrequirements,
 questprogressitemrequirements,
@@ -60,14 +61,21 @@ guilds,
 monsterbookcards,
 monsterbookinfos,
 trunks,
+employeetrunk,
 cashiteminfos;
 set FOREIGN_KEY_CHECKS = 1;
 
 create table trunks(
 	id int not null auto_increment,
-    slotcount tinyint,
+    slotcount tinyint default '4',
     money bigint,
     primary key (id)
+);
+
+create table employeetrunk (
+  id int(11) not null auto_increment,
+  money bigint(20) default '0',
+  primary key (id)
 );
 
 create table cashiteminfos(
@@ -145,6 +153,15 @@ create table items (
     iscash boolean,
     quantity int,
     owner varchar(255),
+    primary key (id)
+);
+
+create table merchantitems (
+	id bigint not null auto_increment,
+	merchantitemid int,
+    bundles int,
+    price long,
+	employeetrunkid int,
     primary key (id)
 );
 
@@ -812,6 +829,7 @@ create table accounts (
     trunkid int,
     nxCredit int default 0,
     monstercollectionid int,
+	employeetrunkid int,
 	primary key (id),
     foreign key (userid) references users(id),
     foreign key (trunkid) references trunks(id),

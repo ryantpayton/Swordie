@@ -10,8 +10,8 @@ if sm.hasQuest(WATER_TRADE):
     # sm.chatScript("You've taken out all the thieves. Talk to Ace.")
     sm.dispose()
 
-if sm.hasQuest(23023): # 2nd job advancement for Resistance
-    sm.warpInstanceIn( 931000100, 0)
+if sm.hasQuest(23023) or sm.hasQuest(23024) or sm.hasQuest(23025):  # 2nd job advancement for Resistance
+    sm.warpInstanceIn(931000100, 0)
     sm.dispose()
 
 if sm.hasQuest(23162):

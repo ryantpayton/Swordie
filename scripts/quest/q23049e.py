@@ -1,12 +1,12 @@
 # 23049 - BaM 4th job advancement
-from net.swordie.ms.enums import Stat
 
-sm.setSpeakerID(2159110)
-if chr.getJob() == 3211 and chr.getLevel() >= 100:
-    sm.jobAdvance(3212)
-    sm.completeQuest(23049)
-    sm.chat("[Briston] You... have outclassed me.")
-    sm.warp(310000000)
-else:
-    sm.sendSayOkay("You do not meet the requirements to advance.")
-sm.dispose()
+BRISTON = 2159110
+GELIMERS_KEY_CARD = 4032743
+SECRET_PLAZA = 310010000
+
+sm.setSpeakerID(BRISTON)
+sm.sendNext("Did you destroy the Black Wings' new weapon? Nice work. I'm proud to have you in the Resistance.")
+if sm.sendAskYesNo("But it's too early to celebrate. #p2154009# will show up with his goons when he hears the news. Let's get out of here via the Underground Base Hideout Return Scroll. On my count. One... two... three!"):
+    sm.completeQuest(parentID)
+    sm.consumeItem(GELIMERS_KEY_CARD)
+    sm.warpInstanceOut(SECRET_PLAZA, 0)

@@ -284,7 +284,7 @@ public class Demon extends Job {
                 o1.tOption = si.getValue(time, slv);
                 tsm.putCharacterStatValue(DamageReduce, o1);
                 o2.nOption = si.getValue(z, slv);
-                o2.rOption = skillID;
+                o2.nReason = skillID;
                 o2.tOption = si.getValue(time, slv);
                 tsm.putCharacterStatValue(AsrR, o2);
                 tsm.putCharacterStatValue(TerR, o2);

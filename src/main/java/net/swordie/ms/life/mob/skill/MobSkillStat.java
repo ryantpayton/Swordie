@@ -58,5 +58,6 @@ public enum MobSkillStat {
     forcex,
     targetType,
     force,
-    count
+    count,
+    fixDamR
 }

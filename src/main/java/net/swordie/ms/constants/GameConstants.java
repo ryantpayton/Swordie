@@ -193,6 +193,14 @@ public class GameConstants {
     // Skills
     public static final int TIME_LEAP_QR_KEY = 99996; // Quest where personal Time Leap CDs get stored
 
+    //Merchant
+    public static final int MAX_MERCHANT_VISITORS = 6;
+    public static final int MAX_MERCHANT_SLOTS = 16;
+
+    //Inventory
+
+    public static final int MAX_INVENTORY_SLOTS = 128;
+
     // Starforce
     private static final int STARFORCE_LEVELS[][] = {
             { Integer.MAX_VALUE, -1 }, // per equip

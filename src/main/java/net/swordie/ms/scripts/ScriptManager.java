@@ -3,10 +3,7 @@ package net.swordie.ms.scripts;
 import net.swordie.ms.client.character.Char;
 import net.swordie.ms.client.character.skills.temp.CharacterTemporaryStat;
 import net.swordie.ms.client.party.Party;
-import net.swordie.ms.enums.InvType;
-import net.swordie.ms.enums.ObtacleAtomEnum;
-import net.swordie.ms.enums.UIType;
-import net.swordie.ms.enums.WeatherEffNoticeType;
+import net.swordie.ms.enums.*;
 import net.swordie.ms.life.drop.Drop;
 import net.swordie.ms.life.mob.Mob;
 import net.swordie.ms.util.Position;
@@ -304,6 +301,17 @@ public interface ScriptManager extends Observer {
 	 * 		Whether or not to reset HP/MP also.
 	 */
 	void resetAP(boolean hpmp);
+
+	/**
+	 * Resets {@Link Char}'s base stats and adds it into primary stat of specified Job.
+	 * Example: "sm.resetAP(false, 2112)"
+	 *
+	 * @param hpmp
+	 * 		Whether or not to reset HP/MP also.
+	 * @param jobID
+	 * 		The jobID of the character or job advancement.
+	 */
+	void resetAP(boolean hpmp, short jobID);
 
 	/**
 	 * Sets the STR of {@link Char} to the specified amount.
@@ -866,6 +874,8 @@ public interface ScriptManager extends Observer {
 	 * 		The Y-coordinate of the Position.
 	 */
 	void spawnReactor(int reactorId, int x, int y);
+
+	void spawnReactorInState(int reactorId, int x, int y, byte state);
 
 	/**
 	 * Returns whether or not there is a Reactor on the {@link Char} field.
@@ -1451,6 +1461,8 @@ public interface ScriptManager extends Observer {
 	 */
 	void createClock(int hours, int minutes, int seconds);
 
+	Clock createTimerGauge(int seconds);
+
 	// Other methods ---------------------------------------------------------------------------------------------------
 
 	/**
@@ -1568,4 +1580,38 @@ public interface ScriptManager extends Observer {
 									  int executes, String methodName, Object...args);
 
 	int playVideoByScript(String videoPath);
+
+	void openGolluxPortal(String action, int show);
+
+	void addClearedGolluxMap();
+
+	void updateGolluxMap();
+
+	void addCurrentGolluxMap();
+
+	boolean golluxMapAlreadyVisited();
+
+	GolluxDifficultyType getGolluxDifficulty();
+
+	void spawnGollux(byte phase);
+
+	void changeFootHold(String footHoldName, boolean show);
+
+	boolean hasMobById(int mobID);
+
+	void clearGolluxClearedMaps();
+
+	void spawnMobRespawnable(int id, int x, int y, boolean respawnable, long hp, int respawnTime);
+
+	void blockGolluxAttacks();
+
+	void getItemsFromTrunkEmployee();
+
+	void spawnLotus (byte phase, byte difficulty);
+
+	void addStorageSlots(byte amount);
+
+	void addInventorySlotsByInvType(byte amount, byte type);
+
+	int getSlotsLeftToAddByInvType(byte type);
 }

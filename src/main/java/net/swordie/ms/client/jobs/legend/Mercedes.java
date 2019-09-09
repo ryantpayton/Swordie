@@ -4,6 +4,7 @@ import net.swordie.ms.client.Client;
 import net.swordie.ms.client.character.Char;
 import net.swordie.ms.client.character.CharacterStat;
 import net.swordie.ms.client.character.info.HitInfo;
+import net.swordie.ms.client.character.items.BodyPart;
 import net.swordie.ms.client.character.items.Item;
 import net.swordie.ms.client.character.skills.Option;
 import net.swordie.ms.client.character.skills.Skill;
@@ -121,12 +122,14 @@ public class Mercedes extends Job {
         super.setCharCreationStats(chr);
         chr.getAvatarData().getAvatarLook().setDrawElfEar(true);
         Item item = ItemData.getItemDeepCopy(1352000); // Secondary
-        chr.addItemToInventory(item);
+        item.setBagIndex(BodyPart.Shield.getVal());
+        chr.getEquippedInventory().addItem(item);
         chr.getAvatarData().getCharacterStat().setPosMap(910150000);
 
         CharacterStat cs = chr.getAvatarData().getCharacterStat();
         cs.setLevel(10);
-        cs.setDex(49);
+        cs.setStr(4);
+        cs.setDex(58);
         cs.setMaxHp(300);
         cs.setMaxMp(200);
         Map<Stat, Object> stats = new HashMap<>();
@@ -400,7 +403,7 @@ public class Mercedes extends Job {
 
     private void incrementIgnisRoarStackCount(TemporaryStatManager tsm, AttackInfo attackInfo) {
         if (Arrays.asList(summonAttacks).contains(attackInfo.skillId)
-                || attackInfo.skillId == getFinalAtkSkill().getSkillId()
+                || getFinalAtkSkill() != null && attackInfo.skillId == getFinalAtkSkill().getSkillId()
                 || attackInfo.skillId == lastAttackSkill) {
             return;
         }

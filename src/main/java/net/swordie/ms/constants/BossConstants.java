@@ -6,7 +6,9 @@ package net.swordie.ms.constants;
 public class BossConstants {
 
     //  Lotus ----------------------------------------------------------------------------------------------------------
-
+    public final static int LOTUS_MOBID = 8950000;
+    public static final long[][] LOTUS_HP_PHASE_DIFFICULTY = {{400000000000L, 1600000000000L}, {400000000000L, 7000000000000L}, {700000000000L, 24000000000000L}};
+    public static final int LOTUS_BOUNCING_BALL_DURATION = 20000;
     //      Obstacle Atoms
     public static final int LOTUS_OBSTACLE_ATOM_VELOCITY = 15; // Velocity at which the Obstacle Atoms fall down.
 
@@ -101,6 +103,16 @@ public class BossConstants {
     public static final int DEMIAN_STIGMA_INCINERATE_OBJECT_RESPAWN_TIME = 20 * 1000; // Stigma Pillar spawns every 20seconds
     public static final int DEMIAN_STIGMA_INCINERATE_OBJECT_DURATION_TIME = 10 * 1000; // Stigma Pillar lasts 10 seconds
 
+    //  Gollux ---------------------------------------------------------------------------------------------------------
+    public static final int[][] GOLLUX_HP_MULTIPLIERS = {{1, 60, 300, 500}, {1, 10, 150, 3000}, {1, 10, 300, 30000}};
+    public static final int GOLLUX_FIRST_MAP = 863010100;
+    public static final int GOLLUX_RIGHT_SHOULDER = 863010330;
+    public static final int GOLLUX_LEFT_SHOULDER = 863010430;
+    public static final int GOLLUX_ABDOMEN = 863010240;
+    public static final int[] GOLLUX_RIGHT_HAND_SKILLS = new int[]{3, 5, 6, 8, 10};
+    public static final int[] GOLLUX_LEFT_HAND_SKILLS = new int[]{2, 4, 7, 9, 11};
+    public static final int GOLLUX_BREATH_ATTACK = 1;
+    public static final int GOLLUX_DROP_STONE_CHANCE = 25;
 
 
     // TODO More bosses to be noted down...

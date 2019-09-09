@@ -37,11 +37,14 @@ import net.swordie.ms.life.Life;
 import net.swordie.ms.life.Reactor;
 import net.swordie.ms.life.drop.Drop;
 import net.swordie.ms.life.mob.Mob;
+import net.swordie.ms.life.mob.skill.MobSkill;
+import net.swordie.ms.life.mob.skill.MobSkillID;
 import net.swordie.ms.life.npc.Npc;
 import net.swordie.ms.life.npc.NpcMessageType;
 import net.swordie.ms.life.npc.NpcScriptInfo;
 import net.swordie.ms.loaders.*;
 import net.swordie.ms.loaders.containerclasses.ItemInfo;
+import net.swordie.ms.loaders.containerclasses.MobSkillInfo;
 import net.swordie.ms.util.FileTime;
 import net.swordie.ms.util.Position;
 import net.swordie.ms.util.Rect;
@@ -74,6 +77,7 @@ import java.util.stream.Collectors;
 
 import static net.swordie.ms.client.character.skills.temp.CharacterTemporaryStat.RideVehicle;
 import static net.swordie.ms.enums.ChatType.*;
+import static net.swordie.ms.life.mob.skill.MobSkillStat.fixDamR;
 import static net.swordie.ms.life.npc.NpcMessageType.*;
 
 /**
@@ -687,27 +691,44 @@ public class ScriptManagerImpl implements ScriptManager {
 
 	@Override
 	public void resetAP(boolean hpmp) {
-		int addSTR = chr.getAvatarData().getCharacterStat().getStr() - 4;
-		int addDEX = chr.getAvatarData().getCharacterStat().getDex() - 4;
-		int addLUK = chr.getAvatarData().getCharacterStat().getLuk() - 4;
-		int addINT = chr.getAvatarData().getCharacterStat().getInt() - 4;
-		int currentAP = chr.getAvatarData().getCharacterStat().getAp();
-		int goalAP = currentAP + addSTR + addDEX + addLUK + addINT;
-
-		chr.setStat(Stat.str, 4);
-		chr.setStat(Stat.dex, 4);
-		chr.setStat(Stat.luk, 4);
-		chr.setStat(Stat.inte, 4);
-		chr.setStat(Stat.ap, goalAP);
-
-		Map<Stat, Object> stats = new HashMap<>();
-		stats.put(Stat.str, (short) 4);
-		stats.put(Stat.dex, (short) 4);
-		stats.put(Stat.luk, (short) 4);
-		stats.put(Stat.inte, (short) 4);
-		stats.put(Stat.ap, (short) goalAP);
-		chr.getClient().write(WvsContext.statChanged(stats));
+	    resetAP(hpmp, (short) 0);
 	}
+
+	@Override
+    public void resetAP(boolean hpmp, short jobID) {
+        Map<Stat, Object> stats = new HashMap<>();
+        stats.put(Stat.str,  chr.getAvatarData().getCharacterStat().getStr());
+        stats.put(Stat.dex,  chr.getAvatarData().getCharacterStat().getDex());
+        stats.put(Stat.luk,  chr.getAvatarData().getCharacterStat().getLuk());
+        stats.put(Stat.inte, chr.getAvatarData().getCharacterStat().getInt());
+        stats.put(Stat.ap,   chr.getAvatarData().getCharacterStat().getAp());
+
+        // Identify Primary Stat, special case only exist for Thief (Xenon) & Pirates (Also including Xenon)
+        Stat primaryStat = JobConstants.isWarriorEquipJob(jobID) ? Stat.str : JobConstants.isArcherEquipJob(jobID) ? Stat.dex : JobConstants.isMageEquipJob(jobID) ? Stat.inte : JobConstants.isThiefEquipJob(jobID) ? Stat.luk : Stat.ap;
+        if (JobConstants.isXenon(jobID) || JobConstants.isAdventurerPirate(jobID) && !JobConstants.isBuccaneer(jobID) && !JobConstants.isCorsair(jobID) && !JobConstants.isCannonShooter(jobID)) {
+            primaryStat = Stat.ap; // If we are a xenon or a 1st job adventurer pirate put points back into AP
+        }
+        else if (JobConstants.isBuccaneer(jobID) || JobConstants.isThunderBreaker(jobID) || JobConstants.isShade(jobID) || JobConstants.isCannonShooter(jobID)) {
+            primaryStat = Stat.str; // Handle STR pirates
+        }
+        else if (JobConstants.isPirateEquipJob(jobID)) {
+            primaryStat = Stat.dex; // if none of the above conditions apply & we're a pirate, only remaining choice is DEX, otherwise we leave primary stat as AP
+        }
+
+        int buffer = 0; // Difference between the stat's current value and its minimum (0 for AP, 4 for the four traditional stats)
+        for (Map.Entry<Stat, Object> stat : stats.entrySet()) {
+            if (stat.getKey() != primaryStat) {
+                buffer = ((short) stat.getValue() - (stat.getKey() != Stat.ap ? 4 : 0));
+                if (buffer > 0) {
+                    stat.setValue((short)((short) stat.getValue() - buffer));
+                    stats.put(primaryStat, (short)((short) stats.get(primaryStat) + buffer));
+                    chr.setStat(stat.getKey(), (short)stats.get(stat.getKey()));
+                    chr.setStat(primaryStat, (short)stats.get(primaryStat));
+                }
+            }
+        }
+        chr.getClient().write(WvsContext.statChanged(stats));
+    }
 
 	@Override
 	public void setSTR(short amount) {
@@ -1574,6 +1595,16 @@ public class ScriptManagerImpl implements ScriptManager {
 		field.addLife(reactor);
 	}
 
+	public void spawnReactorInState(int reactorId, int x, int y, byte state) {
+		Field field = chr.getField();
+		Reactor reactor = ReactorData.getReactorByID(reactorId);
+		reactor.setState(state);
+		Position position = new Position(x, y);
+		reactor.setPosition(position);
+		field.addLife(reactor);
+		chr.write(ReactorPool.reactorEnterField(reactor));
+	}
+
 	@Override
 	public boolean hasReactors() {
 		Field field = chr.getField();
@@ -2340,6 +2371,10 @@ public class ScriptManagerImpl implements ScriptManager {
 		chr.write(FieldPacket.clock(ClockPacket.removeClock()));
 	}
 
+	public Clock createTimerGauge(int seconds) {
+		return new Clock(ClockType.TimerGauge, chr.getField(), seconds);
+	}
+
 
 
 	// Other methods ---------------------------------------------------------------------------------------------------
@@ -2574,4 +2609,135 @@ public class ScriptManagerImpl implements ScriptManager {
 		return memory;
 	}
 
+	public void openGolluxPortal(String action, int show) {
+		chr.getField().broadcastPacket(FieldPacket.golluxOpenPortal(chr, action, show));
+	}
+
+	public void addClearedGolluxMap() {
+		chr.getOrCreateFieldByCurrentInstanceType(BossConstants.GOLLUX_FIRST_MAP).getProperties().put(String.valueOf(chr.getFieldID()), 2);
+		updateGolluxMap();
+	}
+
+	public void addCurrentGolluxMap() {
+		if (chr.getField() == null || chr.getField().getMobs() == null) {
+			return;
+		}
+		int type = chr.getField().getMobs().size() == 0 ? 2 : 1;
+		chr.getOrCreateFieldByCurrentInstanceType(BossConstants.GOLLUX_FIRST_MAP).getProperties().put(String.valueOf(chr.getFieldID()), type);
+		updateGolluxMap();
+	}
+
+	public void updateGolluxMap() {
+		chr.getField().broadcastPacket(FieldPacket.golluxUpdateMiniMap(chr));
+	}
+
+	public boolean golluxMapAlreadyVisited() {
+		return chr.getOrCreateFieldByCurrentInstanceType(BossConstants.GOLLUX_FIRST_MAP).getProperties().keySet().contains(String.valueOf(chr.getFieldID()));
+	}
+
+	public GolluxDifficultyType getGolluxDifficulty() {
+		Map<String, Object> golluxMaps = chr.getOrCreateFieldByCurrentInstanceType(BossConstants.GOLLUX_FIRST_MAP).getProperties();
+		byte difficulty = 0;
+		ArrayList<Integer> golluxMainParts = new ArrayList<>();
+		golluxMainParts.add(BossConstants.GOLLUX_ABDOMEN);
+		golluxMainParts.add(BossConstants.GOLLUX_RIGHT_SHOULDER);
+		golluxMainParts.add(BossConstants.GOLLUX_LEFT_SHOULDER);
+		for (Map.Entry<String, Object> entry : golluxMaps.entrySet()) {
+			if (golluxMainParts.contains(Integer.valueOf(entry.getKey())) && Integer.valueOf(entry.getValue().toString()) == 2) {
+				difficulty++;
+			}
+		}
+		return GolluxDifficultyType.getByVal(difficulty);
+	}
+
+	public void spawnGollux(byte phase) {
+		if (phase > 2) {
+			return;
+		}
+		int mobId = 9390600 + phase;
+		Mob gollux = MobData.getMobDeepCopyById(mobId);
+		int hpMultiplier = BossConstants.GOLLUX_HP_MULTIPLIERS[phase][3 - getGolluxDifficulty().getVal()];
+		Mob mob = spawnMob(mobId, 0, 0, false, gollux.getHp() * Long.valueOf(hpMultiplier));
+		blockGolluxAttacks();
+	}
+
+	public void blockGolluxAttacks() {
+		Mob mob = null;
+		for (int i = 9390600; i <= 9390602; i++) {
+			mob = (Mob) chr.getField().getLifeByTemplateId(i);
+			if (mob != null) {
+				break;
+			}
+		}
+		if (mob == null) {
+			return;
+		}
+		Map<String, Object> golluxMaps = chr.getOrCreateFieldByCurrentInstanceType(BossConstants.GOLLUX_FIRST_MAP).getProperties();
+		ArrayList<Integer> blockedSkills = new ArrayList<>();
+		if ((int) golluxMaps.getOrDefault(String.valueOf(BossConstants.GOLLUX_RIGHT_SHOULDER), 0) == 2) {
+			blockedSkills.addAll(Arrays.stream(BossConstants.GOLLUX_RIGHT_HAND_SKILLS).boxed().collect(Collectors.toList()));
+		}
+		if ((int) golluxMaps.getOrDefault(String.valueOf(BossConstants.GOLLUX_LEFT_SHOULDER), 0) == 2) {
+			blockedSkills.addAll(Arrays.stream(BossConstants.GOLLUX_LEFT_HAND_SKILLS).boxed().collect(Collectors.toList()));
+		}
+		if ((int) golluxMaps.getOrDefault(String.valueOf(BossConstants.GOLLUX_ABDOMEN), 0) == 2) {
+			blockedSkills.add(BossConstants.GOLLUX_BREATH_ATTACK);
+		}
+		mob.getField().broadcastPacket(MobPool.mobAttackBlock(mob, blockedSkills));
+	}
+
+	public void changeFootHold(String footHoldName, boolean show) {
+		chr.getField().broadcastPacket(FieldPacket.footholdAppear(footHoldName, show));
+	}
+
+	public boolean hasMobById(int mobID) {
+		return chr.getField().getLifeByTemplateId(mobID) != null;
+	}
+
+	public void clearGolluxClearedMaps() {
+		chr.getOrCreateFieldByCurrentInstanceType(BossConstants.GOLLUX_FIRST_MAP).getProperties().clear();
+	}
+
+	public void spawnMobRespawnable(int id, int x, int y, boolean respawnable, long hp, int respawnTime) {
+		chr.getField().spawnMobRespawnable(id, x, y, respawnable, hp, respawnTime);
+	}
+
+	public void createFallingCatcherOnCharacter(String name) {
+		ArrayList<Position> positions = new ArrayList<Position>();
+		positions.add(chr.getPosition());
+		chr.getField().broadcastPacket(FieldPacket.createFallingCatcher(name, 1, 1, positions));
+	}
+
+	public void getItemsFromTrunkEmployee() {
+		chr.getItemsFromEmployeeTrunk();
+	}
+
+	public void spawnLotus(byte phase, byte difficulty) {
+		if (phase > 2 || difficulty > 1) {
+			return;
+		}
+		int lotusId = BossConstants.LOTUS_MOBID + phase; // phases start from 0 to 2
+		long hp = BossConstants.LOTUS_HP_PHASE_DIFFICULTY[phase][difficulty];
+		Mob lotus = spawnMob(lotusId, 0, -16, false, hp);
+		if (phase == 0) {
+			MobSkillInfo msi = SkillData.getMobSkillInfoByIdAndLevel(MobSkillID.LaserAttack.getVal(), 1);
+			MobSkill mobSkill = new MobSkill();
+			mobSkill.setLevel(5); //at this level there are 4 lasers and 100% damr
+			mobSkill.setSkillID(MobSkillID.LaserAttack.getVal());
+			mobSkill.setFixDamR(msi.getSkillStatIntValue(fixDamR));
+			mobSkill.applyEffect(lotus);
+		}
+	}
+
+	public void addStorageSlots(byte amount) {
+		chr.getAccount().getTrunk().addSlots(amount);
+	}
+
+	public void addInventorySlotsByInvType(byte amount, byte type) {
+		chr.getInventoryByType(InvType.getInvTypeByVal(type)).addSlots(amount);
+	}
+
+	public int getSlotsLeftToAddByInvType(byte type) {
+		return GameConstants.MAX_INVENTORY_SLOTS - chr.getInventoryByType(InvType.getInvTypeByVal(type)).getSlots();
+	}
 }

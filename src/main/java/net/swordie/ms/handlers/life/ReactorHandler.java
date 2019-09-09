@@ -7,9 +7,11 @@ import net.swordie.ms.handlers.Handler;
 import net.swordie.ms.handlers.header.InHeader;
 import net.swordie.ms.life.Life;
 import net.swordie.ms.life.Reactor;
+import net.swordie.ms.life.mob.Mob;
 import net.swordie.ms.loaders.ReactorData;
 import net.swordie.ms.loaders.containerclasses.ReactorInfo;
 import net.swordie.ms.scripts.ScriptType;
+import net.swordie.ms.world.field.Field;
 import org.apache.log4j.Logger;
 
 import javax.script.ScriptException;
@@ -74,4 +76,18 @@ public class ReactorHandler {
             chr.getScriptManager().startScript(templateID, objID, action, ScriptType.Reactor);
         }
     }
+
+    @Handler(op = InHeader.REACTOR_KEY)
+    public static void handleReactorKey(Client c, InPacket inPacket) {
+        Char chr = c.getChr();
+        int objID = inPacket.decodeInt();
+        int lifeID = inPacket.decodeInt();
+        Mob mob = (Mob) chr.getField().getLifeByObjectID(lifeID);
+        mob.die(false);
+        Field field = chr.getField();
+        for (Char character : field.getChars()) {
+            character.increaseGolluxStack();
+        }
+    }
+
 }

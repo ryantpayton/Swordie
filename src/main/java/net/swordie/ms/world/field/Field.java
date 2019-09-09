@@ -1436,4 +1436,10 @@ public class Field {
     public boolean getChangeToChannelOnLeave() {
         return changeToChannelOnLeave;
     }
+
+    public Mob spawnMobRespawnable(int id, int x, int y, boolean respawnable, long hp, int respawnTime) {
+        Mob mob = spawnMob(id, x, y, respawnable, hp);
+        EventManager.addEvent(() -> spawnMobRespawnable(id, x, y, respawnable, hp, respawnTime), respawnTime * 1000); //milliseconds to seconds.
+        return mob;
+    }
 }

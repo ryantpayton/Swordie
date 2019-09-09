@@ -1,59 +1,23 @@
-# 1400 - [Job Advancement] The 5 Paths
+sm.setSpeakerID(12100)
+sm.sendNext("Hmm, you're making good progress with your leveling. Have you decided on which job you want to take? You could be a Warrior with great strength and high HP, a Magician with many spells, a Bowman that shoots arrows from afar, a Thief that uses quick, sneaky attacks, or a Pirate with all kinds of flashy chain skills... There are so many!")
+choice = sm.sendNext("If you go to Victoria Island, you can advance to the job of your choice by going to the right Job Instructor. But before that, lemme know which one you're interested in, and I'll send #bthem#k a letter of recommendation. That will make it easier for you to advance! So, which job will you choose?\r\n\r\n#b#L0#I want to be a might Warrior!#l\r\n#L1#I want to be a mystical Magician!#l\r\n#L2#I want to be a sharp-shooting Bowman!#l\r\n#L3#I want to be a sneaky Thief!#l\r\n#L4#I want to be a swashbuckling Pirate!#l")
 
-selections = [
-[# Warrior
-    "Warrior",  # String for in text
-    102000003,  # hideout mapID
-    1401# Quest ID
-],
+sm.createQuestWithQRValue(1406, str(choice+1))
+sm.startQuest(parentID)
+sm.completeQuest(parentID)
 
-[# Magician
-    "Magician",   # String for in text
-    101000003,  # hideout mapID
-    1402# Quest ID
-],
-
-[# Archers
-    "Bowman",  # String for in text
-    100000201,  # hideout mapID
-    1403# Quest ID
-],
-
-[# Thieves
-    "Thieves", # String for in text
-    103000003,  # hideout mapID
-    1404# Quest ID
-],
-
-[# Pirates
-    "Pirates",   # String for in text
-    120000101,  # hideout mapID
-    1405# Quest ID
-]
-]
-
-
-sm.setSpeakerID(10301) # Mai
-if sm.getChr().getLevel() >= 10:
-    sm.sendNext("I see you have reached level 10!\r\nIt is time for you to select your future.")
-
-
-    text = "What path do you want to go on?#b"
-    i = 0
-    while i < len(selections):
-        text += "\r\n#L"+ str(i) +"#"+ selections[i][0] +"#l"
-        i += 1
-    response = sm.sendNext(text)
-    job = selections[response][0]
-    hideout = selections[response][1]
-    quest = selections[response][2]
-    isSure = sm.sendAskYesNo("Are you sure you want to follow the path of a " + job + "?")
-
-    if isSure:
-        sm.sendNext("Okay, I will send you to the " + job + "'s instructor.")
-        sm.warp(hideout)
-        sm.completeQuestNoRewards(parentID)
-        sm.startQuest(quest)
-    sm.dispose()
-else:
-    sm.sendNext("Please speak to me after reaching level 10.")
+if choice == 0:
+    sm.sendNext("A Warrior, huh? Boy, you're going to get really strong! They can take tons of damage, and dish plenty out, too. Okay, I'll send my recommendation to #bDances with Balrog#k, the Warrior Job Instructor.")
+    sm.sendSay("He will contact you when you reach Lv. 10. Become a great Warrior!")
+elif choice == 1:
+    sm.sendNext("A Magician, huh? Okay, I'll send my recommendation to #bGrendel, the Really Old#k, the Magician Job Instructor.")
+    sm.sendSay("They will contact you when you reach Lv. 10. Become a great Magician!")
+elif choice == 2:
+    sm.sendNext("A Bowman, huh? Okay, I'll send my recommendation to #bAthena Pierce#k, the Bowman Job Instructor.")
+    sm.sendSay("They will contact you when you reach Lv. 10. Become a great Bowman!")
+elif choice == 3:
+    sm.sendNext("A Thief, huh? Okay, I'll send my recommendation to #bthe Dark Lord#k, the Thief Job Instructor.")
+    sm.sendSay("They will contact you when you reach Lv. 10. Become a great Thief!")
+elif choice == 4:
+    sm.sendNext("A Pirate, huh? Okay, I'll send my recommendation to #bKyrin#k, the Pirate Job Instructor.")
+    sm.sendSay("They will contact you when you reach Lv. 10. Become a great Pirate!")

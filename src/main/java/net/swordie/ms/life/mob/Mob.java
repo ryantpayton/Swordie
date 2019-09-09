@@ -13,6 +13,7 @@ import net.swordie.ms.client.party.Party;
 import net.swordie.ms.client.party.PartyDamageInfo;
 import net.swordie.ms.connection.OutPacket;
 import net.swordie.ms.connection.packet.*;
+import net.swordie.ms.constants.BossConstants;
 import net.swordie.ms.constants.GameConstants;
 import net.swordie.ms.constants.ItemConstants;
 import net.swordie.ms.enums.BaseStat;
@@ -144,6 +145,7 @@ public class Mob extends Life {
     private int currentDestIndex = 0;
     private int escortStopDuration = 0;
     private int mobSpawnerId;
+    private Map<String, Object> properties = new HashMap<String, Object>();
 
     public Mob(int templateId) {
         super(templateId);
@@ -1226,6 +1228,7 @@ public class Mob extends Life {
         setHp(newHp);
         double percDamage = ((double) newHp / maxHP);
         newHp = newHp > Integer.MAX_VALUE ? Integer.MAX_VALUE : newHp;
+        doOneTimeEvent(oldHp, newHp, maxHP);
         if (oldHp > 0 && newHp <= 0) {
             // Boss sponges
             // TODO horntail kills
@@ -1334,6 +1337,12 @@ public class Mob extends Life {
                 : 0); // Meso Drop Rate
         int totalMesoRate = mesoRateMob + mostDamageCharMesoRate;
         int totalDropRate = dropRateMob + mostDamageCharDropRate;
+        for (Item item : getMostDamageChar().getCashInventory().getItems()) {
+            if (ItemConstants.is2XDropCoupon(item.getItemId())) {
+                totalDropRate *= 2;
+                break;
+            }
+        }
         getField().drop(getDrops(), getField().getFootholdById(fhID), getPosition(), ownerID, totalMesoRate, totalDropRate);
     }
 
@@ -1386,6 +1395,13 @@ public class Mob extends Life {
                 long mobStatBonusExp = ((appliedExpPre * expIncrease) / 100);
                 eei.setBaseAddExp((int) mobStatBonusExp);
                 appliedExpPost += mobStatBonusExp;
+            }
+
+            for (int id : ItemConstants.EXP_2X_COUPON) {
+                if (chr.hasItem(id)) {
+                    appliedExpPre *= 2;
+                    break; //so coupons won't stack
+                }
             }
 
             eei.setLastHit(true);
@@ -1946,5 +1962,43 @@ public class Mob extends Life {
 
     public void setMobSpawnerId(int mobSpawnerId) {
         this.mobSpawnerId = mobSpawnerId;
+    }
+
+    public Map<String, Object> getProperties() {
+        return properties;
+    }
+
+    public boolean hasProperty(String key) {
+        return getProperties().containsKey(key);
+    }
+
+    public Object getProperty(String key) {
+        return getProperties().get(key);
+    }
+
+    public void setProperty(String key, Object value) {
+        getProperties().put(key, value);
+    }
+
+    public void setProperties(Map<String, Object> properties) {
+        this.properties = properties;
+    }
+
+    public void doOneTimeEvent(long oldHp, long newHp, long maxHP) {
+        if (hasProperty("triggeredEvent")) {
+            return;
+        }
+        if (getTemplateId() / 10000 == 939 && getField().getId() != 863010600) {
+            if (oldHp > 0 && newHp <= maxHP * 0.5) {
+                int chance = getTemplateId() == 9390610 || getTemplateId() == 9390611 ? 100 : BossConstants.GOLLUX_DROP_STONE_CHANCE;
+                Random ran = new Random();
+                if (ran.nextInt(101) <= chance) {
+                    setProperty("triggeredEvent", true);
+                    OutPacket outPacket = FieldPacket.createFallingCatcherGollux(getTemplateId(), getMostDamageChar().getPosition());
+                    getField().broadcastPacket(outPacket);
+                }
+            }
+        }
+
     }
 }

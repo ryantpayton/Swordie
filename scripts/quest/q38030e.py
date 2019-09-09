@@ -1,4 +1,5 @@
 sm.setPlayerAsSpeaker()
+sm.flipDialogue()
 sm.sendNext("This is Maple World? Did I really... return? I never thought I'd see it again.")
 sm.sendSay("I bet everyone is doing well. I'm off to see my friends!")
 
