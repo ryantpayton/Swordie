@@ -67,7 +67,7 @@ public class PartyDamageInfo {
     }
 
     private boolean isEligible(Char chr) {
-        boolean eligible = damageDone.keySet().contains(chr) || isWithinMobLevel(chr);
+        boolean eligible = (damageDone.keySet().contains(chr) || isWithinMobLevel(chr)) && chr.getField() == mob.getField();
         if (!eligible) {
             for (Char attacker : damageDone.keySet()) {
                 eligible |= isWithinMobLevel(chr) || (isWithinMobLevel(attacker) && isWithinAttackerLvl(attacker, chr))

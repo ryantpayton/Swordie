@@ -248,7 +248,7 @@ public class CCashShop {
         outPacket.encodeShort(lockerSize);
         locker.forEach(item -> {
             item.encode(outPacket);
-            outPacket.encodeInt(0); // bonus items' sn size
+            outPacket.encodeInt(0);
         });
         outPacket.encodeShort(GameConstants.MAX_LOCKER_SIZE);
         outPacket.encodeShort(account.getUser().getCharacterSlots());

@@ -75,7 +75,7 @@ public class RoomHandler {
                     chr.chatMessage("You are currently not trading.");
                     return;
                 }
-                Item offer = ItemData.getItemDeepCopy(item.getItemId());
+                Item offer = item.deepCopy();
                 offer.setQuantity(quantity);
                 if (tradeRoom.canAddItem(chr)) {
                     int consumed = quantity > item.getQuantity() ? 0 : item.getQuantity() - quantity;

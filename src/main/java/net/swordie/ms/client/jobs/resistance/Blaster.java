@@ -11,6 +11,7 @@ import net.swordie.ms.client.character.skills.temp.TemporaryStatManager;
 import net.swordie.ms.connection.InPacket;
 import net.swordie.ms.constants.JobConstants;
 import net.swordie.ms.enums.ChatType;
+import net.swordie.ms.handlers.EventManager;
 import net.swordie.ms.life.AffectedArea;
 import net.swordie.ms.loaders.SkillData;
 import net.swordie.ms.world.field.Field;
@@ -343,6 +344,17 @@ public class Blaster extends Citizen {
     }
 
     private void incrementComboTraining(int skillId, TemporaryStatManager tsm) {
+        if (getAmmo() == 0) {
+            Option o = new Option();
+            o.nOption = 1;
+            o.rOption = Blaster.REVOLVING_CANNON_RELOAD;
+            o.bOption = getMaxAmmo();
+            o.cOption = getGauge();
+            tsm.putCharacterStatValue(RWCylinder, o);
+            tsm.sendSetStatPacket();
+            int time = tsm.hasStat(RWMaximizeCannon) ? 500 : 1500;
+            EventManager.addEvent(() -> reloadCylinder(), time);
+        }
         if (!chr.hasSkill(COMBO_TRAINING)) {
             return;
         }

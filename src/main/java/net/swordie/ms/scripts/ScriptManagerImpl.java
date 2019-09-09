@@ -2729,4 +2729,15 @@ public class ScriptManagerImpl implements ScriptManager {
 		}
 	}
 
+	public void addStorageSlots(byte amount) {
+		chr.getAccount().getTrunk().addSlots(amount);
+	}
+
+	public void addInventorySlotsByInvType(byte amount, byte type) {
+		chr.getInventoryByType(InvType.getInvTypeByVal(type)).addSlots(amount);
+	}
+
+	public int getSlotsLeftToAddByInvType(byte type) {
+		return GameConstants.MAX_INVENTORY_SLOTS - chr.getInventoryByType(InvType.getInvTypeByVal(type)).getSlots();
+	}
 }

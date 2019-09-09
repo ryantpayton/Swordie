@@ -1,6 +1,7 @@
 package net.swordie.ms.client.character.items;
 
 import net.swordie.ms.connection.db.DatabaseManager;
+import net.swordie.ms.constants.GameConstants;
 import net.swordie.ms.enums.InvType;
 import net.swordie.ms.loaders.ItemData;
 import net.swordie.ms.loaders.containerclasses.ItemInfo;
@@ -41,7 +42,15 @@ public class Inventory {
 
     public Inventory deepCopy() {
         Inventory inventory = new Inventory(getType(), getSlots());
-        inventory.setItems(new CopyOnWriteArrayList<>(getItems()));
+        List<Item> items = new CopyOnWriteArrayList<>();
+        for (Item item : getItems()) {
+            if (item instanceof PetItem) {
+                items.add(ItemData.getItemDeepCopy(item.getItemId())); //item.deepCopy cannot be used on pets, still putting it in different if state because other items can have quantity
+            } else {
+                items.add(item.deepCopy());
+            }
+        }
+        inventory.setItems(items);
         return inventory;
     }
 
@@ -58,7 +67,7 @@ public class Inventory {
     }
 
     public void setSlots(byte slots) {
-        this.slots = slots;
+        this.slots = (byte) Math.min(slots, GameConstants.MAX_INVENTORY_SLOTS);
     }
 
     public void addItem(Item item) {
@@ -173,5 +182,9 @@ public class Inventory {
 
     public int getEmptySlots() {
         return getSlots() - getItems().size();
+    }
+
+    public void addSlots(byte amount) {
+        setSlots((byte) (getSlots() + amount));
     }
 }

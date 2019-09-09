@@ -1337,6 +1337,12 @@ public class Mob extends Life {
                 : 0); // Meso Drop Rate
         int totalMesoRate = mesoRateMob + mostDamageCharMesoRate;
         int totalDropRate = dropRateMob + mostDamageCharDropRate;
+        for (Item item : getMostDamageChar().getCashInventory().getItems()) {
+            if (ItemConstants.is2XDropCoupon(item.getItemId())) {
+                totalDropRate *= 2;
+                break;
+            }
+        }
         getField().drop(getDrops(), getField().getFootholdById(fhID), getPosition(), ownerID, totalMesoRate, totalDropRate);
     }
 
@@ -1389,6 +1395,13 @@ public class Mob extends Life {
                 long mobStatBonusExp = ((appliedExpPre * expIncrease) / 100);
                 eei.setBaseAddExp((int) mobStatBonusExp);
                 appliedExpPost += mobStatBonusExp;
+            }
+
+            for (int id : ItemConstants.EXP_2X_COUPON) {
+                if (chr.hasItem(id)) {
+                    appliedExpPre *= 2;
+                    break; //so coupons won't stack
+                }
             }
 
             eei.setLastHit(true);

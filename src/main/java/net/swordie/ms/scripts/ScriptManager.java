@@ -1608,4 +1608,10 @@ public interface ScriptManager extends Observer {
 	void getItemsFromTrunkEmployee();
 
 	void spawnLotus (byte phase, byte difficulty);
+
+	void addStorageSlots(byte amount);
+
+	void addInventorySlotsByInvType(byte amount, byte type);
+
+	int getSlotsLeftToAddByInvType(byte type);
 }

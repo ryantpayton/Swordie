@@ -64,6 +64,20 @@ public class ItemConstants {
             1122278, // Mystic Horntail Necklace
     };
 
+    public static final int EXP_2X_COUPON[] = {
+            5680484,
+            5680342,
+            5680275,
+            5211122,
+            5211121,
+            5211120,
+            5211049,
+            5211048,
+            5211047,
+            5211046,
+            5211000
+    };
+
     public static final short MAX_HAMMER_SLOTS = 2;
 
     private static final Integer[] soulPotList = new Integer[]{32001, 32002, 32003, 32004, 32005, 32006, 32011, 32012, // flat
@@ -1424,6 +1438,10 @@ public class ItemConstants {
 
     public static boolean isPortableStorage(int itemID) {
         return itemID == 5450009 || itemID == 5450008 || itemID == 5450005;
+    }
+
+    public static boolean is2XDropCoupon(int itemId) {
+        return itemId <= 5360057 && itemId >= 5360000;
     }
 }
 
