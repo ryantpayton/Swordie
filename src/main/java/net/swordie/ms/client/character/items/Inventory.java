@@ -71,15 +71,16 @@ public class Inventory {
     }
 
     public void addItem(Item item) {
-        if(getItems().size() < getSlots()) {
+        if (getItems().size() < getSlots()) {
             getItems().add(item);
             item.setInvType(getType());
             sortItemsByIndex();
-            if (item.getId() == 0&&item.getBagIndex()>0} { // ensures that each item has a unique id
+            if (item.getId() == 0 && item.getBagIndex() > 0) { // ensures that each item has a unique id
                 DatabaseManager.saveToDB(this);
             }
         }
     }
+
     public void removeItem(Item item) {
         getItems().remove(item);
         sortItemsByIndex();
@@ -174,7 +175,7 @@ public class Inventory {
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder("Items: ");
-        for(Item item : getItems()) {
+        for (Item item : getItems()) {
             sb.append(String.format("%d id=%d slot=%d | ", item.getItemId(), item.getId(), item.getBagIndex()));
         }
         return sb.toString();
