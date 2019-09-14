@@ -75,7 +75,7 @@ public class Inventory {
             getItems().add(item);
             item.setInvType(getType());
             sortItemsByIndex();
-            if (item.getId() == 0) { // ensures that each item has a unique id
+            if (item.getId() == 0&&item.getBagIndex()>0} { // ensures that each item has a unique id
                 DatabaseManager.saveToDB(this);
             }
         }
