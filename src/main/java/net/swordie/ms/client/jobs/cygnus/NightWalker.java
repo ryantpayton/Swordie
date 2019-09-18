@@ -136,6 +136,8 @@ public class NightWalker extends Noblesse {
 
     private List<Summon> bats = new ArrayList<>();
     private Summon darkServant;
+    private List<Summon> darkOmenBats = new ArrayList<>();
+    private int darkOmenAttackCount = 0;
 
     public NightWalker(Char chr) {
         super(chr);
@@ -327,14 +329,34 @@ public class NightWalker extends Noblesse {
         }
         if(hasHitMobs) {
             // Handling Shadow Bats
-            if(attackInfo.skillId != SHADOW_BAT_ATOM) {
+            if (attackInfo.skillId != SHADOW_BAT_ATOM) {
                 shadowBats(attackInfo);
             } else {
                 recreateShadowBatForceAtom();
             }
-
+            if (attackInfo.skillId == DARK_OMEN) {
+                if (!tsm.hasStatBySkillId(SHADOW_BAT)) {
+                    return;
+                }
+                int mobsHit = attackInfo.mobAttackInfo.size();
+                darkOmenAttackCount += mobsHit;
+                int attForBats = si.getValue(x, slv);
+                int batsToSummon = darkOmenAttackCount / attForBats;
+                darkOmenAttackCount = darkOmenAttackCount % attForBats;
+                for (int i = 0; i < batsToSummon; i++) {
+                    if (darkOmenBats.size() < getDarkOmenBatCount(chr)) {
+                        summonBatByDarkOmen();
+                    } else {
+                        break;
+                    }
+                }
+            }
+            if (attackInfo.skillId != DARK_OMEN && attackInfo.skillId != SHADOW_BAT_ATOM && chr.hasSkillOnCooldown(DARK_OMEN)) {
+                SkillInfo skillInfo = SkillData.getSkillInfoById(DARK_OMEN);
+                chr.reduceSkillCoolTime(DARK_OMEN, skillInfo.getValue(y, slv));
+            }
             // Handling Dark Elemental
-            if(tsm.hasStat(ElementDarkness)) {
+            if (tsm.hasStat(ElementDarkness)) {
                 applyDarkElementalOnMob(attackInfo, slv);
             }
         }
@@ -396,6 +418,17 @@ public class NightWalker extends Noblesse {
             // Remove Bats & Create ForceAtom
             if (bats.size() > 0) {
                 for(Iterator<Summon> it = bats.iterator(); it.hasNext();) {
+                    Summon bat = it.next();
+                    if (Util.succeedProp((mts.hasCurrentMobStat(MobStat.ElementDarkness) ? 2*getBatAttackProp() : getBatAttackProp()))) {
+                        it.remove();
+                        chr.getField().broadcastPacket(Summoned.summonedRemoved(bat, LeaveType.ANIMATION));
+                        createShadowBatForceAtom(attackInfo);
+                    }
+                }
+            }
+            // Remove bats created by dark omen and create ForceAtom
+            if (darkOmenBats.size() > 0) {
+                for(Iterator<Summon> it = darkOmenBats.iterator(); it.hasNext();) {
                     Summon bat = it.next();
                     if (Util.succeedProp((mts.hasCurrentMobStat(MobStat.ElementDarkness) ? 2*getBatAttackProp() : getBatAttackProp()))) {
                         it.remove();
@@ -533,6 +566,17 @@ public class NightWalker extends Noblesse {
         bat.setAttackActive(false);
         chr.getField().spawnAddSummon(bat);
         bats.add(bat);
+
+        return bat;
+    }
+
+    private Summon summonBatByDarkOmen() {
+        Summon bat = Summon.getSummonBy(chr, getBatSkill().getSkillId(), (byte) getBatSkill().getCurrentLevel());
+        bat.setFlyMob(true);
+        bat.setMoveAbility(MoveAbility.Fly);
+        bat.setAttackActive(false);
+        chr.getField().spawnAddSummon(bat);
+        darkOmenBats.add(bat);
 
         return bat;
     }
@@ -713,5 +757,13 @@ public class NightWalker extends Noblesse {
         tsm.removeStatsBySkill(DARKNESS_ASCENDING);
         tsm.sendResetStatPacket();
         chr.chatMessage("You have been revived by Darkness Ascending.");
+    }
+
+    public static int getDarkOmenBatCount(Char chr) {
+        if (chr.hasSkill(DARK_OMEN)) {
+            SkillInfo si = SkillData.getSkillInfoById(DARK_OMEN);
+            return si.getValue(z, chr.getSkillLevel(DARK_OMEN));
+        }
+        return 0;
     }
 }
