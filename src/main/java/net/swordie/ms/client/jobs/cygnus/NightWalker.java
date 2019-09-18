@@ -352,8 +352,8 @@ public class NightWalker extends Noblesse {
                 }
             }
             if (attackInfo.skillId != DARK_OMEN && attackInfo.skillId != SHADOW_BAT_ATOM && chr.hasSkillOnCooldown(DARK_OMEN)) {
-                si = SkillData.getSkillInfoById(DARK_OMEN);
-                chr.reduceSkillCoolTime(DARK_OMEN, si.getValue(y, slv));
+                SkillInfo skillInfo = SkillData.getSkillInfoById(DARK_OMEN);
+                chr.reduceSkillCoolTime(DARK_OMEN, skillInfo.getValue(y, slv));
             }
             // Handling Dark Elemental
             if (tsm.hasStat(ElementDarkness)) {
