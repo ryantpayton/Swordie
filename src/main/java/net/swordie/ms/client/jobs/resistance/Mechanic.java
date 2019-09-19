@@ -18,6 +18,7 @@ import net.swordie.ms.connection.packet.UserRemote;
 import net.swordie.ms.constants.JobConstants;
 import net.swordie.ms.enums.*;
 import net.swordie.ms.handlers.EventManager;
+import net.swordie.ms.life.AffectedArea;
 import net.swordie.ms.life.Summon;
 import net.swordie.ms.life.mob.Mob;
 import net.swordie.ms.life.mob.MobStat;
@@ -33,6 +34,7 @@ import java.util.List;
 import java.util.Random;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
 import static net.swordie.ms.client.character.skills.SkillStat.*;
 import static net.swordie.ms.client.character.skills.temp.CharacterTemporaryStat.*;
@@ -95,7 +97,6 @@ public class Mechanic extends Citizen {
             SUPPORT_UNIT_HEX, //Summon
             ENHANCED_SUPPORT_UNIT,
             ROBO_LAUNCHER_RM7, //Summon
-            ROCK_N_SHOCK, //Summon
             BOTS_N_TOTS, //Summon
             FULL_SPREAD, //Summon
             FOR_LIBERTY_MECH,
@@ -254,16 +255,6 @@ public class Mechanic extends Citizen {
                 summon.setMoveAbility(MoveAbility.Stop);
                 field.spawnSummon(summon);
                 break;
-            case ROCK_N_SHOCK:      //TODO TeslaCoil
-                summon = Summon.getSummonBy(c.getChr(), skillID, slv);
-                field = c.getChr().getField();
-                summon.setFlyMob(true);
-                summon.setMoveAbility(MoveAbility.Stop);
-                summon.setAssistType(AssistType.None);
-                summon.setAttackActive(false);
-                //field.spawnAddSummon(summon);
-
-                break;
             case BOTS_N_TOTS:
                 summon = Summon.getSummonBy(c.getChr(), skillID, slv);
                 field = c.getChr().getField();
@@ -355,15 +346,15 @@ public class Mechanic extends Citizen {
         Option o2 = new Option();
         Option o3 = new Option();
         switch (skillID) {
-            case DISTORTION_BOMB: // TODO  AA 38's
-                /*
-                AffectedArea aa = AffectedArea.getAffectedArea(chr, attackInfo);
+            case DISTORTION_BOMB:
+                AffectedArea aa = AffectedArea.getPassiveAA(chr, skillID, slv);
                 aa.setMobOrigin((byte) 0);
-                aa.setPosition(chr.getPosition());
-                aa.setRect(aa.getPosition().getRectAround(si.getRects().get(0)));
-                aa.setFlip(!attackInfo.left);
-                chr.getField().spawnAffectedArea(aa);
-                */
+                aa.setPosition(chr.getPosition().deepCopy());
+                Rect rect = aa.getPosition().getRectAround(si.getRects().get(0));
+                aa.setRect(rect);
+                aa.setFlip(!chr.isLeft());
+                aa.setMoveAction((byte) 0);
+                chr.getField().spawnAffectedAreaAndRemoveOld(aa);
                 break;
         }
 
@@ -543,6 +534,19 @@ public class Mechanic extends Citizen {
                     break;
                 case HEROS_WILL_MECH:
                     tsm.removeAllDebuffs();
+                    break;
+                case ROCK_N_SHOCK:
+                    Summon summon = Summon.getSummonBy(c.getChr(), skillID, slv);
+                    field = chr.getField();
+                    summon.setMoveAbility(MoveAbility.Stop);
+                    summon.setAssistType(AssistType.None);
+                    field.spawnAddSummon(summon);
+                    int rockNShockSize = inPacket.decodeByte();
+                    if (rockNShockSize == 2) {
+                        List<Summon> rockNshockLifes = field.getSummons().stream().filter(s -> s.getSkillID() == ROCK_N_SHOCK && s.getChr() == chr).collect(Collectors.toList());
+                        field.spawnAddSummon(summon);
+                        field.broadcastPacket(UserPacket.teslaTriangle(rockNshockLifes, chr.getId()));
+                    }
                     break;
             }
         }

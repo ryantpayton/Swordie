@@ -9,6 +9,7 @@ import net.swordie.ms.client.jobs.Job;
 import net.swordie.ms.client.jobs.adventurer.Magician;
 import net.swordie.ms.client.jobs.cygnus.BlazeWizard;
 import net.swordie.ms.client.jobs.cygnus.NightWalker;
+import net.swordie.ms.client.jobs.resistance.Mechanic;
 import net.swordie.ms.client.party.PartyMember;
 import net.swordie.ms.connection.InPacket;
 import net.swordie.ms.connection.packet.*;
@@ -238,6 +239,11 @@ public class AttackHandler {
         ai.hits = (byte) (mask & 0xF);
         ai.mobCount = (mask >>> 4) & 0xF;
         inPacket.decodeByte(); // hardcoded 0
+        if(ai.skillId == Mechanic.ROCK_N_SHOCK) {
+            for (int i = 0; i < 3; i++){
+                inPacket.decodeInt(); //rock n shock life ids, not needed
+            }
+        }
         ai.attackAction = inPacket.decodeShort();
         ai.attackCount = inPacket.decodeShort();
         ai.pos = inPacket.decodePosition();
