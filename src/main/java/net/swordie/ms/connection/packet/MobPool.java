@@ -386,4 +386,22 @@ public class MobPool {
 
         return outPacket;
     }
+
+    public static OutPacket setSkillDelay(Mob mob, int skillAfter, MobSkillInfo msi, int sequenceDelay, List<Rect> rects) {
+        OutPacket outPacket = new OutPacket(OutHeader.MOB_SKILL_DELAY);
+
+        outPacket.encodeInt(mob.getObjectId());
+
+        outPacket.encodeInt(skillAfter);
+        outPacket.encodeInt(msi.getId());
+        outPacket.encodeInt(msi.getLevel());
+        outPacket.encodeInt(sequenceDelay);
+        if(msi.getId() != 0) {
+            outPacket.encodeInt(rects.size());
+            for (Rect rect : rects) {
+                outPacket.encodeRectInt(rect);
+            }
+        }
+        return outPacket;
+    }
 }

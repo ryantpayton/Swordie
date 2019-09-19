@@ -6,6 +6,8 @@ import net.swordie.ms.enums.ChatUserType;
 import net.swordie.ms.handlers.PsychicLock;
 import net.swordie.ms.handlers.header.OutHeader;
 import net.swordie.ms.life.Summon;
+import net.swordie.ms.life.mob.Mob;
+import net.swordie.ms.loaders.containerclasses.MobSkillInfo;
 import net.swordie.ms.util.Position;
 
 import java.util.List;
@@ -159,6 +161,19 @@ public class UserPacket {
 
         outPacket.encodeInt(charID);
         outPacket.encodeInt(damage);
+
+        return outPacket;
+    }
+
+    public static OutPacket tossedByMobSkill(int charId, Mob mob, MobSkillInfo msi, int impact) {
+        OutPacket outPacket = new OutPacket(OutHeader.TOSSED_BY_MOB_SKILL);
+
+        outPacket.encodeInt(charId);
+
+        outPacket.encodeInt(mob.getObjectId());
+        outPacket.encodeInt(msi.getId());
+        outPacket.encodeInt(msi.getLevel());
+        outPacket.encodeInt(impact);
 
         return outPacket;
     }
