@@ -12,6 +12,7 @@ import net.swordie.ms.client.character.runestones.RuneStone;
 import net.swordie.ms.client.character.skills.PsychicArea;
 import net.swordie.ms.client.character.skills.TownPortal;
 import net.swordie.ms.client.character.skills.info.ForceAtomInfo;
+import net.swordie.ms.client.jobs.resistance.Mechanic;
 import net.swordie.ms.client.jobs.resistance.OpenGate;
 import net.swordie.ms.client.trunk.TrunkDlg;
 import net.swordie.ms.connection.OutPacket;
@@ -77,7 +78,9 @@ public class FieldPacket {
             outPacket.encodeByte(aa.isFlip());
         }
         outPacket.encodeInt(0); // ?
-
+        if(aa.getSkillID() == Mechanic.DISTORTION_BOMB) {
+            outPacket.encodeInt(aa.getIdk());
+        }
         return outPacket;
     }
 

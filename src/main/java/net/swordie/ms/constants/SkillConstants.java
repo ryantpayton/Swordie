@@ -14,6 +14,7 @@ import net.swordie.ms.client.jobs.legend.Evan;
 import net.swordie.ms.client.jobs.legend.Phantom;
 import net.swordie.ms.client.jobs.nova.AngelicBuster;
 import net.swordie.ms.client.jobs.resistance.Demon;
+import net.swordie.ms.client.jobs.resistance.Mechanic;
 import net.swordie.ms.loaders.SkillData;
 import org.apache.log4j.Logger;
 
@@ -1261,6 +1262,7 @@ public class SkillConstants {
             case ThunderBreaker.GALE:
             case ThunderBreaker.TYPHOON:
             case Demon.DEMON_CRY:
+            case Mechanic.DISTORTION_BOMB:
                 return true;
         }
         return false;
