@@ -479,7 +479,7 @@ public class MobSkill {
                 break;
             case Toos:
                 for (Char character : mob.getField().getChars()) {
-                  mob.getField().broadcastPacket(UserPacket.tossedByMobSkill(character.getId(), mob, msi,  -1400));
+                    character.write(UserPacket.tossedByMobSkill(character.getId(), mob, msi,  -1400));
                 }
                 break;
             case Unk:
