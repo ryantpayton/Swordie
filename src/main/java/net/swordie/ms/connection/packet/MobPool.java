@@ -276,8 +276,8 @@ public class MobPool {
                 outPacket.encodePositionInt(msi.getRb2());
             }
             if (notDestroyByCollide) {
-                outPacket.encodeInt(1); // nIncScale
-                outPacket.encodeInt(100); // nMaxScale
+                outPacket.encodeInt(5); // nIncScale
+                outPacket.encodeInt(200); // nMaxScale
                 outPacket.encodeInt(40); // nDecRadius
                 outPacket.encodeInt(60); // fAngle
             }

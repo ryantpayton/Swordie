@@ -78,9 +78,6 @@ public class FieldPacket {
             outPacket.encodeByte(aa.isFlip());
         }
         outPacket.encodeInt(0); // ?
-        if(aa.getSkillID() == Mechanic.DISTORTION_BOMB) {
-            outPacket.encodeInt(aa.getIdk());
-        }
         return outPacket;
     }
 

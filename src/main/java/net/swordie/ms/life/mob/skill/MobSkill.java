@@ -9,6 +9,7 @@ import net.swordie.ms.connection.packet.MobPool;
 import net.swordie.ms.connection.packet.UserPacket;
 import net.swordie.ms.enums.BaseStat;
 import net.swordie.ms.enums.TSIndex;
+import net.swordie.ms.handlers.EventManager;
 import net.swordie.ms.life.AffectedArea;
 import net.swordie.ms.life.mob.Mob;
 import net.swordie.ms.life.mob.MobStat;
@@ -485,7 +486,7 @@ public class MobSkill {
                 msi.setLevel((short) 3); //level 1 repeats itself
                 mob.getField().broadcastPacket(MobPool.setSkillDelay(mob, 990, msi, 0, rects));
                 for (Char character : mob.getField().getChars()) {
-                    mob.getField().broadcastPacket(UserPacket.tossedByMobSkill(character.getId(), mob, msi, -1400));
+                    EventManager.addEvent(() -> mob.getField().broadcastPacket(UserPacket.tossedByMobSkill(character.getId(), mob, msi, -1400)), 1200);
                 }
                 break;
             case Unk:
