@@ -478,15 +478,8 @@ public class MobSkill {
                 // Not needed? Automatically handled well by the controller
                 break;
             case Toos:
-                List<Rect> rects = new ArrayList<Rect>();
-                Rect rectangle = new Rect(-49, -1016, 211, -16);
-                rects.add(rectangle);
-                rects.add(rectangle.moveRight().moveRight());
-                rects.add(rectangle.moveLeft().moveLeft());
-                msi.setLevel((short) 3); //level 1 repeats itself
-                mob.getField().broadcastPacket(MobPool.setSkillDelay(mob, 990, msi, 0, rects));
                 for (Char character : mob.getField().getChars()) {
-                    EventManager.addEvent(() -> mob.getField().broadcastPacket(UserPacket.tossedByMobSkill(character.getId(), mob, msi, -1400)), 1200);
+                  mob.getField().broadcastPacket(UserPacket.tossedByMobSkill(character.getId(), mob, msi,  -1400));
                 }
                 break;
             case Unk:
