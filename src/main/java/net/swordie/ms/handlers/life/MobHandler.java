@@ -142,7 +142,7 @@ public class MobHandler {
                         }
                         mob.getSkillDelays().add(mobSkill);
                         mob.setSkillDelay(mobSkill.getSkillAfter());
-                        c.write(MobPool.setSkillDelay(mob, 990, msi, 0, rects));
+                        c.write(MobPool.setSkillDelay(mob, mobSkill.getSkillAfter(), msi, 0, rects));
                     } else {
                         mobSkill.applyEffect(mob);
                     }

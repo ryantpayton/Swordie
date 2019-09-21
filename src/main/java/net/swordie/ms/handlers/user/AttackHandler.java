@@ -10,6 +10,7 @@ import net.swordie.ms.client.jobs.adventurer.Magician;
 import net.swordie.ms.client.jobs.cygnus.BlazeWizard;
 import net.swordie.ms.client.jobs.cygnus.NightWalker;
 import net.swordie.ms.client.jobs.resistance.Mechanic;
+import net.swordie.ms.client.jobs.sengoku.Kanna;
 import net.swordie.ms.client.party.PartyMember;
 import net.swordie.ms.connection.InPacket;
 import net.swordie.ms.connection.packet.*;
@@ -434,8 +435,9 @@ public class AttackHandler {
             mai.oldPosY = inPacket.decodeShort(); // ?
             if (header == InHeader.USER_MAGIC_ATTACK) {
                 mai.hpPerc = inPacket.decodeByte();
-                if (skillID == 80001835) {
+                if (skillID == 80001835 || skillID == Kanna.SOUL_SHEAR) {
                     mai.magicInfo = (short) inPacket.decodeByte();
+                    ai.hits = (byte) mai.magicInfo;
                 } else {
                     mai.magicInfo = inPacket.decodeShort();
                 }
