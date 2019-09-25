@@ -6,6 +6,7 @@ import net.swordie.ms.client.character.info.HitInfo;
 import net.swordie.ms.client.character.skills.Option;
 import net.swordie.ms.client.character.skills.Skill;
 import net.swordie.ms.client.character.skills.info.AttackInfo;
+import net.swordie.ms.client.character.skills.info.MobAttackInfo;
 import net.swordie.ms.client.character.skills.info.SkillInfo;
 import net.swordie.ms.client.character.skills.temp.TemporaryStatManager;
 import net.swordie.ms.connection.InPacket;
@@ -13,6 +14,9 @@ import net.swordie.ms.constants.JobConstants;
 import net.swordie.ms.enums.ChatType;
 import net.swordie.ms.handlers.EventManager;
 import net.swordie.ms.life.AffectedArea;
+import net.swordie.ms.life.mob.Mob;
+import net.swordie.ms.life.mob.MobStat;
+import net.swordie.ms.life.mob.MobTemporaryStat;
 import net.swordie.ms.loaders.SkillData;
 import net.swordie.ms.world.field.Field;
 
@@ -75,6 +79,11 @@ public class Blaster extends Citizen {
     public static final int ADVANCED_CHARGE_MASTERY = 37120011;
     public static final int BOBBING_CHARGED = 37100002;
     public static final int WEAVING_CHARGED = 37110004;
+
+    public static final int BALLISTIC_HURRICAANE = 37121003;
+    public static final int BALLISTIC_HURRICAANE_1 = 37120024;
+    public static final int WEAVING = 37111003;
+    public static final int BOBBING = 37101001;
 
     private int[] addedSkills = new int[] {
             SECRET_ASSEMBLY,
@@ -184,7 +193,6 @@ public class Blaster extends Citizen {
             slv = skill.getCurrentLevel();
             skillID = skill.getSkillId();
         }
-        incrementComboTraining(skillID, tsm);
         Option o1 = new Option();
         Option o2 = new Option();
         Option o3 = new Option();
@@ -195,8 +203,18 @@ public class Blaster extends Citizen {
                 break;
             case BOBBING_CHARGED:
             case WEAVING_CHARGED:
-                if (chr.hasSkill(CHARGE_MASTERY) && getAmmo() > 0 && getAmmo() < getMaxAmmo())
+                if (chr.hasSkill(CHARGE_MASTERY) && getAmmo() > 0 && getAmmo() < getMaxAmmo()) {
                     addAmmo(chr.hasSkill(ADVANCED_CHARGE_MASTERY) ? 2 : 1);
+                }
+                int realSkillId = skillID == BOBBING_CHARGED ? BOBBING : WEAVING;
+                si = SkillData.getSkillInfoById(realSkillId);
+                skill = chr.getSkill(realSkillId);
+                o1.nOption = si.getValue(w, skill.getCurrentLevel());
+                o1.rOption = realSkillId;
+                o1.tOption = si.getValue(subTime, skill.getCurrentLevel());
+                o1.setInMillis(true);
+                tsm.putCharacterStatValue(RWMovingEvar, o1);
+                tsm.sendSetStatPacket();
                 break;
             case HAMMER_SMASH_CHARGE:
                 if (chr.hasSkill(CHARGE_MASTERY) && getAmmo() > 0 && getAmmo() < getMaxAmmo())
@@ -208,6 +226,19 @@ public class Blaster extends Citizen {
                 hmci.setRect(hmci.getPosition().getRectAround(hmc.getRects().get(0)));
                 hmci.setDelay((short) 5);
                 chr.getField().spawnAffectedArea(hmci);
+                //mobs deBuff
+                skill = chr.getSkill(HAMMER_SMASH);
+                o1.nOption = hmc.getValue(x, skill.getCurrentLevel());
+                o1.rOption = HAMMER_SMASH;
+                o1.tOption = 10;
+                for (MobAttackInfo mai : attackInfo.mobAttackInfo) {
+                    Mob mob = (Mob) chr.getField().getLifeByObjectID(mai.mobId);
+                    if (mob == null) {
+                        continue;
+                    }
+                    MobTemporaryStat mts = mob.getTemporaryStat();
+                    mts.addStatOptionsAndBroadcast(MobStat.AddDamSkill2, o1);
+                }
                 break;
             case BUNKER_BUSTER_EXPLOSION_2:
                 if (getGauge() < 3 || tsm.hasStat(RWOverHeat)) {
@@ -241,6 +272,7 @@ public class Blaster extends Citizen {
                 //c.write(UserLocal.rwMultiChargeCancelRequest((byte)1, skillID));
                 break;
         }
+        incrementComboTraining(skillID, tsm);
         super.handleAttack(c, attackInfo);
     }
 
@@ -435,7 +467,16 @@ public class Blaster extends Citizen {
                     reloadCylinder();
                     break;
                 case VITALITY_SHIELD:
+                    if (!tsm.hasStat(RWBarrier)) {
+                        return;
+                    }
+                    int healAmount = (int) (0.5 * chr.getMaxHP() + tsm.getOption(RWBarrier).nOption);
+                    chr.heal(healAmount);
                     resetBlastShield();
+                    o1.nOption = 1;
+                    o1.rOption = skillID;
+                    o1.tOption = si.getValue(time, slv);
+                    tsm.putCharacterStatValue(RWBarrierHeal, o1);
                     break;
                 case HEROS_WILL_BLASTER:
                     tsm.removeAllDebuffs();
@@ -451,16 +492,57 @@ public class Blaster extends Citizen {
     @Override
     public void handleHit(Client c, InPacket inPacket, HitInfo hitInfo) {
         TemporaryStatManager tsm = chr.getTemporaryStatManager();
-        Option o = new Option();
-        Option o1 = new Option();
-        if(chr.hasSkill(BLAST_SHIELD)) {
-            SkillInfo si = SkillData.getSkillInfoById(BLAST_SHIELD);
-            o.nOption = 1;
-            o.rOption = BLAST_SHIELD;
-            o.tOption = 3;
-            tsm.putCharacterStatValue(RWBarrier, o);
-            tsm.sendSetStatPacket();
+        if (chr.hasSkill(BLAST_SHIELD) && hitInfo.hpDamage > 0 && !tsm.hasStat(RWBarrier)) {
+            Skill shieldSkill = getBlastShieldSkill();
+            SkillInfo shieldInfo = SkillData.getSkillInfoById(shieldSkill.getSkillId());
+            int amount = Math.min(hitInfo.hpDamage * shieldInfo.getValue(x, shieldSkill.getCurrentLevel()) / 100 + 1, chr.getMaxHP());
+            putOnShield(amount);
         }
         super.handleHit(c, inPacket, hitInfo);
+    }
+
+    public Skill getBlastShieldSkill() {
+        Skill skill = null;
+        if (chr.hasSkill(BLAST_SHIELD)) {
+            skill = chr.getSkill(BLAST_SHIELD);
+        }
+        if (chr.hasSkill(SHIELD_TRAINING)) {
+            skill = chr.getSkill(SHIELD_TRAINING);
+        }
+        if (chr.hasSkill(SHIELD_TRAINING_II)) {
+            skill = chr.getSkill(SHIELD_TRAINING_II);
+        }
+        return skill;
+    }
+
+    public void decreaseShield() {
+        TemporaryStatManager tsm = chr.getTemporaryStatManager();
+        if (!tsm.hasStat(RWBarrier)) { //function stops on vitality shield or shield value <=0
+            return;
+        }
+        Skill shieldSkill = getBlastShieldSkill();
+        SkillInfo si = SkillData.getSkillInfoById(shieldSkill.getSkillId());
+        int oldShield = tsm.getOption(RWBarrier).nOption;
+        int newShield = (oldShield * si.getValue(y, shieldSkill.getCurrentLevel()) / 100) - si.getValue(z, shieldSkill.getCurrentLevel());
+        if (newShield <= 0) {
+            tsm.removeStat(RWBarrier, false);
+        } else {
+            putOnShield(newShield);
+        }
+        tsm.sendSetStatPacket();
+    }
+
+    public void putOnShield(int amount) {
+        Option o = new Option();
+        Option o1 = new Option();
+        TemporaryStatManager tsm = chr.getTemporaryStatManager();
+        o.nOption = amount;
+        o.rOption = BLAST_SHIELD;
+        tsm.putCharacterStatValue(RWBarrier, o);
+        o1.nReason = BLAST_SHIELD;
+        o1.nValue = 100;
+        tsm.putCharacterStatValue(IndieStance, o1);
+        tsm.sendSetStatPacket();
+        EventManager.addEvent(this::decreaseShield, 3000);
     }
 }
