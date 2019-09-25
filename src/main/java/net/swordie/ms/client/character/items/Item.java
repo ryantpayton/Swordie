@@ -173,7 +173,7 @@ public class Item implements Serializable, Encodable {
         if (isCash()) {
             outPacket.encodeLong(getId());
         }
-        outPacket.encodeFT(FileTime.fromType(FileTime.Type.MAX_TIME));
+        outPacket.encodeFT(getDateExpire());
         outPacket.encodeInt(getBagIndex());
         if (getType() == Type.ITEM) {
             outPacket.encodeShort(getQuantity()); // nQuantity
