@@ -80,8 +80,8 @@ public class Blaster extends Citizen {
     public static final int BOBBING_CHARGED = 37100002;
     public static final int WEAVING_CHARGED = 37110004;
 
-    public static final int BALLISTIC_HURRICAANE = 37121003;
-    public static final int BALLISTIC_HURRICAANE_1 = 37120024;
+    public static final int BALLISTIC_HURRICANE = 37121003;
+    public static final int BALLISTIC_HURRICANE_1 = 37120024;
     public static final int WEAVING = 37111003;
     public static final int BOBBING = 37101001;
 
