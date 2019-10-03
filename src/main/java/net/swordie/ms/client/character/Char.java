@@ -3387,6 +3387,7 @@ public class Char {
 			getTradeRoom().cancelTrade();
 			other.chatMessage("Your trade partner disconnected.");
 		}
+		getScriptManager().getScripts().values().forEach(script -> script.addResponse(null));
 		getWorld().getConnectedChatClients().remove(getAccId());
 		setOnline(false);
 		getJobHandler().handleCancelTimer(this);
