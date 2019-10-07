@@ -1198,35 +1198,35 @@ public class Equip extends Item {
             case cuc:
                 return getCuc();
             case iStr:
-                return getiStr() + getfSTR() + getEnchantStat(EnchantStat.STR);
+                return getiStr() + getfSTR() + getEnchantStat(EnchantStat.STR) + getSocketStat(ScrollStat.incSTR);
             case iDex:
-                return getiDex() + getfDEX() + getEnchantStat(EnchantStat.DEX);
+                return getiDex() + getfDEX() + getEnchantStat(EnchantStat.DEX) + getSocketStat(ScrollStat.incDEX);
             case iInt:
-                return getiInt() + getfINT() + getEnchantStat(EnchantStat.INT);
+                return getiInt() + getfINT() + getEnchantStat(EnchantStat.INT) + getSocketStat(ScrollStat.incINT);
             case iLuk:
-                return getiLuk() + getfLUK() + getEnchantStat(EnchantStat.LUK);
+                return getiLuk() + getfLUK() + getEnchantStat(EnchantStat.LUK) + getSocketStat(ScrollStat.incLUK);
             case iMaxHP:
-                return getiMaxHp() + getfHP() + getEnchantStat(EnchantStat.MHP);
+                return getiMaxHp() + getfHP() + getEnchantStat(EnchantStat.MHP) + getSocketStat(ScrollStat.incMHP);
             case iMaxMP:
-                return getiMaxMp() + getfMP() + getEnchantStat(EnchantStat.MMP);
+                return getiMaxMp() + getfMP() + getEnchantStat(EnchantStat.MMP) + getSocketStat(ScrollStat.incMMP);
             case iPAD:
-                return getiPad() + getfATT() + getEnchantStat(EnchantStat.PAD);
+                return getiPad() + getfATT() + getEnchantStat(EnchantStat.PAD) + getSocketStat(ScrollStat.incPAD);
             case iMAD:
-                return getiMad() + getfMATT() + getEnchantStat(EnchantStat.MAD);
+                return getiMad() + getfMATT() + getEnchantStat(EnchantStat.MAD) + getSocketStat(ScrollStat.incMAD);
             case iPDD:
-                return getiPDD() + getfDEF() + getEnchantStat(EnchantStat.PDD);
+                return getiPDD() + getfDEF() + getEnchantStat(EnchantStat.PDD) + getSocketStat(ScrollStat.incPDD);
             case iMDD:
-                return getiMDD() + getfDEF() + getEnchantStat(EnchantStat.MDD);
+                return getiMDD() + getfDEF() + getEnchantStat(EnchantStat.MDD) + getSocketStat(ScrollStat.incMDD);
             case iACC:
-                return getiAcc() + getEnchantStat(EnchantStat.ACC);
+                return getiAcc() + getEnchantStat(EnchantStat.ACC) + getSocketStat(ScrollStat.incACC);
             case iEVA:
-                return getiEva() + getEnchantStat(EnchantStat.EVA);
+                return getiEva() + getEnchantStat(EnchantStat.EVA) + getSocketStat(ScrollStat.incEVA);
             case iCraft:
                 return getiCraft();
             case iSpeed:
-                return getiSpeed() + getfSpeed() + getEnchantStat(EnchantStat.SPEED);
+                return getiSpeed() + getfSpeed() + getEnchantStat(EnchantStat.SPEED) + getSocketStat(ScrollStat.incSpeed);
             case iJump:
-                return getiJump() + getfJump() + getEnchantStat(EnchantStat.JUMP);
+                return getiJump() + getfJump() + getEnchantStat(EnchantStat.JUMP) + getSocketStat(ScrollStat.incJump);
             case attribute:
                 return getAttribute();
             case levelUpType:
@@ -1731,6 +1731,19 @@ public class Equip extends Item {
         return getEnchantStats().getOrDefault(es, 0);
     }
 
+    public int getSocketStat(ScrollStat ss) {
+        int amount = 0;
+        for (int i = 0; i < getSockets().size(); i++) {
+            int id = getSocket(i);
+            if (id != 0 && id != ItemConstants.EMPTY_SOCKET_ID) {
+                int nebuliteId = ItemConstants.NEBILITE_BASE_ID + id;
+                Map<ScrollStat, Integer> vals = ItemData.getItemInfoByID(nebuliteId).getScrollStats();
+                amount += vals.getOrDefault(ss, 0);
+            }
+        }
+        return amount;
+    }
+
     public List<Short> getSockets() {
         return sockets;
     }
@@ -1786,10 +1799,10 @@ public class Equip extends Item {
                 res += getTotalStat(EquipBaseStat.damR);
                 break;
             case bd:
-                res += getTotalStat(EquipBaseStat.bdr);
+                res += getTotalStat(EquipBaseStat.bdr) + getSocketStat(ScrollStat.boss);
                 break;
             case ied:
-                res += getTotalStat(EquipBaseStat.imdr);
+                res += getTotalStat(EquipBaseStat.imdr) + getSocketStat(ScrollStat.ignoreTargetDEF);
                 break;
             case eva:
                 res += getTotalStat(EquipBaseStat.iEVA);
@@ -1807,10 +1820,25 @@ public class Equip extends Item {
                 res += getAttackSpeed();
                 break;
             case strR:
+                res += getSocketStat(ScrollStat.incSTRr) + getTotalStat(EquipBaseStat.statR);
+                break;
             case dexR:
+                res += getSocketStat(ScrollStat.incDEXr) + getTotalStat(EquipBaseStat.statR);
+                break;
             case intR:
+                res += getSocketStat(ScrollStat.incINTr) + getTotalStat(EquipBaseStat.statR);
+                break;
             case lukR:
-                res += getTotalStat(EquipBaseStat.statR);
+                res += getSocketStat(ScrollStat.incLUKr) + getTotalStat(EquipBaseStat.statR);
+                break;
+            case reduceCooltime:
+                res += getSocketStat(ScrollStat.reduceCooltime);
+                break;
+            case minCd:
+                res += getSocketStat(ScrollStat.incCriticaldamageMin);
+                break;
+            case maxCd:
+                res += getSocketStat(ScrollStat.incCriticaldamageMax);
                 break;
         }
         return res;
