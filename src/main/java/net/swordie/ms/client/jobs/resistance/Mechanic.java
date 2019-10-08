@@ -8,16 +8,15 @@ import net.swordie.ms.client.character.skills.Skill;
 import net.swordie.ms.client.character.skills.info.AttackInfo;
 import net.swordie.ms.client.character.skills.info.ForceAtomInfo;
 import net.swordie.ms.client.character.skills.info.SkillInfo;
+import net.swordie.ms.client.character.skills.temp.CharacterTemporaryStat;
 import net.swordie.ms.client.character.skills.temp.TemporaryStatBase;
 import net.swordie.ms.client.character.skills.temp.TemporaryStatManager;
 import net.swordie.ms.connection.InPacket;
-import net.swordie.ms.connection.packet.FieldPacket;
-import net.swordie.ms.connection.packet.Effect;
-import net.swordie.ms.connection.packet.UserPacket;
-import net.swordie.ms.connection.packet.UserRemote;
+import net.swordie.ms.connection.packet.*;
 import net.swordie.ms.constants.JobConstants;
 import net.swordie.ms.enums.*;
 import net.swordie.ms.handlers.EventManager;
+import net.swordie.ms.life.AffectedArea;
 import net.swordie.ms.life.Summon;
 import net.swordie.ms.life.mob.Mob;
 import net.swordie.ms.life.mob.MobStat;
@@ -28,15 +27,17 @@ import net.swordie.ms.util.Rect;
 import net.swordie.ms.util.Util;
 import net.swordie.ms.world.field.Field;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Random;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
 import static net.swordie.ms.client.character.skills.SkillStat.*;
-import static net.swordie.ms.client.character.skills.temp.CharacterTemporaryStat.*;
 import static net.swordie.ms.client.character.skills.temp.CharacterTemporaryStat.Mechanic;
+import static net.swordie.ms.client.character.skills.temp.CharacterTemporaryStat.*;
 import static net.swordie.ms.enums.ForceAtomEnum.*;
 
 /**
@@ -64,6 +65,7 @@ public class Mechanic extends Citizen {
     public static final int SUPPORT_UNIT_HEX = 35111008; //Summon
     public static final int ADV_HOMING_BEACON = 35110017;
 
+    public static final int ROBOT_MASTERY = 35120001;
     public static final int BOTS_N_TOTS = 35121009; //Special Summon
     public static final int BOTS_N_TOTS_SUB_SUMMON = 35121011; // Summon that spawn from the main BotsNtots
     public static final int MAPLE_WARRIOR_MECH = 35121007; //Buff
@@ -71,6 +73,7 @@ public class Mechanic extends Citizen {
     public static final int HEROS_WILL_MECH = 35121008;
     public static final int HOMING_BEACON_RESEARCH = 35120017;
     public static final int ROLL_OF_THE_DICE_DD = 35120014; //Special Buff
+    public static final int GIANT_ROBOT_SG_88 = 35121003;
 
     public static final int FOR_LIBERTY_MECH = 35121053;
     public static final int FULL_SPREAD = 35121055;
@@ -95,7 +98,6 @@ public class Mechanic extends Citizen {
             SUPPORT_UNIT_HEX, //Summon
             ENHANCED_SUPPORT_UNIT,
             ROBO_LAUNCHER_RM7, //Summon
-            ROCK_N_SHOCK, //Summon
             BOTS_N_TOTS, //Summon
             FULL_SPREAD, //Summon
             FOR_LIBERTY_MECH,
@@ -147,9 +149,26 @@ public class Mechanic extends Citizen {
         Field field;
         switch (skillID) {
             case HUMANOID_MECH:
-                o1.nOption = 0;
+                o1.nOption = si.getCurrentLevel();
                 o1.rOption = skillID;
                 tsm.putCharacterStatValue(Mechanic, o1);
+                o2.nOption = si.getValue(epad, slv);
+                o2.rOption = skillID;
+                o2.tOption = 0;
+                tsm.putCharacterStatValue(CharacterTemporaryStat.PAD, o2);
+                o3.nOption = si.getValue(emmp, slv);
+                o3.rOption = skillID;
+                o3.tOption = 0;
+                tsm.putCharacterStatValue(EMMP, o3);
+                o4.nOption = si.getValue(emhp, slv);
+                o4.rOption = skillID;
+                o4.tOption = 0;
+                tsm.putCharacterStatValue(EMHP, o4);
+                o5.nOption = si.getValue(indieSpeed, slv);
+                o5.rOption = skillID;
+                o5.tOption = 0;
+                tsm.putCharacterStatValue(IndieSpeed, o5);
+
                 tsm.sendSetStatPacket();
 
                 tsb.setNOption(MECH_VEHICLE);
@@ -254,16 +273,6 @@ public class Mechanic extends Citizen {
                 summon.setMoveAbility(MoveAbility.Stop);
                 field.spawnSummon(summon);
                 break;
-            case ROCK_N_SHOCK:      //TODO TeslaCoil
-                summon = Summon.getSummonBy(c.getChr(), skillID, slv);
-                field = c.getChr().getField();
-                summon.setFlyMob(true);
-                summon.setMoveAbility(MoveAbility.Stop);
-                summon.setAssistType(AssistType.None);
-                summon.setAttackActive(false);
-                //field.spawnAddSummon(summon);
-
-                break;
             case BOTS_N_TOTS:
                 summon = Summon.getSummonBy(c.getChr(), skillID, slv);
                 field = c.getChr().getField();
@@ -355,15 +364,13 @@ public class Mechanic extends Citizen {
         Option o2 = new Option();
         Option o3 = new Option();
         switch (skillID) {
-            case DISTORTION_BOMB: // TODO  AA 38's
-                /*
-                AffectedArea aa = AffectedArea.getAffectedArea(chr, attackInfo);
-                aa.setMobOrigin((byte) 0);
-                aa.setPosition(chr.getPosition());
-                aa.setRect(aa.getPosition().getRectAround(si.getRects().get(0)));
-                aa.setFlip(!attackInfo.left);
-                chr.getField().spawnAffectedArea(aa);
-                */
+            case DISTORTION_BOMB:
+                AffectedArea aa = AffectedArea.getPassiveAA(chr, skillID, slv);
+                aa.setPosition(chr.getPosition().deepCopy());
+                Rect rect = aa.getPosition().getRectAround(si.getRects().get(0));
+                aa.setRect(rect);
+                aa.setFlip(!chr.isLeft());
+                chr.getField().spawnAffectedAreaAndRemoveOld(aa);
                 break;
         }
 
@@ -525,6 +532,10 @@ public class Mechanic extends Citizen {
                 case OPEN_PORTAL_GX9:
                     Field field = chr.getField();
                     int duration = si.getValue(time, slv);
+                    if (chr.hasSkill(ROBOT_MASTERY)) {
+                        SkillInfo robotMastery = SkillData.getSkillInfoById(ROBOT_MASTERY);
+                        duration *= 1 + (double) (robotMastery.getValue(x, chr.getSkillLevel(ROBOT_MASTERY)) / 100);
+                    }
                     OpenGate openGate = new OpenGate(chr, chr.getPosition(), chr.getParty(), gateId, duration);
                     if (gateId == 0) {
                         gateId = 1;
@@ -543,6 +554,35 @@ public class Mechanic extends Citizen {
                     break;
                 case HEROS_WILL_MECH:
                     tsm.removeAllDebuffs();
+                    break;
+                case ROCK_N_SHOCK:
+                    Summon summon = Summon.getSummonBy(c.getChr(), skillID, slv);
+                    field = chr.getField();
+                    summon.setMoveAbility(MoveAbility.Stop);
+                    summon.setAssistType(AssistType.None);
+                    if (chr.hasSkill(ROBOT_MASTERY)) {
+                        SkillInfo robotMastery = SkillData.getSkillInfoById(ROBOT_MASTERY);
+                        summon.setSummonTerm((int) (summon.getSummonTerm() * (double) (1 + (robotMastery.getValue(x, chr.getSkillLevel(ROBOT_MASTERY)) / 100))));
+                    }
+                    field.spawnAddSummon(summon);
+                    int rockNShockSize = inPacket.decodeByte();
+                    if (rockNShockSize == 2) {
+                        List<Summon> rockNshockLifes = field.getSummons().stream().filter(s -> s.getSkillID() == ROCK_N_SHOCK && s.getChr() == chr).collect(Collectors.toList());
+                        field.spawnAddSummon(summon);
+                        field.broadcastPacket(UserPacket.teslaTriangle(rockNshockLifes, chr.getId()));
+                    } else {
+                        chr.resetSkillCoolTime(skillID);
+                    }
+                    break;
+                case GIANT_ROBOT_SG_88:
+                    summon = Summon.getSummonBy(c.getChr(), skillID, slv);
+                    field = chr.getField();
+                    summon.setMoveAbility(MoveAbility.Stop);
+                    summon.setAssistType(AssistType.Attack);
+                    summon.setMoveAction((byte) 1);
+                    summon.setSummonTerm(5);
+                    tsm.removeStatsBySkill(skillID);
+                    field.spawnAddSummon(summon);
                     break;
             }
         }
