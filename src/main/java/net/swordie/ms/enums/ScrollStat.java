@@ -47,6 +47,18 @@ public enum ScrollStat {
     incLUKr,
     incCriticaldamageMin,
     incCriticaldamageMax,
+    statincCr,
+    statincDAMr,
+    statincPDDr,
+    statincMDDr,
+    statincEVAr,
+    statincACCr,
+    statincMHPr,
+    statincMMPr,
+    statincTerR,
+    statincAsrR,
+    statincMesoProp,
+    statincRewardProp,
     ;
 
     public static ScrollStat getScrollStatByString(String name) {

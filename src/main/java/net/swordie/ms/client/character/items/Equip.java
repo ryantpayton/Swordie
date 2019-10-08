@@ -1254,11 +1254,11 @@ public class Equip extends Item {
             case psEnchant:
                 return getPsEnchant(); // final strike
             case bdr:
-                return getBdr() + getfBoss(); // bd
+                return getBdr() + getfBoss() + getSocketStat(ScrollStat.boss); // bd
             case imdr:
-                return getImdr(); // ied
+                return getImdr() + getSocketStat(ScrollStat.ignoreTargetDEF); // ied
             case damR:
-                return getDamR() + getfDamage(); // td
+                return getDamR() + getfDamage() + getSocketStat(ScrollStat.statincDAMr); // td
             case statR:
                 return getStatR() + getfAllStat(); // as
             case cuttable:
@@ -1799,10 +1799,10 @@ public class Equip extends Item {
                 res += getTotalStat(EquipBaseStat.damR);
                 break;
             case bd:
-                res += getTotalStat(EquipBaseStat.bdr) + getSocketStat(ScrollStat.boss);
+                res += getTotalStat(EquipBaseStat.bdr);
                 break;
             case ied:
-                res += getTotalStat(EquipBaseStat.imdr) + getSocketStat(ScrollStat.ignoreTargetDEF);
+                res += getTotalStat(EquipBaseStat.imdr);
                 break;
             case eva:
                 res += getTotalStat(EquipBaseStat.iEVA);
@@ -1839,6 +1839,18 @@ public class Equip extends Item {
                 break;
             case maxCd:
                 res += getSocketStat(ScrollStat.incCriticaldamageMax);
+                break;
+            case evaR:
+                res += getSocketStat(ScrollStat.statincEVAr);
+                break;
+            case accR:
+                res += getSocketStat(ScrollStat.statincACCr);
+                break;
+            case dropR:
+                res += getSocketStat(ScrollStat.statincRewardProp);
+                break;
+            case mesoR:
+                res += getSocketStat(ScrollStat.statincMesoProp);
                 break;
         }
         return res;
