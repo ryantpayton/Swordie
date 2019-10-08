@@ -18,6 +18,9 @@ public class QuestConstants {
 
     public static final int MEDAL_REISSUE_QUEST = 29949;
 
+    public static final int ZERO_SET_QUEST = 41907;
+    public static final int ZERO_WEAPON_WINDOW_QUEST = 40905;
+
     public static String getWhStorageQuestValByTemplateID(int templateId) {
         if (templateId >= 9304000 && templateId <= 9304008) {
             return String.valueOf((templateId % 10) + 1);

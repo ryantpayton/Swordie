@@ -59,6 +59,7 @@ public enum ScrollStat {
     statincAsrR,
     statincMesoProp,
     statincRewardProp,
+    setItemCategory,
     ;
 
     public static ScrollStat getScrollStatByString(String name) {

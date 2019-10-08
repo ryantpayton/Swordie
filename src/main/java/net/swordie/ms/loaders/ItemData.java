@@ -1066,7 +1066,6 @@ public class ItemData {
                                 case "specialItem":
                                 case "exNew":
                                 case "cuttable":
-                                case "setItemCategory":
                                 case "perfectReset":
                                 case "resetRUC":
                                 case "incMax":
@@ -1297,6 +1296,8 @@ public class ItemData {
                                 case "recover":
                                     item.putScrollStat(recover, intValue);
                                     break;
+                                case "setItemCategory":
+                                    item.putScrollStat(setItemCategory, intValue);
                                 default:
                                     if (LOG_UNKS) {
                                         log.warn(String.format("Unknown node: %s, value = %s, itemID = %s", name, value, item.getItemId()));

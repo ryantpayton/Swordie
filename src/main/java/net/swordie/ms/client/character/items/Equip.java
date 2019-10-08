@@ -1,8 +1,10 @@
 package net.swordie.ms.client.character.items;
 
+import net.swordie.ms.client.character.Char;
 import net.swordie.ms.connection.OutPacket;
 import net.swordie.ms.connection.db.FileTimeConverter;
 import net.swordie.ms.connection.db.InlinedIntArrayConverter;
+import net.swordie.ms.connection.packet.FieldPacket;
 import net.swordie.ms.constants.GameConstants;
 import net.swordie.ms.constants.ItemConstants;
 import net.swordie.ms.enums.*;
@@ -12,6 +14,8 @@ import net.swordie.ms.util.Util;
 
 import javax.persistence.*;
 import java.util.*;
+
+import static net.swordie.ms.enums.ChatType.SystemNotice;
 
 /**
  * Created on 11/23/2017.
@@ -1520,6 +1524,57 @@ public class Equip extends Item {
         }
     }
 
+    public void setBaseStatFlame(EquipBaseStat equipBaseStat, int amount) {
+        switch (equipBaseStat) {
+            case iStr:
+                setfSTR(amount);
+                break;
+            case iDex:
+                setfDEX(amount);
+                break;
+            case iInt:
+                setfINT(amount);
+                break;
+            case iLuk:
+                setfLUK(amount);
+                break;
+            case iMaxHP:
+                setfHP(amount);
+                break;
+            case iMaxMP:
+                setfMP(amount);
+                break;
+            case iPAD:
+                setfATT(amount);
+                break;
+            case iMAD:
+                setfMATT(amount);
+                break;
+            case iPDD:
+            case iMDD:
+                setfDEF(amount);
+                break;
+            case iSpeed:
+                setfSpeed(amount);
+                break;
+            case iJump:
+                setfJump(amount);
+                break;
+            case statR:
+                setfAllStat(amount);
+                break;
+            case bdr:
+                setfBoss(amount);
+                break;
+            case damR:
+                setfDamage(amount);
+                break;
+            case iReduceReq:
+                setfLevel(amount);
+                break;
+        }
+    }
+
     public long getEnchantmentStat(EquipBaseStat equipBaseStat) {
         switch (equipBaseStat) {
             case iStr:
@@ -2050,5 +2105,91 @@ public class Equip extends Item {
             setBaseStat(ebs, normalEquip.getBaseStat(ebs));
         }
         resetFlameStats();
+    }
+
+    public void applyScroll(Item scroll, Char chr, boolean success) {
+        if (scroll == null || hasSpecialAttribute(EquipSpecialAttribute.Vestige)) {
+            chr.chatMessage(SystemNotice, "Could not find scroll or equip.");
+            chr.dispose();
+            return;
+        }
+        int scrollID = scroll.getItemId();
+        boolean boom = false;
+        Map<ScrollStat, Integer> vals = ItemData.getItemInfoByID(scrollID).getScrollStats();
+        if (vals.size() > 0) {
+            boolean recover = vals.getOrDefault(ScrollStat.recover, 0) != 0;
+            if (getBaseStat(EquipBaseStat.tuc) <= 0 && !recover) {
+                chr.dispose();
+                return;
+            }
+            boolean reset = vals.getOrDefault(ScrollStat.reset, 0) + vals.getOrDefault(ScrollStat.perfectReset, 0) != 0;
+            boolean useTuc = !recover && !reset;
+            int curse = vals.getOrDefault(ScrollStat.cursed, 0);
+            if (success) {
+                boolean chaos = vals.containsKey(ScrollStat.randStat);
+                if (chaos) {
+                    boolean noNegative = vals.containsKey(ScrollStat.noNegative);
+                    int max = vals.containsKey(ScrollStat.incRandVol) ? ItemConstants.INC_RAND_CHAOS_MAX : ItemConstants.RAND_CHAOS_MAX;
+                    for (EquipBaseStat ebs : ScrollStat.getRandStats()) {
+                        int cur = (int) getBaseStat(ebs);
+                        if (cur == 0) {
+                            continue;
+                        }
+                        int randStat = Util.getRandom(max);
+                        randStat = !noNegative && Util.succeedProp(50) ? -randStat : randStat;
+                        addStat(ebs, randStat);
+                    }
+                }
+                if (recover) {
+                    Equip fullTucEquip = ItemData.getEquipDeepCopyFromID(getItemId(), false);
+                    int maxTuc = fullTucEquip.getTuc();
+                    if (getTuc() + getCuc() < maxTuc) {
+                        addStat(EquipBaseStat.tuc, 1);
+                    } else {
+                        return; //clean slate scroll won't be consumed on items that it cannot be used on
+                    }
+                } else if (reset) {
+                    resetStats();
+                } else {
+                    for (Map.Entry<ScrollStat, Integer> entry : vals.entrySet()) {
+                        ScrollStat ss = entry.getKey();
+                        int val = entry.getValue();
+                        if (ss.getEquipStat() != null) {
+                            addStat(ss.getEquipStat(), val);
+                        }
+                    }
+                }
+                if (useTuc) {
+                    addStat(EquipBaseStat.tuc, -1);
+                    addStat(EquipBaseStat.cuc, 1);
+                }
+            } else {
+                if (curse > 0) {
+                    boom = Util.succeedProp(curse);
+                    if (boom && !hasAttribute(EquipAttribute.ProtectionScroll)) {
+                        chr.consumeItem(this);
+                    } else {
+                        boom = false;
+                    }
+                }
+                if (useTuc && !hasAttribute(EquipAttribute.UpgradeCountProtection)) {
+                    addStat(EquipBaseStat.tuc, -1);
+                }
+            }
+            removeAttribute(EquipAttribute.ProtectionScroll);
+            removeAttribute(EquipAttribute.LuckyDay);
+            if (useTuc) {
+                removeAttribute(EquipAttribute.UpgradeCountProtection);
+            }
+            chr.write(FieldPacket.showItemUpgradeEffect(chr.getId(), success, false, scrollID, getItemId(), boom));
+            if (!boom) {
+                recalcEnchantmentStats();
+                updateToChar(chr);
+            }
+            chr.consumeItem(scroll);
+        } else {
+            chr.chatMessage("Could not find scroll data.");
+            chr.dispose();
+        }
     }
 }
