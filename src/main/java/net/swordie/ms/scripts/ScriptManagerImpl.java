@@ -68,9 +68,7 @@ import java.lang.reflect.Method;
 import java.nio.charset.Charset;
 import java.text.SimpleDateFormat;
 import java.util.*;
-import java.util.concurrent.Future;
-import java.util.concurrent.ScheduledFuture;
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.*;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.stream.Collectors;
@@ -86,12 +84,13 @@ import static net.swordie.ms.life.npc.NpcMessageType.*;
  * @see ScriptManager
  */
 public class ScriptManagerImpl implements ScriptManager {
-
 	public static final String SCRIPT_ENGINE_NAME = "python";
-	private static final String SCRIPT_ENGINE_EXTENSION = ".py";
-	private static final String DEFAULT_SCRIPT = "undefined";
 	public static final String QUEST_START_SCRIPT_END_TAG = "s";
 	public static final String QUEST_COMPLETE_SCRIPT_END_TAG = "e";
+
+	private static final ExecutorService SCRIPT_EXECUTOR_SERVICE = Executors.newCachedThreadPool();
+	private static final String SCRIPT_ENGINE_EXTENSION = ".py";
+	private static final String DEFAULT_SCRIPT = "undefined";
 	private static final String INTENDED_NPE_MSG = "Intended NPE by forceful script stop.";
 	private static final Logger log = LogManager.getRootLogger();
 	private static final ScriptEngine scriptEngine = new ScriptEngineManager().getEngineByName(SCRIPT_ENGINE_NAME);
@@ -211,7 +210,7 @@ public class ScriptManagerImpl implements ScriptManager {
 		}
 		scriptInfo.setObjectID(objID);
 		getScripts().put(scriptType, scriptInfo);
-		EventManager.addEvent(() -> startScript(scriptName, scriptType), 0); // makes the script execute async
+		SCRIPT_EXECUTOR_SERVICE.execute(() -> startScript(scriptName, scriptType)); // makes the script execute async
 	}
 
 	private boolean isQuestScriptAllowed() {

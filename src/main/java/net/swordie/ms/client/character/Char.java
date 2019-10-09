@@ -68,6 +68,7 @@ import net.swordie.ms.loaders.SkillData;
 import net.swordie.ms.loaders.StringData;
 import net.swordie.ms.loaders.containerclasses.AndroidInfo;
 import net.swordie.ms.loaders.containerclasses.ItemInfo;
+import net.swordie.ms.scripts.ScriptInfo;
 import net.swordie.ms.scripts.ScriptManagerImpl;
 import net.swordie.ms.scripts.ScriptType;
 import net.swordie.ms.util.*;
@@ -3387,6 +3388,7 @@ public class Char {
 			getTradeRoom().cancelTrade();
 			other.chatMessage("Your trade partner disconnected.");
 		}
+		getScriptManager().getScripts().values().forEach(ScriptInfo::reset);
 		getWorld().getConnectedChatClients().remove(getAccId());
 		setOnline(false);
 		getJobHandler().handleCancelTimer(this);
