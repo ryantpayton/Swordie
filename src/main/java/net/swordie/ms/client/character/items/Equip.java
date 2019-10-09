@@ -1262,7 +1262,7 @@ public class Equip extends Item {
             case imdr:
                 return getImdr() + getSocketStat(ScrollStat.ignoreTargetDEF); // ied
             case damR:
-                return getDamR() + getfDamage() + getSocketStat(ScrollStat.statincDAMr); // td
+                return getDamR() + getfDamage() + getSocketStat(ScrollStat.incDAMr); // td
             case statR:
                 return getStatR() + getfAllStat(); // as
             case cuttable:
@@ -1896,16 +1896,16 @@ public class Equip extends Item {
                 res += getSocketStat(ScrollStat.incCriticaldamageMax);
                 break;
             case evaR:
-                res += getSocketStat(ScrollStat.statincEVAr);
+                res += getSocketStat(ScrollStat.incEVAr);
                 break;
             case accR:
-                res += getSocketStat(ScrollStat.statincACCr);
+                res += getSocketStat(ScrollStat.incACCr);
                 break;
             case dropR:
-                res += getSocketStat(ScrollStat.statincRewardProp);
+                res += getSocketStat(ScrollStat.incRewardProp);
                 break;
             case mesoR:
-                res += getSocketStat(ScrollStat.statincMesoProp);
+                res += getSocketStat(ScrollStat.incMesoProp);
                 break;
         }
         return res;
