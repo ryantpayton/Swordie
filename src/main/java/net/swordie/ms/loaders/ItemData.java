@@ -1054,7 +1054,6 @@ public class ItemData {
                                 case "noMoveIcon":
                                 case "noShadow":
                                 case "preventslip":
-                                case "recover":
                                 case "warmsupport":
                                 case "reqCUC":
                                 case "incCraft":
@@ -1295,6 +1294,9 @@ public class ItemData {
                                     break;
                                 case "spec":
                                     break;
+                                case "recover":
+                                    item.putScrollStat(recover, intValue);
+                                    break;
                                 default:
                                     if (LOG_UNKS) {
                                         log.warn(String.format("Unknown node: %s, value = %s, itemID = %s", name, value, item.getItemId()));
@@ -1312,6 +1314,23 @@ public class ItemData {
                                     item.putScrollStat(optionType, Integer.parseInt(value));
                                     break;
                             }
+                        }
+                        Node option = XMLApi.getFirstChildByNameBF(socket, "option");
+                        Node o = XMLApi.getFirstChildByNameBF(option, "0");
+                        Node optionString = XMLApi.getFirstChildByNameDF(o, "optionString");
+                        String ssName = "";
+                        if (XMLApi.getNamedAttribute(optionString, "value") != null) {
+                            ssName = XMLApi.getNamedAttribute(optionString, "value");
+                        }
+                        Node level = XMLApi.getFirstChildByNameDF(o, "level");
+                        int ssVal = 0;
+                        if (XMLApi.getNamedAttribute(level, "value") != null) {
+                            ssVal = Integer.parseInt(XMLApi.getNamedAttribute(level, "value"));
+                        }
+                        if(ScrollStat.getScrollStatByString(ssName) != null) {
+                            item.putScrollStat(ScrollStat.valueOf(ssName), ssVal);
+                        } else {
+                            log.info("non existent scroll stat" + ssName);
                         }
                     }
                     Node spec = XMLApi.getFirstChildByNameBF(mainNode, "spec");
@@ -1556,11 +1575,11 @@ public class ItemData {
                             case "ignoreTargetDEF":
                                 io.addStatValue(level, BaseStat.ied, value);
                                 break;
-                            case "boss":
-                                io.addStatValue(level, BaseStat.bd, value);
-                                break;
                             case "incDAMr":
                                 io.addStatValue(level, BaseStat.fd, value);
+                                break;
+                            case "boss":
+                                io.addStatValue(level, BaseStat.bd, value);
                                 break;
                             case "incAllskill":
                                 io.addStatValue(level, BaseStat.incAllSkill, value);
@@ -1593,16 +1612,16 @@ public class ItemData {
                                 io.addStatValue(level, BaseStat.damageOver, value);
                                 break;
                             case "incSTRlv":
-                                io.addStatValue(level, BaseStat.strLv, value / 10D);
+                                io.addStatValue(level, BaseStat.strLv, value);
                                 break;
                             case "incDEXlv":
-                                io.addStatValue(level, BaseStat.dexLv, value / 10D);
+                                io.addStatValue(level, BaseStat.dexLv, value);
                                 break;
                             case "incINTlv":
-                                io.addStatValue(level, BaseStat.intLv, value / 10D);
+                                io.addStatValue(level, BaseStat.intLv, value);
                                 break;
                             case "incLUKlv":
-                                io.addStatValue(level, BaseStat.lukLv, value / 10D);
+                                io.addStatValue(level, BaseStat.lukLv, value);
                                 break;
                             case "RecoveryUP":
                                 io.addStatValue(level, BaseStat.recoveryUp, value);
@@ -1635,16 +1654,16 @@ public class ItemData {
                                 io.addStatValue(level, BaseStat.maxCd, value);
                                 break;
                             case "incPADlv":
-                                io.addStatValue(level, BaseStat.padLv, value / 10D);
+                                io.addStatValue(level, BaseStat.padLv, value);
                                 break;
                             case "incMADlv":
-                                io.addStatValue(level, BaseStat.madLv, value / 10D);
+                                io.addStatValue(level, BaseStat.madLv, value);
                                 break;
                             case "incMHPlv":
-                                io.addStatValue(level, BaseStat.mhpLv, value / 10D);
+                                io.addStatValue(level, BaseStat.mhpLv, value);
                                 break;
                             case "incMMPlv":
-                                io.addStatValue(level, BaseStat.mmpLv, value / 10D);
+                                io.addStatValue(level, BaseStat.mmpLv, value);
                                 break;
                             case "prop":
                                 io.addMiscValue(level, ItemOption.ItemOptionType.prop, value);

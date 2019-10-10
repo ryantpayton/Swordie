@@ -276,8 +276,8 @@ public class MobPool {
                 outPacket.encodePositionInt(msi.getRb2());
             }
             if (notDestroyByCollide) {
-                outPacket.encodeInt(1); // nIncScale
-                outPacket.encodeInt(100); // nMaxScale
+                outPacket.encodeInt(5); // nIncScale
+                outPacket.encodeInt(200); // nMaxScale
                 outPacket.encodeInt(40); // nDecRadius
                 outPacket.encodeInt(60); // fAngle
             }
@@ -384,6 +384,24 @@ public class MobPool {
             outPacket.encodeInt(skillID);
         }
 
+        return outPacket;
+    }
+
+    public static OutPacket setSkillDelay(Mob mob, int skillAfter, MobSkillInfo msi, int sequenceDelay, List<Rect> rects) {
+        OutPacket outPacket = new OutPacket(OutHeader.MOB_SKILL_DELAY);
+
+        outPacket.encodeInt(mob.getObjectId());
+
+        outPacket.encodeInt(skillAfter);
+        outPacket.encodeInt(msi.getId());
+        outPacket.encodeInt(msi.getLevel());
+        outPacket.encodeInt(sequenceDelay);
+        if(msi.getId() != 0) {
+            outPacket.encodeInt(rects.size());
+            for (Rect rect : rects) {
+                outPacket.encodeRectInt(rect);
+            }
+        }
         return outPacket;
     }
 }
