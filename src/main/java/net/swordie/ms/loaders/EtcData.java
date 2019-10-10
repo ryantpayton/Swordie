@@ -91,7 +91,7 @@ public class EtcData {
                             Node option = XMLApi.getFirstChildByNameDF(node3, "option");
                             ItemOption io = new ItemOption();
                             io.setId(Integer.parseInt(XMLApi.getNamedAttribute(option, "value")));
-                            io.setWeight(Integer.parseInt(XMLApi.getNamedAttribute(optionLevel, "value")));
+                            io.setReqLevel(Integer.parseInt(XMLApi.getNamedAttribute(optionLevel, "value")));
                             setEffect.addOption(level, io);
                         }
                     }
@@ -117,7 +117,7 @@ public class EtcData {
                         } else if (stat instanceof ItemOption) {
                             dataOutputStream.writeUTF("IO");
                             dataOutputStream.writeInt(((ItemOption) stat).getId());
-                            dataOutputStream.writeInt(((ItemOption) stat).getWeight());
+                            dataOutputStream.writeInt(((ItemOption) stat).getReqLevel());
                         }
                     }
                 }
@@ -128,7 +128,7 @@ public class EtcData {
     }
 
     public static SetEffect loadSetEffectByFile(String file) {
-        SetEffect setEffect = null;
+        SetEffect setEffect = new SetEffect();
         try (DataInputStream dataInputStream = new DataInputStream(new FileInputStream(file))) {
             short levelSize = dataInputStream.readShort();
             for (int i = 0; i < levelSize; i++) {
@@ -142,7 +142,7 @@ public class EtcData {
                     } else if (type.equals("IO")) {
                         ItemOption io = new ItemOption();
                         io.setId(dataInputStream.readInt());
-                        io.setWeight(dataInputStream.readInt());
+                        io.setReqLevel(dataInputStream.readInt());
                         setEffect.addOption(level, io);
                     }
                 }

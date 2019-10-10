@@ -47,7 +47,7 @@ public enum ScrollStat {
     incLUKr,
     incCriticaldamageMin,
     incCriticaldamageMax,
-    incCr,
+    cCr,
     incDAMr,
     incPDDr,
     incMDDr,
@@ -105,6 +105,54 @@ public enum ScrollStat {
                 return iJump;
             case incReqLevel:
                 return iReduceReq;
+            default:
+                return null;
+        }
+    }
+
+    public BaseStat getBaseStat() {
+        switch(this) {
+            case incSTR:
+                return BaseStat.str;
+            case incDEX:
+                return BaseStat.dex;
+            case incINT:
+                return BaseStat.inte;
+            case incLUK:
+                return BaseStat.luk;
+            case incPAD:
+                return BaseStat.pad;
+            case incMAD:
+                return BaseStat.mad;
+            case incPDD:
+                return BaseStat.pdd;
+            case incMDD:
+                return BaseStat.mdd;
+            case incACC:
+                return BaseStat.acc;
+            case incEVA:
+                return BaseStat.eva;
+            case incMHP:
+                return BaseStat.mhp;
+            case incMMP:
+                return BaseStat.mmp;
+            case incSpeed:
+            case speed:
+                return BaseStat.speed;
+            case incJump:
+                return BaseStat.jump;
+            case incSTRr:
+                return BaseStat.strR;
+            case incDEXr:
+                return BaseStat.dexR;
+            case incINTr:
+                return BaseStat.intR;
+            case incLUKr:
+                return BaseStat.lukR;
+            case incMHPr:
+                return  BaseStat.mhpR;
+            case incMMPr:
+                return BaseStat.mmpR;
             default:
                 return null;
         }
