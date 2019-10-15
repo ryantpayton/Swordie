@@ -486,7 +486,7 @@ public class ItemUpgradeHandler {
         int idk1 = inpacket.decodeInt();
         int idk2 = inpacket.decodeInt();
         int weaponWindowSlot = inpacket.decodeInt();
-        chr.write(UserPacket.checkUpgradeItemResult(weaponWindowSlot));
+        chr.write(UserPacket.checkUpgradeItemResult(weaponWindowSlot, true));
     }
 
     @Handler(op = InHeader.EGO_EQUIP_GAUGE_COMPLETE_RETURN)
