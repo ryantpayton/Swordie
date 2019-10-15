@@ -7,6 +7,7 @@ import net.swordie.ms.client.character.ExtendSP;
 import net.swordie.ms.client.character.SPSet;
 import net.swordie.ms.client.character.avatar.AvatarLook;
 import net.swordie.ms.client.character.info.HitInfo;
+import net.swordie.ms.client.character.quest.Quest;
 import net.swordie.ms.client.character.skills.Option;
 import net.swordie.ms.client.character.skills.Skill;
 import net.swordie.ms.client.character.skills.SkillStat;
@@ -20,6 +21,7 @@ import net.swordie.ms.connection.packet.UserPacket;
 import net.swordie.ms.connection.packet.UserRemote;
 import net.swordie.ms.connection.packet.WvsContext;
 import net.swordie.ms.constants.JobConstants;
+import net.swordie.ms.constants.QuestConstants;
 import net.swordie.ms.constants.SkillConstants;
 import net.swordie.ms.enums.ChatType;
 import net.swordie.ms.enums.MoveAbility;
@@ -29,6 +31,7 @@ import net.swordie.ms.life.Summon;
 import net.swordie.ms.life.mob.Mob;
 import net.swordie.ms.life.mob.MobStat;
 import net.swordie.ms.life.mob.MobTemporaryStat;
+import net.swordie.ms.loaders.QuestData;
 import net.swordie.ms.loaders.SkillData;
 import net.swordie.ms.util.Util;
 import net.swordie.ms.world.field.Field;
@@ -194,6 +197,12 @@ public class Zero extends Job {
         int sp = 3;
         if (level > 100 && (level % 10) % 3 == 0) {
             sp = 6; // double sp on levels ending in 3/6/9
+            if (level == 110) {
+                chr.getQuestManager().completeQuest(QuestConstants.ZERO_WEAPON_WINDOW_QUEST); //enables weapon button
+                Quest q = QuestData.createQuestFromId(QuestConstants.ZERO_SET_QUEST);
+                q.setQrValue(String.valueOf(0));
+                chr.getQuestManager().addQuest(q);
+            }
         }
         ExtendSP esp = chr.getAvatarData().getCharacterStat().getExtendSP();
         SPSet alphaSpSet = esp.getSpSet().get(0);

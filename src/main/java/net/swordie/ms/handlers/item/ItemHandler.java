@@ -238,6 +238,14 @@ public class ItemHandler {
                         c.write(WvsContext.blackCubeResult(equip, chr.getMemorialCubeInfo()));
                     }
                     equip.updateToChar(chr);
+                    //zero weapon
+                    if(ItemConstants.isLongOrBigSword(equip.getItemId())) {
+                        Equip zeroWeapon = (Equip) chr.getEquippedInventory().getItemBySlot(11);
+                        if (zeroWeapon != null) {
+                            zeroWeapon.setOptions(equip.getOptions());
+                            zeroWeapon.updateToChar(chr);
+                        }
+                    }
                     break;
                 case ItemConstants.BONUS_POT_CUBE: // Bonus Potential Cube
                 case ItemConstants.SPECIAL_BONUS_POT_CUBE: // [Special] Bonus Potential Cube

@@ -1066,7 +1066,6 @@ public class ItemData {
                                 case "specialItem":
                                 case "exNew":
                                 case "cuttable":
-                                case "setItemCategory":
                                 case "perfectReset":
                                 case "resetRUC":
                                 case "incMax":
@@ -1296,6 +1295,9 @@ public class ItemData {
                                     break;
                                 case "recover":
                                     item.putScrollStat(recover, intValue);
+                                    break;
+                                case "setItemCategory":
+                                    item.putScrollStat(setItemCategory, intValue);
                                     break;
                                 default:
                                     if (LOG_UNKS) {

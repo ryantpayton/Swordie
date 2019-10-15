@@ -3764,6 +3764,8 @@ public class Char {
 		if (baseStat.getRateVar() != null) {
 			stat += stat * (getTotalStat(baseStat.getRateVar()) / 100D);
 		}
+		// Stat gained by set effects
+		stat += getStatAmountSetEffect(baseStat);
 		// --- Everything below this doesn't get affected by the rate var
 		// Character potential
 		for (CharacterPotential cp : getPotentials()) {
@@ -4832,5 +4834,92 @@ public class Char {
 		addMoney(earnings);
 		employeeTrunk.setMoney(0);
 		DatabaseManager.saveToDB(employeeTrunk);
+	}
+
+	public Map<ScrollStat, Integer> getStatsBySetEffects() {
+		HashMap<ScrollStat, Integer> stats = new HashMap<>();
+		HashMap<Integer, Integer> setIdToLevel = new HashMap<>();
+		for (Item item : getEquippedInventory().getItems()) {
+			Equip equip = (Equip) item;
+			int setItemId = equip.getSetItemID();
+			if (setItemId > 0) {
+				int level = setIdToLevel.getOrDefault(setItemId, 0);
+				level++;
+				setIdToLevel.put(setItemId, level);
+			}
+		}
+		for (Map.Entry<Integer, Integer> entry : setIdToLevel.entrySet()) {
+			int setId = entry.getKey();
+			int setLevel = entry.getValue();
+			SetEffect setEffect = EtcData.getSetEffectInfoById(setId);
+			for (int i = 1; i <= setLevel; i++) {
+				if (setEffect.getStatsByLevel(i) == null) {
+					continue;
+				}
+				for (Object effect : setEffect.getStatsByLevel(i)) {
+					if (effect instanceof net.swordie.ms.util.container.Tuple) {
+						ScrollStat ss = (ScrollStat) (((net.swordie.ms.util.container.Tuple) effect).getLeft());
+						int amount = (int) (((net.swordie.ms.util.container.Tuple) effect).getRight());
+						stats.put(ss, amount);
+					}
+				}
+			}
+		}
+		return stats;
+	}
+
+	public List<ItemOption> getItemOptionsBySetEffects() {
+		List<ItemOption> options = new ArrayList<>();
+		HashMap<Integer, Integer> setIdToLevel = new HashMap<>();
+		for (Item item : getEquippedInventory().getItems()) {
+			Equip equip = (Equip) item;
+			int setItemId = equip.getSetItemID();
+			if (setItemId > 0) {
+				int level = setIdToLevel.getOrDefault(setItemId, 0);
+				level++;
+				setIdToLevel.put(setItemId, level);
+			}
+		}
+		for (Map.Entry<Integer, Integer> entry : setIdToLevel.entrySet()) {
+			int setId = entry.getKey();
+			int setLevel = entry.getValue();
+			SetEffect setEffect = EtcData.getSetEffectInfoById(setId);
+			for (int i = 1; i <= setLevel; i++) {
+				if (setEffect.getStatsByLevel(i) == null) {
+					continue;
+				}
+				for (Object effect : setEffect.getStatsByLevel(i)) {
+					if (effect instanceof ItemOption) {
+						options.add((ItemOption) effect);
+					}
+				}
+			}
+		}
+		return options;
+	}
+
+
+
+	public int getStatAmountSetEffect(BaseStat baseStat) {
+		int amount = 0;
+		Map<ScrollStat, Integer> stats = getStatsBySetEffects();
+		for (Map.Entry<ScrollStat, Integer> entry : stats.entrySet()) {
+			if (entry.getKey().getBaseStat() == baseStat) {
+				amount += entry.getValue();
+			}
+		}
+
+		List<ItemOption> options = getItemOptionsBySetEffects();
+		for (ItemOption option : options) {
+			int id = option.getId();
+			int level = option.getReqLevel();
+			ItemOption io = ItemData.getItemOptionById(id);
+			if (io != null) {
+				Map<BaseStat, Double> valMap = io.getStatValuesByLevel(level);
+				amount += valMap.getOrDefault(baseStat, 0D);
+			}
+		}
+
+		return amount;
 	}
 }
