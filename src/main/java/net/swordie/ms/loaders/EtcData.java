@@ -25,8 +25,8 @@ public class EtcData {
     private static final Map<Integer, SetEffect> setEffects = new HashMap<>();
     private static Map<Integer, AndroidInfo> androidInfo = new HashMap<>();
 
-    private static final String SCROLL_STAT_ID = "SS";
-    private static final String ITEM_OPTION_ID = "IO";
+    private static final String SCROLL_STAT_ID = "1";
+    private static final String ITEM_OPTION_ID = "2";
 
     public static void loadAndroidsFromWz() {
         String wzDir = ServerConstants.WZ_DIR + "/Etc.wz/Android";
