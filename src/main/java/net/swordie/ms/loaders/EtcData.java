@@ -25,8 +25,8 @@ public class EtcData {
     private static final Map<Integer, SetEffect> setEffects = new HashMap<>();
     private static Map<Integer, AndroidInfo> androidInfo = new HashMap<>();
 
-    private static final String scrollStat = "SS";
-    private static final String itemOption = "IO";
+    private static final String SCROLL_STAT_ID = "SS";
+    private static final String ITEM_OPTION_ID = "IO";
 
     public static void loadAndroidsFromWz() {
         String wzDir = ServerConstants.WZ_DIR + "/Etc.wz/Android";
@@ -114,11 +114,11 @@ public class EtcData {
                     dataOutputStream.writeShort(level.getValue().size());
                     for (Object stat : level.getValue()) {
                         if (stat instanceof Tuple) {
-                            dataOutputStream.writeUTF(scrollStat);
+                            dataOutputStream.writeUTF(SCROLL_STAT_ID);
                             dataOutputStream.writeUTF(((Tuple) stat).getLeft().toString());
                             dataOutputStream.writeInt(Integer.parseInt(((Tuple) stat).getRight().toString()));
                         } else if (stat instanceof ItemOption) {
-                            dataOutputStream.writeUTF(itemOption);
+                            dataOutputStream.writeUTF(ITEM_OPTION_ID);
                             dataOutputStream.writeInt(((ItemOption) stat).getId());
                             dataOutputStream.writeInt(((ItemOption) stat).getReqLevel());
                         }
@@ -139,10 +139,10 @@ public class EtcData {
                 short statSize = dataInputStream.readShort();
                 for (int j = 0; j < statSize; j++) {
                     String type = dataInputStream.readUTF();
-                    if (type.equals(scrollStat)) {
+                    if (type.equals(SCROLL_STAT_ID)) {
                         Tuple<ScrollStat, Integer> ss = new Tuple<>(ScrollStat.getScrollStatByString(dataInputStream.readUTF()), dataInputStream.readInt());
                         setEffect.addScrollStat(level, ss.getLeft(), ss.getRight());
-                    } else if (type.equals(itemOption)) {
+                    } else if (type.equals(ITEM_OPTION_ID)) {
                         ItemOption io = new ItemOption();
                         io.setId(dataInputStream.readInt());
                         io.setReqLevel(dataInputStream.readInt());
