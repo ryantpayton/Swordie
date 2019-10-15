@@ -1298,6 +1298,7 @@ public class ItemData {
                                     break;
                                 case "setItemCategory":
                                     item.putScrollStat(setItemCategory, intValue);
+                                    break;
                                 default:
                                     if (LOG_UNKS) {
                                         log.warn(String.format("Unknown node: %s, value = %s, itemID = %s", name, value, item.getItemId()));
