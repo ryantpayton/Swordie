@@ -1231,10 +1231,6 @@ public class Mob extends Life {
         doOneTimeEvent(oldHp, newHp, maxHP);
         if (oldHp > 0 && newHp <= 0) {
             // Boss sponges
-            // TODO horntail kills
-            if (getTemplateId() == 8810214 || getTemplateId() == 8810018 || getTemplateId() == 8810118) {
-                getField().getMobs().forEach(m -> m.die(true));
-            }
             die(true);
             if (damageDealer.hasQuestInProgress(38022) && getTemplateId() == 9300811) {
                 damageDealer.getScriptManager().setQRValue(38022, "clear", false);
