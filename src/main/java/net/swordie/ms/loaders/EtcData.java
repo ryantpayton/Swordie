@@ -23,6 +23,7 @@ public class EtcData {
     private static final Logger log = Logger.getLogger(EtcData.class);
     private static final Map<Integer, Integer> familiarSkills = new HashMap<>();
     private static final Map<Integer, SetEffect> setEffects = new HashMap<>();
+    private static final Map<Integer, Integer> characterCards = new HashMap<>();
     private static Map<Integer, AndroidInfo> androidInfo = new HashMap<>();
 
     private static final String SCROLL_STAT_ID = "1";
@@ -104,6 +105,35 @@ public class EtcData {
         }
     }
 
+    public static void loadCharacterCardsFromWz() {
+        File file = new File(String.format("%s/Etc.wz/CharacterCard.img.xml", ServerConstants.WZ_DIR));
+        Node root = XMLApi.getRoot(file);
+        Node firstNode = XMLApi.getAllChildren(root).get(0);
+        Node mainNode = XMLApi.getFirstChildByNameBF(firstNode, "Card");
+        List<Node> nodes = XMLApi.getAllChildren(mainNode);
+        for (Node node : nodes) {
+            int jobId = Integer.parseInt(XMLApi.getNamedAttribute(node, "name")) * 10;
+            Node skillNode = XMLApi.getFirstChildByNameBF(firstNode, "skillID");
+            int skillId = Integer.parseInt(XMLApi.getNamedAttribute(skillNode, "value"));
+            characterCards.put(jobId, skillId);
+        }
+    }
+
+    public static void saveCharacterCards(String dir) {
+        Util.makeDirIfAbsent(dir);
+        try  {
+            DataOutputStream dataOutputStream = new DataOutputStream(new FileOutputStream(new File(dir + "/charactercards.dat")));
+            dataOutputStream.writeInt(characterCards.size());
+            for (Map.Entry<Integer, Integer> entry : characterCards.entrySet()) {
+                dataOutputStream.writeInt(entry.getKey());
+                dataOutputStream.writeInt(entry.getValue());
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+
     public static void saveSetEffects(String dir) {
         Util.makeDirIfAbsent(dir);
         for (Map.Entry<Integer, SetEffect> entry : setEffects.entrySet()) {
@@ -128,6 +158,26 @@ public class EtcData {
                 e.printStackTrace();
             }
         }
+    }
+
+    public static void loadCharacterCards(String dir) {
+        try (DataInputStream dataInputStream = new DataInputStream(new FileInputStream(dir))) {
+            short size = dataInputStream.readShort();
+            for (int i = 0; i < size; i++) {
+                int jobId = dataInputStream.readInt();
+                int skillId = dataInputStream.readInt();
+                characterCards.put(jobId, skillId);
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public static int getCharacterCardSkillByJob(int jobId) {
+        if (characterCards.isEmpty()) {
+            loadCharacterCards(String.format("%s/etc/%d.dat", ServerConstants.DAT_DIR, "characterCards"));
+        }
+        return characterCards.getOrDefault(jobId,null);
     }
 
     public static SetEffect loadSetEffectByFile(String file) {
@@ -225,6 +275,8 @@ public class EtcData {
         saveAndroidInfo(ServerConstants.DAT_DIR + "/etc/android");
         loadSetEffectsFromWz();
         saveSetEffects(ServerConstants.DAT_DIR + "/etc/setEffects");
+        loadCharacterCardsFromWz();
+        saveCharacterCards(ServerConstants.DAT_DIR + "/etc");
         log.info(String.format("Completed generating etc data in %dms.", System.currentTimeMillis() - start));
     }
 
