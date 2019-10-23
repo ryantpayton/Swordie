@@ -197,4 +197,13 @@ public class UserPacket {
         outPacket.encodeInt(index);
         return outPacket;
     }
+
+    public static OutPacket gatherResult(int chrId, boolean success) {
+        OutPacket outPacket = new OutPacket(OutHeader.GATHER_RESULT);
+        outPacket.encodeInt(chrId);
+
+        outPacket.encodeByte(success);
+
+        return outPacket;
+    }
 }

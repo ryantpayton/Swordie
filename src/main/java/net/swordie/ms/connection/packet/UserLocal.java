@@ -565,4 +565,11 @@ public class UserLocal {
 
         return outPacket;
     }
+
+    public static OutPacket gatherRequestResult(int lifeId, boolean success) {
+        OutPacket outPacket = new OutPacket(OutHeader.GATHER_REQUEST_RESULT);
+        outPacket.encodeInt(lifeId);
+        outPacket.encodeInt(success ? 11 : 0);
+        return outPacket;
+    }
 }

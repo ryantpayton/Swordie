@@ -4,10 +4,7 @@ import net.swordie.ms.ServerConstants;
 import net.swordie.ms.client.character.Char;
 import net.swordie.ms.client.character.items.Equip;
 import net.swordie.ms.connection.packet.QuickMoveInfo;
-import net.swordie.ms.enums.BaseStat;
-import net.swordie.ms.enums.EnchantStat;
-import net.swordie.ms.enums.ItemJob;
-import net.swordie.ms.enums.QuickMoveType;
+import net.swordie.ms.enums.*;
 import net.swordie.ms.loaders.ItemData;
 import net.swordie.ms.util.FileTime;
 import net.swordie.ms.util.Rect;
@@ -800,5 +797,16 @@ public class GameConstants {
     public static boolean isFreeMarketField(int id) {
         // room 1~22
         return id > 910000000 && id < 910001000;
+    }
+
+    public static ReactorType getReactorType(int reactorId) {
+        int prefix = reactorId / 100000;
+        switch (prefix) {
+            case 1:
+                return ReactorType.HERB;
+            case 2:
+                return ReactorType.VEIN;
+        }
+        return null;
     }
 }

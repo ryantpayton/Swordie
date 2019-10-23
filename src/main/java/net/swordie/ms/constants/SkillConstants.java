@@ -49,6 +49,8 @@ public class SkillConstants {
     public static final int MAKING_SKILL_MASTER_LEVEL = 11;
     public static final int MAKING_SKILL_MEISTER_LEVEL = 12;
 
+    public static final int MINING_SKILL = 92010000;
+    public static final int HERBALISM_SKILL = 92000000;
 
 
     //custom skill cd's
