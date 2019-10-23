@@ -528,7 +528,7 @@ public class UserHandler {
             return;
         } else if (type == ReactorType.VEIN && chr.hasSkill(SkillConstants.MINING_SKILL) || type == ReactorType.HERB && chr.hasSkill(SkillConstants.HERBALISM_SKILL)) {
             int reactorLevel = ReactorData.getReactorInfoByID(reactor.getTemplateId()).getLevel();
-            int chrLevel = type == ReactorType.HERB ? chr.getSkillLevel(SkillConstants.HERBALISM_SKILL) : chr.getSkillLevel(SkillConstants.MINING_SKILL);
+            int chrLevel = type == ReactorType.HERB ? chr.getMakingSkillLevel(SkillConstants.HERBALISM_SKILL) : chr.getMakingSkillLevel(SkillConstants.MINING_SKILL);
             int successChance = chrLevel >= reactorLevel ? 95 : 20;
             success = Util.succeedProp(successChance);
         }
