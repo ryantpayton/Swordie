@@ -175,9 +175,9 @@ public class EtcData {
 
     public static int getCharacterCardSkillByJob(int jobId) {
         if (characterCards.isEmpty()) {
-            loadCharacterCards(String.format("%s/etc/%d.dat", ServerConstants.DAT_DIR, "characterCards"));
+            loadCharacterCards(String.format("%s/etc/%d.dat", ServerConstants.DAT_DIR, "charactercards"));
         }
-        return characterCards.getOrDefault(jobId,null);
+        return characterCards.getOrDefault(jobId,0);
     }
 
     public static SetEffect loadSetEffectByFile(String file) {
