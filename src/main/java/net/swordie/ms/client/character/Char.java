@@ -4441,6 +4441,30 @@ public class Char {
 		return hasEnough;
 	}
 
+	public boolean applyBulletCon(int skillID, byte slv) {
+		if (getTemporaryStatManager().hasStat(NoBulletConsume) || JobConstants.isPhantom(getJob())) {
+			return true;
+		}
+		SkillInfo si = SkillData.getSkillInfoById(skillID);
+		if (si == null) {
+			return true;
+		}
+		int bulletCon = si.getValue(SkillStat.bulletCount, slv) + si.getValue(SkillStat.bulletConsume, slv);
+		if (bulletCon <= 0) {
+			return true;
+		}
+		Item bulletItem = getConsumeInventory().getFirstBulletItemId(getJob(), bulletCon);
+		if (bulletItem == null) {
+			return false;
+		}
+		int bulletItemId = bulletItem.getItemId();
+		boolean hasEnough = hasItemCount(bulletItemId, bulletCon);
+		if (hasEnough) {
+			consumeItem(bulletItemId, bulletCon);
+		}
+		return hasEnough;
+	}
+
 	public boolean hasTutor() {
 		return tutor;
 	}

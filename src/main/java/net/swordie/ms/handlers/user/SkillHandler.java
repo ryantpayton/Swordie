@@ -151,7 +151,7 @@ public class SkillHandler {
         inPacket.decodeInt(); // crc
         int skillID = inPacket.decodeInt();
         byte slv = inPacket.decodeByte();
-        if (chr.applyMpCon(skillID, slv) && (chr.checkAndSetSkillCooltime(skillID) || chr.hasSkillCDBypass())) {
+        if (chr.applyBulletCon(skillID, slv) && chr.applyMpCon(skillID, slv) && (chr.checkAndSetSkillCooltime(skillID) || chr.hasSkillCDBypass())) {
             chr.getField().broadcastPacket(UserRemote.effect(chr.getId(), Effect.skillUse(skillID, slv, 0)));
             log.debug("SkillID: " + skillID);
             c.getChr().chatMessage(ChatType.Mob, "SkillID: " + skillID);
