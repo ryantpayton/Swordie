@@ -123,23 +123,6 @@ public class Inventory {
         getItems().addAll(temp);
     }
 
-    public Item getFirstBulletItemId(short jobId, int bulletCount) {
-        List<Item> items = getItems();
-        items.sort(Comparator.comparing(Item::getBagIndex));
-        if (JobConstants.isThiefEquipJob(jobId)) {
-            return items.stream().filter(item -> ItemConstants.isThrowingStar(item.getItemId()) && item.getQuantity() >= bulletCount).findFirst().orElse(null);
-        } else if (JobConstants.isArcherEquipJob(jobId)) {
-            if (JobConstants.isUsingXbow(jobId)) {
-                return items.stream().filter(item -> ItemConstants.isXBowArrow(item.getItemId()) && item.getQuantity() >= bulletCount).findFirst().orElse(null);
-            } else {
-                return items.stream().filter(item -> ItemConstants.isBowArrow(item.getItemId()) && item.getQuantity() >= bulletCount).findFirst().orElse(null);
-            }
-        } else if (JobConstants.isPirateEquipJob(jobId)) {
-            return items.stream().filter(item -> ItemConstants.isBullet(item.getItemId()) && item.getQuantity() >= bulletCount).findFirst().orElse(null);
-        }
-        return null;
-    }
-
     public void setItems(List<Item> items) {
         this.items = items;
     }

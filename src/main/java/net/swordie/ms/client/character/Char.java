@@ -4453,11 +4453,10 @@ public class Char {
 		if (bulletCon <= 0) {
 			return true;
 		}
-		Item bulletItem = getConsumeInventory().getFirstBulletItemId(getJob(), bulletCon);
-		if (bulletItem == null) {
+		int bulletItemId = calculateBulletIDForAttack();
+		if (bulletItemId == 0) {
 			return false;
 		}
-		int bulletItemId = bulletItem.getItemId();
 		boolean hasEnough = hasItemCount(bulletItemId, bulletCon);
 		if (hasEnough) {
 			consumeItem(bulletItemId, bulletCon);

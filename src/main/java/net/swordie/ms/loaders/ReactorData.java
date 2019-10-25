@@ -181,7 +181,7 @@ public class ReactorData {
                 r.setBottom(dis.readShort());
                 ri.setRect(r);
             }
-            ri.setDrops(DropData.getDropInfoByID(ri.getId()).stream().filter(DropInfo::isReactorDrop).collect(Collectors.toSet()));
+            ri.setDrops(DropData.getDropInfoByID(ri.getId()).stream().filter(DropInfo::getReactorDrop).collect(Collectors.toSet()));
             addReactorInfo(ri);
         } catch (IOException e) {
             e.printStackTrace();

@@ -377,7 +377,7 @@ public class MobData {
             mob.setMaxHp(fms.getMaxHP());
             mob.setMp(fms.getMaxMP());
             mob.setMaxMp(fms.getMaxMP());
-            mob.setDrops(DropData.getDropInfoByID(mob.getTemplateId()).stream().filter(dropInfo -> !dropInfo.isReactorDrop()).collect(Collectors.toSet()));
+            mob.setDrops(DropData.getDropInfoByID(mob.getTemplateId()).stream().filter(dropInfo -> !dropInfo.getReactorDrop()).collect(Collectors.toSet()));
             mob.getDrops().add(new DropInfo(GameConstants.MAX_DROP_CHANCE,
                     GameConstants.MIN_MONEY_MULT * mob.getForcedMobStat().getLevel(),
                     GameConstants.MAX_MONEY_MULT * mob.getForcedMobStat().getLevel()

@@ -152,7 +152,6 @@ public class Reactor extends Life {
             }
         }
         Set<DropInfo> dropInfoSet = ReactorData.getReactorInfoByID(getTemplateId()).getDrops();
-        // Add consumable/equip drops based on min(charLv, mobLv)
         getField().drop(dropInfoSet, getField().getFootholdById(fhID), getPosition(), ownerID, 100,
                 100);
     }

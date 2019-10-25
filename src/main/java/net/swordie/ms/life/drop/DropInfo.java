@@ -29,7 +29,7 @@ public class DropInfo {
     private int maxQuant = 1;
     @Transient
     private int quantity = 1;
-    private byte reactorDrop;
+    private boolean reactorDrop;
 
     public DropInfo() {
     }
@@ -184,11 +184,11 @@ public class DropInfo {
         return di;
     }
 
-    public void setReactorDrop(byte reactorDrop) {
+    public void setReactorDrop(boolean reactorDrop) {
         this.reactorDrop = reactorDrop;
     }
 
-    public boolean isReactorDrop() {
-        return reactorDrop != 0;
+    public boolean getReactorDrop() {
+        return reactorDrop;
     }
 }
