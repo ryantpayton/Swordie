@@ -4453,7 +4453,7 @@ public class Char {
 		if (bulletCon <= 0) {
 			return true;
 		}
-		int bulletItemId = calculateBulletIDForAttack();
+		int bulletItemId = getBulletIDForAttack();
 		if (bulletItemId == 0) {
 			return false;
 		}
