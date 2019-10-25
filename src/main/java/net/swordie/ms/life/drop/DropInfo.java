@@ -103,7 +103,7 @@ public class DropInfo {
     public boolean willDrop(int dropRate) {
         // Added 50x multiplier for the dropping chance if the item is a Quest item.
         int chance = getChance();
-        chance *= dropRate / 100D;
+        chance *= (100 + dropRate) / 100D;
         return Util.succeedProp(chance, GameConstants.MAX_DROP_CHANCE);
     }
 
