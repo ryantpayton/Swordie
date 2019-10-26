@@ -236,7 +236,7 @@ public class MigrationHandler {
     public static void handleUserMigrateToCashShopRequest(Client c, InPacket inPacket) {
         Char chr = c.getChr();
         Field field = chr.getField();
-        if ((field.getFieldLimit() & FieldOption.MigrateLimit.getVal()) > 0) {
+        if ((field.getFieldLimit() & FieldOption.MigrateLimit.getVal()) > 0 || chr.getHP() <= 0) {
             chr.dispose();
             return;
         }
@@ -259,6 +259,11 @@ public class MigrationHandler {
     @Handler(op = InHeader.USER_MAP_TRANSFER_REQUEST)
     public static void handleUserMapTransferRequest(Char chr, InPacket inPacket) {
         chr.punishLieDetectorEvasion();
+
+        if (chr.getHP() <= 0) {
+            chr.dispose();
+            return;
+        }
 
         byte mtType = inPacket.decodeByte();
         byte itemType = inPacket.decodeByte();
@@ -297,6 +302,12 @@ public class MigrationHandler {
             chr.dispose();
             return;
         }
+
+        if (chr.getHP() <= 0) {
+            chr.dispose();
+            return;
+        }
+
         int fieldID = inPacket.decodeInt();
         if (fieldID == 7860) {
             Field ardentmill = chr.getOrCreateFieldByCurrentInstanceType(GameConstants.ARDENTMILL);
@@ -322,6 +333,12 @@ public class MigrationHandler {
             chr.getOffenseManager().addOffense(String.format("Attempted to use quick move (%s) in illegal map (%d).", qmi.getMsg(), field.getId()));
             return;
         }
+
+        if (chr.getHP() <= 0) {
+            chr.dispose();
+            return;
+        }
+
         Npc npc = NpcData.getNpcDeepCopyById(templateID);
         String script = npc.getScripts().get(0);
         if (script == null) {
@@ -366,6 +383,12 @@ public class MigrationHandler {
     public static void handleTransferFreeMarketRequest(Char chr, InPacket inPacket) {
         byte toChannelID = (byte) (inPacket.decodeByte() + 1);
         int fieldID = inPacket.decodeInt();
+
+        if (chr.getHP() <= 0) {
+            chr.dispose();
+            return;
+        }
+
         if (chr.getWorld().getChannelById(toChannelID) != null && GameConstants.isFreeMarketField(fieldID)
                 && GameConstants.isFreeMarketField(chr.getField().getId())) {
             Field toField = chr.getClient().getChannelInstance().getField(fieldID);

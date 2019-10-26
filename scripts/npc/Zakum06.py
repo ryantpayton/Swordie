@@ -14,7 +14,7 @@ if sm.getFieldID() in mapText:
 	reply = sm.sendNext(mapText[sm.getFieldID()] + "\r\n" + optionOne + "\r\n" + optionTwo)
 	if reply == 0:
 		if sm.sendAskYesNo("Are you sure you want to leave?\r\nYou will lose any progress you have made."):
-			sm.warp(211000000, 11) # El Nath Town
+			sm.warpNoReturn(211000000, 11) # El Nath Town
 		else:
 			sm.sendSayOkay("Brave choice, I commend you.")
 	elif reply == 1:
@@ -22,3 +22,4 @@ if sm.getFieldID() in mapText:
 else:
 	if sm.sendAskYesNo("Are you ready to leave? Your whole party will be warped out and will not be allowed back in."):
 		sm.stopEvents()
+        sm.warpNoReturn(211042300, 1)

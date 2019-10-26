@@ -8,5 +8,3 @@ while not sm.zakumAlreadySpawned(sm.getFieldID()):
     if drop is not None:
         field.removeDrop(drop.getObjectId(), 0, False, -1)
         sm.spawnZakum(sm.getFieldID())
-		sm.dispose()
-    time.sleep(4)

@@ -8,7 +8,6 @@ mobs = {
 }
 
 if int(sm.getQRValue(GameConstants.EASY_HORNTAIL_QUEST)) == 3:
-    sm.spawnMob(mobs[sm.getFieldID()], -317, 230, False)
-	sm.killMob(mobs[sm.getFieldID()]) # does the spawn animation
+    sm.spawnMob(mobs[sm.getFieldID()], -317, 230, False) # does the spawn animation
 	
     sm.setPartyQRValue(GameConstants.EASY_HORNTAIL_QUEST, "4")

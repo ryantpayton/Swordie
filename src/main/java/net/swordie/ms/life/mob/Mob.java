@@ -145,7 +145,8 @@ public class Mob extends Life {
     private int currentDestIndex = 0;
     private int escortStopDuration = 0;
     private int mobSpawnerId;
-    private Map<String, Object> properties = new HashMap<String, Object>();
+    private Map<String, Object> properties = new HashMap<>();
+    private long respawnDelay;
 
     public Mob(int templateId) {
         super(templateId);
@@ -153,6 +154,7 @@ public class Mob extends Life {
         temporaryStat = new MobTemporaryStat(this);
         scale = 100;
         calcDamageIndex = 1;
+        respawnDelay = 0;
     }
 
     public Mob deepCopy() {
@@ -295,6 +297,7 @@ public class Mob extends Life {
         copy.setBanMsgType(getBanMsgType());
         copy.setBanMsg(getBanMsg());
         copy.setBanMapFields(getBanMapFields());
+        copy.setRespawnDelay(getRespawnDelay());
         for (MobSkill ms : getSkills()) {
             copy.addSkill(ms);
         }
@@ -310,6 +313,10 @@ public class Mob extends Life {
         copy.setEscortMob(isEscortMob());
         return copy;
     }
+
+    public long getRespawnDelay() { return respawnDelay; }
+
+    public void setRespawnDelay(long delay) { respawnDelay = delay; }
 
     public Set<DropInfo> getDrops() {
         return drops;
@@ -1298,8 +1305,8 @@ public class Mob extends Life {
         }
         setChanged();
         notifyObservers();
-        // TEST
-        reviveMob();
+
+        reviveMob(getRespawnDelay());
     }
 
     private void dropDrops() {
@@ -1521,13 +1528,21 @@ public class Mob extends Life {
     }
 
     public void reviveMob() {
+        reviveMob(0);
+    }
+
+    public void reviveMob(long delay) {
         if (getRevives().size() > 0) {
-            for (int reviveTemplateID : getRevives()) {
-                Mob mob = MobData.getMobDeepCopyById(reviveTemplateID);
-                mob.setNotRespawnable(true);
-                mob.setPosition(getPosition());
-                getField().spawnLife(mob, null);
-            }
+            EventManager.addEvent(this::doRevive, delay);
+        }
+    }
+
+    private void doRevive() {
+        for (int reviveTemplateID : getRevives()) {
+            Mob mob = MobData.getMobDeepCopyById(reviveTemplateID);
+            mob.setNotRespawnable(true);
+            mob.setPosition(getPosition());
+            getField().spawnLife(mob, null);
         }
     }
 
@@ -1995,6 +2010,5 @@ public class Mob extends Life {
                 }
             }
         }
-
     }
 }

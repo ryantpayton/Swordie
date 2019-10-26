@@ -14,15 +14,8 @@ PX = 9
 PY = -42
 
 sm.sendSayOkay("You have disturbed great forces.. You will live to regret this!")
+sm.removeNpc(KRITAS) # TODO add the wz effect that accompanies pink bean dying
 sm.spawnMob(INITIAL_MOB, PX, PY, False)
-
-sm.moveNpcByTemplateId(KRITAS, False, 330, 100) # doesnt work T_T
-sm.sendDelay(1000)
-
-sm.showEffect("Effect/Summon.img/2", 600, PX, PY, 0, sm.getNpcObjectIdByTemplateId(KRITAS), False, 0) # also doesnt work T_T
-sm.removeNpc(KRITAS)
-
-sm.killMob(INITIAL_MOB, False) # this spawns the first statue.. weird, I know
 
 sm.spawnMob(IMMORTAL_PINKBEAN, PX, PY, False) # this is the pink bean that taunts you while while you kill the statues
 

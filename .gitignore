@@ -21,3 +21,4 @@ resourcesMob
 resourcesNpc
 resourcesSkill.txt
 *.iml
+Exclude/

@@ -16,9 +16,9 @@ if not sm.isPartyLeader():
 	sm.systemMessage("Only your party leader may proceed to the next room..")
 
 elif sm.getChr().getField().getMobs().size() == 0:
-	if QR == 4:
-		sm.setPartyDeathCount(10) # set death count for big boi
-	sm.setPartyQRValue(GameConstants.EASY_HORNTAIL_QUEST, str(QR + 1))
+    if QR == 4:
+        sm.setPartyDeathCount(10) # set death count for big boi
+    sm.setPartyQRValue(GameConstants.EASY_HORNTAIL_QUEST, str(QR + 1))
     sm.invokeForParty("warp", maps[sm.getFieldID()], 0)
 else:
 	sm.chat("Please eliminate all monsters")
