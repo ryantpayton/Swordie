@@ -106,8 +106,10 @@ public class AttackHandler {
                     for (int dmg : mai.damages) {
                         totalDamage += dmg;
                     }
-                    mob.damage(chr, totalDamage);
-                    mob.handleDamageReflect(chr, skillID, totalDamage);
+                    if (mob.getHp() >= 0) {
+                        mob.damage(chr, totalDamage);
+                        mob.handleDamageReflect(chr, skillID, totalDamage);
+                    }
 
                     if ((mob.getTemplateId() >= 8810202 && mob.getTemplateId() <= 8810209)) {
                         handleHorntailHPBar(field, chr, totalDamage, (byte) 2); // easy horntail
