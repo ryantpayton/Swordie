@@ -188,4 +188,13 @@ public class UserPacket {
         }
         return outPacket;
     }
+
+    public static OutPacket checkUpgradeItemResult(int index, boolean show) {
+        OutPacket outPacket = new OutPacket(OutHeader.CHECK_UPGRADE_ITEM_RESULT);
+
+        outPacket.encodeByte(show);
+        outPacket.encodeString(""); //does nothing and not named in kmst idb.
+        outPacket.encodeInt(index);
+        return outPacket;
+    }
 }
