@@ -1186,6 +1186,24 @@ public class ScriptManagerImpl implements ScriptManager {
 		}
 	}
 
+	/**
+	 * Kill one or all mobs with the given mob ID in the characters map
+	 * @param mobId mob id to kill
+	 * @param killAll whether or not to kill all of them or just the first one
+	 */
+	public void killMob(int mobId, boolean killAll) {
+		Field field = chr.getOrCreateFieldByCurrentInstanceType(chr.getFieldID());
+
+		for (Mob m : field.getMobs()) {
+			if (m.getTemplateId() == mobId) {
+				m.die(false);
+
+				if (!killAll)
+					return;
+			}
+		}
+	}
+
 	public void showWeatherNoticeToField(String text, WeatherEffNoticeType type) {
 		showWeatherNoticeToField(text, type, 7000); // 7 seconds
 	}
@@ -1715,7 +1733,17 @@ public class ScriptManagerImpl implements ScriptManager {
 		return new ArrayList<>(list);
 	}
 
+	public void resetPartyQRValue(int qId) {
+		setPartyQRValue(qId, "0");
+	}
 
+	public void setPartyQRValue(int qId, String value) {
+		for (Char c : chr.getParty().getOnlineChars()) {
+			Quest quest = chr.getQuestManager().getQuests().get(qId);
+			quest.setQrValue(value);
+			updateQRValue(qId, true);
+		}
+	}
 
 	// Guild/Alliance related methods -------------------------------------------------------------------------------------------
 
@@ -2738,5 +2766,126 @@ public class ScriptManagerImpl implements ScriptManager {
 
 	public int getSlotsLeftToAddByInvType(byte type) {
 		return GameConstants.MAX_INVENTORY_SLOTS - chr.getInventoryByType(InvType.getInvTypeByVal(type)).getSlots();
+	}
+
+	public void dropItemsAlongLine(int[] items, int range, int startPosX, int startPosY, long msDelay) throws InterruptedException {
+		if (items.length <= 0)
+			return; // avoid divide by zero error
+
+		msDelay = Math.max(msDelay, 0);
+		range = Math.max(range, items.length);
+		int offset = Math.max((range / items.length) * 2, 3); // we want offset >= 3 || multiply by 2 so that the drops go past the start point
+		int count = 0;
+		for (int item : items) {
+			int endPosX = startPosX - range + (offset * count);
+
+			if (item > 999999) // item
+				dropItem(item, startPosX, startPosY, endPosX, startPosY);
+			else // meso
+				dropMeso(item, startPosX, startPosY, endPosX, startPosY);
+
+			count += 1;
+			Thread.sleep(msDelay); // to give the cascading effect
+		}
+	}
+
+	public void dropItem(int itemId, Mob deadMob) {
+		dropItem(itemId, 1, deadMob);
+	}
+
+	// only for items with quantity
+	public void dropItem(int itemId, int itemQuantity, Mob deadMob) {
+		Field field = chr.getField();
+		Drop drop = new Drop(field.getNewObjectID());
+		drop.setItem(ItemData.getItemDeepCopy(itemId));
+		if (itemId / 1000000 != 1) // make sure its not an equip
+			drop.getItem().setQuantity(itemQuantity);
+		field.drop(drop, deadMob.getPosition());
+	}
+
+	public void dropItem(int itemId, int startPosX, int startPosY, int endPosX, int endPosY) {
+		Field field = chr.getField();
+		Drop drop = new Drop(field.getNewObjectID());
+		drop.setItem(ItemData.getItemDeepCopy(itemId));
+		Position startPos = new Position(startPosX, startPosY);
+		Position endPos = new Position(endPosX, endPosY);
+		field.drop(drop, startPos, endPos, true);
+	}
+
+	public void dropMeso(int mesoAmount, int startPosX, int startPosY, int endPosX, int endPosY) {
+		Field field = chr.getField();
+		Drop drop = new Drop(field.getNewObjectID(), mesoAmount);
+		Position startPos = new Position(startPosX, startPosY);
+		Position endPos = new Position(endPosX, endPosY);
+		field.drop(drop, startPos, endPos, true);
+	}
+
+	public void spawnZakum(int map) {
+
+		short pX = BossConstants.ZAKUM_SPAWN_X;
+		short pY = BossConstants.ZAKUM_SPAWN_Y;
+
+		switch (map) {
+			case BossConstants.ZAKUM_EASY_ALTAR:
+				spawnMob(BossConstants.ZAKUM_EASY_BODY, pX, pY, false);
+				for (int i = 1; i <= 8; i++)
+					spawnMob(BossConstants.ZAKUM_EASY_ARM + i, pX, pY, false);
+				break;
+			case BossConstants.ZAKUM_HARD_ALTAR:
+				spawnMob(BossConstants.ZAKUM_HARD_BODY, pX, pY, false);
+				for (int i = 1; i <= 8; i++)
+					spawnMob(BossConstants.ZAKUM_HARD_ARM + i, pX, pY, false);
+				break;
+			case BossConstants.ZAKUM_CHAOS_ALTAR:
+				spawnMob(BossConstants.ZAKUM_CHAOS_BODY, pX, pY, false);
+				for (int i = 1; i <= 8; i++)
+					spawnMob(BossConstants.ZAKUM_CHAOS_ARM + i, pX, pY, false);
+				break;
+		}
+
+		chr.getOrCreateFieldByCurrentInstanceType(map).setProperty("zakum", 1);
+	}
+
+	public void spawnBalrog(boolean easy) {
+		int bodyId = easy ? BossConstants.BALROG_EASY_BODY : BossConstants.BALROG_HARD_BODY;
+		int larmId = easy ? BossConstants.BALROG_EASY_LARM : BossConstants.BALROG_HARD_LARM;
+		int rarmId = easy ? BossConstants.BALROG_EASY_RARM : BossConstants.BALROG_HARD_RARM;
+		int dmgSink = easy ? BossConstants.BALROG_EASY_DMGSINK : BossConstants.BALROG_HARD_DMGSINK;
+
+		short pX = BossConstants.BALROG_SPAWN_X;
+		short pY = BossConstants.BALROG_SPAWN_Y;
+
+		Mob balrogDmgSink = spawnMob(dmgSink, pX, pY, false);
+		Mob balrogBody = spawnMob(bodyId, pX, pY, false);
+		Mob balrogRarm = spawnMob(larmId, pX, pY, false);
+		Mob balrogLarm = spawnMob(rarmId, pX, pY, false);
+	}
+
+	public void resetBossMap(int fieldId) {
+		Field map = chr.getOrCreateFieldByCurrentInstanceType(fieldId);
+
+		if (map.getClock() != null)
+			map.getClock().removeClock();
+
+		for (Mob m : map.getMobs()) {
+			map.removeLife(m);
+		}
+		for (Drop d : map.getDrops()) {
+			map.removeLife(d);
+		}
+		for (Char c : map.getChars()) {
+			c.setDeathCount(0);
+			c.write(UserLocal.deathCountInfo(0));
+		}
+	}
+
+	/**
+	 * Don't save return map on warp
+	 *
+	 * @param id  fieldId
+	 * @param pid portalId
+	 */
+	public void warpNoReturn(int id, int pid) {
+		chr.warp(id, pid, false);
 	}
 }

@@ -2428,7 +2428,7 @@ public class Char {
 	 * @param toField The field to warp to.
 	 */
 	public void warp(Field toField) {
-		warp(toField, toField.getPortalByName("sp"), false);
+		warp(toField, toField.getPortalByName("sp"), false, true);
 	}
 
 	/**
@@ -2441,7 +2441,16 @@ public class Char {
 		if (toField == null) {
 			toField = getOrCreateFieldByCurrentInstanceType(100000000);
 		}
-		warp(toField, toField.getPortalByName("sp"), characterData);
+		warp(toField, toField.getPortalByName("sp"), characterData, true);
+	}
+
+	public void warp(int fieldId, int portalId, boolean saveReturnMap) {
+		Field field = getOrCreateFieldByCurrentInstanceType(fieldId);
+		Portal portal = field.getPortalByID(portalId);
+		if (portal == null) {
+			portal = field.getDefaultPortal();
+		}
+		warp(field, portal, false, saveReturnMap);
 	}
 
 	/**
@@ -2451,7 +2460,7 @@ public class Char {
 	 * @param toPortal The Portal to spawn at.
 	 */
 	public void warp(Field toField, Portal toPortal) {
-		warp(toField, toPortal, false);
+		warp(toField, toPortal, false, true);
 	}
 
 	/**
@@ -2463,7 +2472,7 @@ public class Char {
 	 * @param toField The {@link Field} to warp to.
 	 * @param portal  The {@link Portal} where to spawn at.
 	 */
-	public void warp(Field toField, Portal portal, boolean characterData) {
+	public void warp(Field toField, Portal portal, boolean characterData, boolean saveReturnMap) {
 		if (toField == null) {
 			return;
 		}
@@ -2472,7 +2481,8 @@ public class Char {
 			tsm.removeStatsBySkill(aa.getSkillID());
 		}
 		Field currentField = getField();
-		if (currentField != null) {
+		if (currentField != null && saveReturnMap) {
+			setPreviousFieldID(currentField.getId()); // this may be a bad idea in some cases? idk
 			currentField.removeChar(this);
 		}
 		setField(toField);

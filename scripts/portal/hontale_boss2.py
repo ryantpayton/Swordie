@@ -1,19 +1,14 @@
 # horntail entrace - The Cave of Trial 1
 from net.swordie.ms.constants import GameConstants
 
-if sm.getFieldID() == 240060100:
-    if int(sm.getQRValue(GameConstants.EASY_HORNTAIL_QUEST)) == 3:
-        sm.spawnMob(8810201, -317,230, False)
-        for partyMember in sm.getParty().getMembers():
-            sm.setQRValue(GameConstants.EASY_HORNTAIL_QUEST, "4")
-elif sm.getFieldID() == 240060102:
-    if int(sm.getQRValue(GameConstants.EASY_HORNTAIL_QUEST)) == 3:
-        sm.spawnMob(8810001, -317,230, False)
-        for partyMember in sm.getParty().getMembers():
-            sm.setQRValue(GameConstants.EASY_HORNTAIL_QUEST, "4")
-elif sm.getFieldID() == 240060101:
-    if int(sm.getQRValue(GameConstants.EASY_HORNTAIL_QUEST)) == 3:
-        sm.spawnMob(8810101, -317,230, False)
-        for partyMember in sm.getParty().getMembers():
-            sm.setQRValue(GameConstants.EASY_HORNTAIL_QUEST, "4")
+mobs = {
+	240060100 : 8810213,
+	240060102 : 8810025,
+	240060101 : 8810129
+}
 
+if int(sm.getQRValue(GameConstants.EASY_HORNTAIL_QUEST)) == 3:
+    sm.spawnMob(mobs[sm.getFieldID()], -317, 230, False)
+	sm.killMob(mobs[sm.getFieldID()]) # does the spawn animation
+	
+    sm.setPartyQRValue(GameConstants.EASY_HORNTAIL_QUEST, "4")
