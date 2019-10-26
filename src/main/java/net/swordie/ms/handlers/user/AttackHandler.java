@@ -106,7 +106,7 @@ public class AttackHandler {
                     for (int dmg : mai.damages) {
                         totalDamage += dmg;
                     }
-                    if (mob.getHp() >= 0) {
+                    if (mob.getHp() > 0) {
                         mob.damage(chr, totalDamage);
                         mob.handleDamageReflect(chr, skillID, totalDamage);
                     }
