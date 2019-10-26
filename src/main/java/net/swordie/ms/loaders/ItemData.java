@@ -1321,7 +1321,6 @@ public class ItemData {
                         for (Node req : XMLApi.getAllChildren(reqNode)) {
                             String name = XMLApi.getNamedAttribute(req, "name");
                             String value = XMLApi.getNamedAttribute(req, "value");
-                            System.out.println("["+name+"] Found: " + Integer.parseInt(value));
                             item.getReqItemIds().add(Integer.parseInt(value));
                         }
                     }
