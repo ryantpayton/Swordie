@@ -1,11 +1,15 @@
 package net.swordie.ms.loaders;
 
 import net.swordie.ms.ServerConstants;
+import net.swordie.ms.client.character.items.ItemOption;
+import net.swordie.ms.client.character.items.SetEffect;
+import net.swordie.ms.enums.ScrollStat;
 import net.swordie.ms.loaders.containerclasses.AndroidInfo;
 import net.swordie.ms.util.Loader;
 import net.swordie.ms.util.Saver;
 import net.swordie.ms.util.Util;
 import net.swordie.ms.util.XMLApi;
+import net.swordie.ms.util.container.Tuple;
 import org.apache.log4j.Logger;
 import org.w3c.dom.Node;
 
@@ -17,10 +21,12 @@ import java.util.Map;
 public class EtcData {
 
     private static final Logger log = Logger.getLogger(EtcData.class);
-
-    private static Map<Integer, AndroidInfo> androidInfo = new HashMap<>();
     private static final Map<Integer, Integer> familiarSkills = new HashMap<>();
+    private static final Map<Integer, SetEffect> setEffects = new HashMap<>();
+    private static Map<Integer, AndroidInfo> androidInfo = new HashMap<>();
 
+    private static final String SCROLL_STAT_ID = "1";
+    private static final String ITEM_OPTION_ID = "2";
 
     public static void loadAndroidsFromWz() {
         String wzDir = ServerConstants.WZ_DIR + "/Etc.wz/Android";
@@ -58,6 +64,103 @@ public class EtcData {
             }
             androidInfo.put(ai.getId(), ai);
         }
+    }
+
+    public static void loadSetEffectsFromWz() {
+        //String wzDir = ServerConstants.WZ_DIR + "/Etc.wz/SetItemInfo";
+        //Node root = XMLApi.getRoot(new File(wzDir));
+        File file = new File(String.format("%s/Etc.wz/SetItemInfo.img.xml", ServerConstants.WZ_DIR));
+        Node root = XMLApi.getRoot(file);
+        Node mainNode = XMLApi.getAllChildren(root).get(0);
+        List<Node> nodes = XMLApi.getAllChildren(mainNode);
+        for (Node node : nodes) {
+            int setId = Integer.parseInt(XMLApi.getNamedAttribute(node, "name"));
+            Node effectNode = XMLApi.getFirstChildByNameBF(node, "Effect");
+            List<Node> nodes1 = XMLApi.getAllChildren(effectNode);
+            for (Node node1 : nodes1) {
+                int level = Integer.parseInt(XMLApi.getNamedAttribute(node1, "name"));
+                SetEffect setEffect = setEffects.getOrDefault(setId, new SetEffect());
+                List<Node> nodes2 = XMLApi.getAllChildren(node1);
+                for (Node node2 : nodes2) {
+                    String ssName = XMLApi.getNamedAttribute(node2, "name");
+                    ScrollStat stat = ScrollStat.getScrollStatByString(ssName);
+                    if (!ssName.equals("Option") && stat != null) {
+                        int statAmount = Integer.parseInt(XMLApi.getNamedAttribute(node2, "value"));
+                        setEffect.addScrollStat(level, stat, statAmount);
+                    } else if (ssName.equals("Option")) {
+                        List<Node> nodes3 = XMLApi.getAllChildren(node2);
+                        for (Node node3 : nodes3) {
+                            Node optionLevel = XMLApi.getFirstChildByNameDF(node3, "level");
+                            Node option = XMLApi.getFirstChildByNameDF(node3, "option");
+                            ItemOption io = new ItemOption();
+                            io.setId(Integer.parseInt(XMLApi.getNamedAttribute(option, "value")));
+                            io.setReqLevel(Integer.parseInt(XMLApi.getNamedAttribute(optionLevel, "value")));
+                            setEffect.addOption(level, io);
+                        }
+                    }
+                }
+                setEffects.put(setId, setEffect);
+            }
+        }
+    }
+
+    public static void saveSetEffects(String dir) {
+        Util.makeDirIfAbsent(dir);
+        for (Map.Entry<Integer, SetEffect> entry : setEffects.entrySet()) {
+            try (DataOutputStream dataOutputStream = new DataOutputStream(new FileOutputStream(new File(dir + "/" + entry.getKey() + ".dat")))) {
+                dataOutputStream.writeShort(entry.getValue().getEffectsToLevel().size()); //
+                for (Map.Entry<Integer, List<Object>> level : entry.getValue().getEffectsToLevel().entrySet()) {
+                    dataOutputStream.writeInt(level.getKey()); //levels non consistent
+                    dataOutputStream.writeShort(level.getValue().size());
+                    for (Object stat : level.getValue()) {
+                        if (stat instanceof Tuple) {
+                            dataOutputStream.writeUTF(SCROLL_STAT_ID);
+                            dataOutputStream.writeUTF(((Tuple) stat).getLeft().toString());
+                            dataOutputStream.writeInt(Integer.parseInt(((Tuple) stat).getRight().toString()));
+                        } else if (stat instanceof ItemOption) {
+                            dataOutputStream.writeUTF(ITEM_OPTION_ID);
+                            dataOutputStream.writeInt(((ItemOption) stat).getId());
+                            dataOutputStream.writeInt(((ItemOption) stat).getReqLevel());
+                        }
+                    }
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    public static SetEffect loadSetEffectByFile(String file) {
+        SetEffect setEffect = new SetEffect();
+        try (DataInputStream dataInputStream = new DataInputStream(new FileInputStream(file))) {
+            short levelSize = dataInputStream.readShort();
+            for (int i = 0; i < levelSize; i++) {
+                int level = dataInputStream.readInt();
+                short statSize = dataInputStream.readShort();
+                for (int j = 0; j < statSize; j++) {
+                    String type = dataInputStream.readUTF();
+                    if (type.equals(SCROLL_STAT_ID)) {
+                        Tuple<ScrollStat, Integer> ss = new Tuple<>(ScrollStat.getScrollStatByString(dataInputStream.readUTF()), dataInputStream.readInt());
+                        setEffect.addScrollStat(level, ss.getLeft(), ss.getRight());
+                    } else if (type.equals(ITEM_OPTION_ID)) {
+                        ItemOption io = new ItemOption();
+                        io.setId(dataInputStream.readInt());
+                        io.setReqLevel(dataInputStream.readInt());
+                        setEffect.addOption(level, io);
+                    }
+                }
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return setEffect;
+    }
+
+    public static SetEffect getSetEffectInfoById(int setID) {
+        if (setEffects.containsKey(setID)) {
+            return setEffects.get(setID);
+        }
+        return loadSetEffectByFile(String.format("%s/etc/setEffects/%d.dat", ServerConstants.DAT_DIR, setID));
     }
 
     public static void saveAndroidInfo(String dir) {
@@ -120,6 +223,8 @@ public class EtcData {
         long start = System.currentTimeMillis();
         loadAndroidsFromWz();
         saveAndroidInfo(ServerConstants.DAT_DIR + "/etc/android");
+        loadSetEffectsFromWz();
+        saveSetEffects(ServerConstants.DAT_DIR + "/etc/setEffects");
         log.info(String.format("Completed generating etc data in %dms.", System.currentTimeMillis() - start));
     }
 

@@ -398,7 +398,7 @@ public class ItemConstants {
         return nItemID / 10000;
     }
 
-    private static boolean isLongOrBigSword(int nItemID) {
+    public static boolean isLongOrBigSword(int nItemID) {
         return getItemPrefix(nItemID) == EquipPrefix.Lapis.getVal() || getItemPrefix(nItemID) == EquipPrefix.Lazuli.getVal();
     }
 
