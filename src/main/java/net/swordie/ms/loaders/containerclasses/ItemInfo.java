@@ -45,9 +45,6 @@ public class ItemInfo {
     private int skillId;
     private int grade;
     private int android;
-    private Set<Integer> reqItemIds = new HashSet<>();
-
-    public Set<Integer> getReqItemIds() { return reqItemIds; }
 
     public void setItemId(int itemId) {
         this.itemId = itemId;

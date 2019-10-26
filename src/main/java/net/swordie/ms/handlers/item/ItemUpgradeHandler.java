@@ -13,7 +13,6 @@ import net.swordie.ms.handlers.EventManager;
 import net.swordie.ms.handlers.Handler;
 import net.swordie.ms.handlers.header.InHeader;
 import net.swordie.ms.loaders.ItemData;
-import net.swordie.ms.loaders.containerclasses.ItemInfo;
 import net.swordie.ms.util.Util;
 import org.apache.log4j.Logger;
 
@@ -230,20 +229,10 @@ public class ItemUpgradeHandler {
         Item scroll = chr.getInventoryByType(InvType.CONSUME).getItemBySlot(uPos);
         InvType invType = ePos < 0 ? EQUIPPED : EQUIP;
         Equip equip = (Equip) chr.getInventoryByType(invType).getItemBySlot(ePos);
-        ItemInfo ii = ItemData.getItemInfoByID(scroll.getItemId());
         if (scroll == null || equip == null || equip.hasSpecialAttribute(EquipSpecialAttribute.Vestige)) {
             chr.chatMessage(SystemNotice, "Could not find scroll or equip.");
             chr.dispose();
             return;
-        }
-        if(!ii.getReqItemIds().isEmpty())
-        {
-            if(!ii.getReqItemIds().contains(equip.getItemId()))
-            {
-                chr.chatMessage(SystemNotice, "You may not scroll the selected equip with this scroll.");
-                chr.dispose();
-                return;
-            }
         }
         int scrollID = scroll.getItemId();
         boolean success = true;
