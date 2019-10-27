@@ -1,6 +1,9 @@
 package net.swordie.ms.life.drop;
 
+import net.swordie.ms.client.character.Char;
 import net.swordie.ms.constants.GameConstants;
+import net.swordie.ms.enums.BaseStat;
+import net.swordie.ms.loaders.ItemData;
 import net.swordie.ms.util.Util;
 
 import javax.persistence.*;
@@ -26,6 +29,7 @@ public class DropInfo {
     private int maxQuant = 1;
     @Transient
     private int quantity = 1;
+    private boolean reactorDrop;
 
     public DropInfo() {
     }
@@ -148,6 +152,16 @@ public class DropInfo {
         }
     }
 
+    public String toNPCString(Char chr) {
+        if (getItemID() != 0 && getItemID() > 0 && !isMoney()) {
+            if(ItemData.getItemDeepCopy(getItemID()) != null) {
+                return String.format("#L0##v%d# %.3f%% chance#l", getItemID(), (float)chr.getTotalStat(BaseStat.dropR) != 0 ? (float) (getChance() / 100D) * (chr.getTotalStat(BaseStat.dropR) + 100) / 100 : (float) (getChance() / 100D));
+            } else return null;
+        } else {
+            return String.format("#L0##v5200000# %d mesos.#l", getMoney());
+        }
+    }
+
     public long getId() {
         return id;
     }
@@ -167,7 +181,14 @@ public class DropInfo {
         di.setMinQuant(getMinQuant());
         di.setMaxQuant(getMaxQuant());
         di.setQuantity(getQuantity());
-
         return di;
+    }
+
+    public void setReactorDrop(boolean reactorDrop) {
+        this.reactorDrop = reactorDrop;
+    }
+
+    public boolean getReactorDrop() {
+        return reactorDrop;
     }
 }

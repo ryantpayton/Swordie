@@ -618,7 +618,7 @@ public class Char {
 					addItemToInventory(itemCopy);
 				}
 			}
-			setBulletIDForAttack(calculateBulletIDForAttack());
+			setBulletIDForAttack(calculateBulletIDForAttack(1));
 		}
 	}
 
@@ -2985,7 +2985,7 @@ public class Char {
 			write(WvsContext.inventoryOperation(true, false,
 					UpdateQuantity, (short) item.getBagIndex(), (byte) -1, 0, item));
 		}
-		setBulletIDForAttack(calculateBulletIDForAttack());
+		setBulletIDForAttack(calculateBulletIDForAttack(1));
 	}
 
 	/**
@@ -3454,26 +3454,26 @@ public class Char {
 		}
 	}
 
-	public int calculateBulletIDForAttack() {
+	public int calculateBulletIDForAttack(int requiredAmount) {
 		Item weapon = getEquippedInventory().getFirstItemByBodyPart(BodyPart.Weapon);
 		if (weapon == null) {
 			return 0;
 		}
-		Predicate<Item> p;
+		Predicate<Item> kindOfBulletPred;
 		int id = weapon.getItemId();
 
 		if (ItemConstants.isClaw(id)) {
-			p = i -> ItemConstants.isThrowingStar(i.getItemId());
+			kindOfBulletPred = i -> ItemConstants.isThrowingStar(i.getItemId());
 		} else if (ItemConstants.isBow(id)) {
-			p = i -> ItemConstants.isBowArrow(i.getItemId());
+			kindOfBulletPred = i -> ItemConstants.isBowArrow(i.getItemId());
 		} else if (ItemConstants.isXBow(id)) {
-			p = i -> ItemConstants.isXBowArrow(i.getItemId());
+			kindOfBulletPred = i -> ItemConstants.isXBowArrow(i.getItemId());
 		} else if (ItemConstants.isGun(id)) {
-			p = i -> ItemConstants.isBullet(i.getItemId());
+			kindOfBulletPred = i -> ItemConstants.isBullet(i.getItemId());
 		} else {
 			return 0;
 		}
-		Item i = getConsumeInventory().getItems().stream().sorted(Comparator.comparing(Item::getBagIndex)).filter(p).findFirst().orElse(null);
+		Item i = getConsumeInventory().getItems().stream().sorted(Comparator.comparing(Item::getBagIndex)).filter(kindOfBulletPred).filter(item -> item.getQuantity() >= requiredAmount).findFirst().orElse(null);
 		return i != null ? i.getItemId() : 0;
 	}
 
@@ -4437,6 +4437,32 @@ public class Char {
 		boolean hasEnough = curMp >= mpCon;
 		if (hasEnough) {
 			addStatAndSendPacket(Stat.mp, -mpCon);
+		}
+		return hasEnough;
+	}
+
+	public boolean applyBulletCon(int skillID, byte slv) {
+		if (getTemporaryStatManager().hasStat(NoBulletConsume) || JobConstants.isPhantom(getJob())) {
+			return true;
+		}
+		SkillInfo si = SkillData.getSkillInfoById(skillID);
+		if (si == null) {
+			return true;
+		}
+		int bulletCon = si.getValue(SkillStat.bulletCount, slv) + si.getValue(SkillStat.bulletConsume, slv);
+		if (bulletCon <= 0) {
+			return true;
+		}
+		int bulletItemId = getBulletIDForAttack();
+		if (bulletItemId == 0) {
+			return false;
+		}
+		if (!hasItemCount(getBulletIDForAttack(), bulletCon)) {
+			setBulletIDForAttack(calculateBulletIDForAttack(bulletCon));
+		}
+		boolean hasEnough = hasItemCount(bulletItemId, bulletCon);
+		if (hasEnough) {
+			consumeItem(bulletItemId, bulletCon);
 		}
 		return hasEnough;
 	}

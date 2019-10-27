@@ -26,11 +26,13 @@ import net.swordie.ms.constants.SkillConstants;
 import net.swordie.ms.enums.*;
 import net.swordie.ms.handlers.Handler;
 import net.swordie.ms.handlers.header.InHeader;
+import net.swordie.ms.life.Reactor;
 import net.swordie.ms.life.mob.Mob;
 import net.swordie.ms.life.movement.MovementInfo;
 import net.swordie.ms.loaders.ItemData;
 import net.swordie.ms.loaders.MobData;
 import net.swordie.ms.loaders.MonsterCollectionData;
+import net.swordie.ms.loaders.ReactorData;
 import net.swordie.ms.loaders.containerclasses.ItemInfo;
 import net.swordie.ms.util.Position;
 import net.swordie.ms.util.Util;
@@ -509,4 +511,28 @@ public class UserHandler {
         chr.damage(chr.getMaxHP() * hpPerc / 100);
     }
 
+    @Handler(op = InHeader.GATHER_REQUEST)
+    public static void handleGatherRequest(Client c, InPacket inPacket) {
+        int lifeId = inPacket.decodeInt();
+        c.write(UserLocal.gatherRequestResult(lifeId, true));
+    }
+
+    @Handler(op = InHeader.GATHER_END_NOTICE)
+    public static void handleGatherEndNotice(Client c, InPacket inPacket) {
+        boolean success = false;
+        int lifeId = inPacket.decodeInt();
+        Char chr = c.getChr();
+        Reactor reactor = (Reactor) chr.getField().getLifeByObjectID(lifeId);
+        ReactorType type = GameConstants.getReactorType(reactor.getTemplateId());
+        if (type == null) {
+            return;
+        } else if (type == ReactorType.VEIN && chr.hasSkill(SkillConstants.MINING_SKILL) || type == ReactorType.HERB && chr.hasSkill(SkillConstants.HERBALISM_SKILL)) {
+            int reactorLevel = ReactorData.getReactorInfoByID(reactor.getTemplateId()).getLevel();
+            int chrLevel = type == ReactorType.HERB ? chr.getMakingSkillLevel(SkillConstants.HERBALISM_SKILL) : chr.getMakingSkillLevel(SkillConstants.MINING_SKILL);
+            int successChance = chrLevel >= reactorLevel ? 95 : 20;
+            success = Util.succeedProp(successChance);
+        }
+        reactor.die(success);
+        c.write(UserPacket.gatherResult(chr.getId(), success));
+    }
 }

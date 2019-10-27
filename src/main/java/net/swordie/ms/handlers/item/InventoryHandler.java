@@ -126,7 +126,7 @@ public class InventoryHandler {
         }
 //        log.debug("Equipped after: " + chr.getEquippedInventory());
 //        log.debug("Equip after: " + chr.getEquipInventory());
-        chr.setBulletIDForAttack(chr.calculateBulletIDForAttack());
+        chr.setBulletIDForAttack(chr.calculateBulletIDForAttack(1));
         if (newPos < 0
                 && -newPos >= BodyPart.APBase.getVal() && -newPos < BodyPart.APEnd.getVal()
                 && chr.getAndroid() != null) {

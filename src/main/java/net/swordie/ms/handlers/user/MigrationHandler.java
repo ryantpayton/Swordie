@@ -103,7 +103,7 @@ public class MigrationHandler {
         } else {
             c.write(FieldPacket.funcKeyMappedManInit(chr.getFuncKeyMap()));
         }
-        chr.setBulletIDForAttack(chr.calculateBulletIDForAttack());
+        chr.setBulletIDForAttack(chr.calculateBulletIDForAttack(1));
         c.write(WvsContext.friendResult(new LoadFriendResult(chr.getAllFriends())));
         c.write(WvsContext.macroSysDataInit(chr.getMacros()));
         c.write(UserLocal.damageSkinSaveResult(DamageSkinType.Req_SendInfo, null, chr));
