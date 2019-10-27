@@ -35,7 +35,7 @@ public class PinkZakumEvent implements InGameEvent {
     private ScheduledFuture startTimer;
     private ScheduledFuture endTimer;
     private Channel channelInstance;
-    private Map<Integer, Boolean> winners;
+    private Map<Integer, Boolean> winners = new HashMap<>();
 
     @Override
     public String getEventName() {
@@ -45,7 +45,7 @@ public class PinkZakumEvent implements InGameEvent {
     @Override
     public void doEvent() {
         active = true;
-        winners = new HashMap<>();
+        winners.clear();
         channelInstance = Server.getInstance().getWorlds().get(0).getChannels().get(0);
         startTimer = EventManager.addEvent(this::start, InGameEventManager.REGISTRATION_DURATION_MINS, TimeUnit.MINUTES);
         startTimeMillis = System.currentTimeMillis() + InGameEventManager.REGISTRATION_DURATION_MINS * 60* 1000;
@@ -204,7 +204,11 @@ public class PinkZakumEvent implements InGameEvent {
     }
 
     public boolean isWinner(Char c) {
-        return winners.containsKey(c.getId());
+        try {
+            return winners.containsKey(c.getId());
+        } catch (NullPointerException npe) {
+            return false; // idk why this happens
+        }
     }
 
     public void setWinnerRewarded(Char c) {

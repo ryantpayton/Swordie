@@ -2511,10 +2511,10 @@ public class Char {
 
 				List<Portal> portals = getField().getClosestPortal(rect);
 
-				setPreviousPortalID(portals.get(0) != null
-						? portals.get(0).getId()
-						: 0
-				);
+				if (portals.size() > 0)
+					setPreviousPortalID(portals.get(0).getId());
+				else
+					setPreviousPortalID(0);
 			}
 			currentField.removeChar(this);
 		}

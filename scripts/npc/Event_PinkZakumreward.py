@@ -14,7 +14,7 @@ if sm.getFieldID() == 689010000: # waiting map
             sm.warpNoReturn(returnmap, 0)
     elif sm.sendAskYesNo("Have you heard of the terrifying Zakum? This one's pink! He's not so scary anymore.\r\nWould you like to go back to your previous map?"):
         sm.warpNoReturn(returnmap, 0)
-elif isPinkZakumWinner():
+elif sm.isPinkZakumWinner():
     sm.sendNext("Good job defeating the Pink Zakum!")
     # TODO give reward
     sm.warpNoReturn(returnmap, 0)

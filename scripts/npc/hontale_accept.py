@@ -17,6 +17,7 @@ if sm.isPartyLeader():
                 "#L2#Chaos(Level 135+) #l \r\n")
     sm.warpInstanceIn(dict[selection], True)
     sm.setInstanceTime(BossConstants.EASY_HORNTAIL_TIME)
+    sm.createQuestWithQRValue(GameConstants.EASY_HORNTAIL_QUEST, "1")
     sm.setPartyQRValue(GameConstants.EASY_HORNTAIL_QUEST, "1")
 else:
     sm.sendSayOkay("Please have your party leader speak to me.")
