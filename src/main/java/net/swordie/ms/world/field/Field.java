@@ -35,6 +35,7 @@ import net.swordie.ms.util.FileTime;
 import net.swordie.ms.util.Position;
 import net.swordie.ms.util.Rect;
 import net.swordie.ms.util.Util;
+import net.swordie.ms.util.container.Tuple;
 import org.apache.log4j.Logger;
 
 import java.time.LocalDateTime;
@@ -90,7 +91,7 @@ public class Field {
     private int channel;
     private Map<String, Object> properties;
     private boolean changeToChannelOnLeave;
-    private boolean dropsdisabled;
+    private boolean dropsDisabled;
 
     public Field(int fieldID) {
         this.id = fieldID;
@@ -104,7 +105,7 @@ public class Field {
         this.directionInfo = new HashMap<>();
         this.fixedMobCapacity = GameConstants.DEFAULT_FIELD_MOB_CAPACITY; // default
         this.properties = new HashMap<>();
-        dropsdisabled = false;
+        dropsDisabled = false;
     }
 
     public void startFieldScript() {
@@ -116,11 +117,11 @@ public class Field {
     }
 
     public void setDropsDisabled(boolean val) {
-        dropsdisabled = val;
+        dropsDisabled = val;
     }
 
     public boolean getDropsDisabled() {
-        return dropsdisabled;
+        return dropsDisabled;
     }
 
     public Rect getRect() {
@@ -388,6 +389,20 @@ public class Field {
             }
         }
         return res;
+    }
+
+    public Tuple<Foothold, Foothold> getMinMaxNonWallFH() {
+        Set<Foothold> footholds = getFootholds().stream().filter(fh -> !fh.isWall()).collect(Collectors.toSet());
+        Foothold left = footholds.iterator().next(), right = footholds.iterator().next(); // retun vals
+
+        for (Foothold fh : footholds) {
+            if (fh.getX1() < left.getX1()) {
+                left = fh;
+            } else if (fh.getX1() > right.getX1()) {
+                right = fh;
+            }
+        }
+        return new Tuple<>(left, right);
     }
 
     public Set<Foothold> getFootholds() {

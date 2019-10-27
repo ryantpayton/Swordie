@@ -139,6 +139,10 @@ public class RussianRouletteEvent implements InGameEvent {
         }
     }
 
+    public void clear() {
+        // unused rn
+    }
+
     private void warpOut(List<Char> charList) {
         for (Char c : charList)
             warpOut(c);

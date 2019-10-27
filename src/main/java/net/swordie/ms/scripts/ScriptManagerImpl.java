@@ -49,6 +49,7 @@ import net.swordie.ms.util.FileTime;
 import net.swordie.ms.util.Position;
 import net.swordie.ms.util.Rect;
 import net.swordie.ms.util.Util;
+import net.swordie.ms.util.container.Tuple;
 import net.swordie.ms.world.World;
 import net.swordie.ms.world.event.*;
 import net.swordie.ms.world.field.*;
@@ -2770,23 +2771,29 @@ public class ScriptManagerImpl implements ScriptManager {
 	}
 
 	public void dropItemsAlongLine(int[] items, int range, int startPosX, int startPosY, long msDelay) throws InterruptedException {
-		if (items.length <= 0)
+		if (items.length <= 0) {
 			return; // avoid divide by zero error
+		}
+		Tuple<Foothold, Foothold> lrFh = chr.getField().getMinMaxNonWallFH();
 
-		msDelay = Math.max(msDelay, 0);
 		range = Math.max(range, items.length);
 		int offset = Math.max((range / items.length) * 2, 3); // we want offset >= 3 || multiply by 2 so that the drops go past the start point
-		int count = 0;
-		for (int item : items) {
-			int endPosX = startPosX - range + (offset * count);
+		for (int i = 0; i < items.length; i++) {
+			int endPosX = startPosX - range + (offset * i);
+			endPosX = Math.max(endPosX, lrFh.getLeft().getX1()); // left is lowest x val
+			endPosX = Math.min(endPosX, lrFh.getRight().getX1()); // right is highest x val
 
-			if (item > 999999) // item
-				dropItem(item, startPosX, startPosY, endPosX, startPosY);
-			else // meso
-				dropMeso(item, startPosX, startPosY, endPosX, startPosY);
+			if (items[i] <= 0) { // some fucker
+				continue;
+			}
 
-			count += 1;
-			Thread.sleep(msDelay); // to give the cascading effect
+			if (items[i] > 999999) { // item
+				dropItem(items[i], startPosX, startPosY, endPosX, startPosY);
+			} else { // meso
+				dropMeso(items[i], startPosX, startPosY, endPosX, startPosY);
+			}
+
+			Thread.sleep(Math.max(msDelay, 0)); // to give the cascading effect
 		}
 	}
 
@@ -2799,8 +2806,9 @@ public class ScriptManagerImpl implements ScriptManager {
 		Field field = chr.getField();
 		Drop drop = new Drop(field.getNewObjectID());
 		drop.setItem(ItemData.getItemDeepCopy(itemId));
-		if (itemId / 1000000 != 1) // make sure its not an equip
+		if (ItemConstants.isEquip(itemId)) {
 			drop.getItem().setQuantity(itemQuantity);
+		}
 		field.drop(drop, deadMob.getPosition());
 	}
 
@@ -2822,7 +2830,6 @@ public class ScriptManagerImpl implements ScriptManager {
 	}
 
 	public void spawnZakum(int map) {
-
 		short pX = BossConstants.ZAKUM_SPAWN_X;
 		short pY = BossConstants.ZAKUM_SPAWN_Y;
 
@@ -2843,22 +2850,20 @@ public class ScriptManagerImpl implements ScriptManager {
 					spawnMob(BossConstants.ZAKUM_CHAOS_ARM + i, pX, pY, false);
 				break;
 		}
-		chr.getOrCreateFieldByCurrentInstanceType(map).setProperty("zakum", 1); // todo make sure this is switched back when players leave
+		chr.getOrCreateFieldByCurrentInstanceType(map).setProperty("zakum", 1);
 	}
 
 	public void spawnBalrog(boolean easy) {
-		int bodyId = easy ? BossConstants.BALROG_EASY_BODY : BossConstants.BALROG_HARD_BODY;
-		int larmId = easy ? BossConstants.BALROG_EASY_LARM : BossConstants.BALROG_HARD_LARM;
-		int rarmId = easy ? BossConstants.BALROG_EASY_RARM : BossConstants.BALROG_HARD_RARM;
-		int dmgSink = easy ? BossConstants.BALROG_EASY_DMGSINK : BossConstants.BALROG_HARD_DMGSINK;
+		int[] spawns = {
+				easy ? BossConstants.BALROG_EASY_BODY : BossConstants.BALROG_HARD_BODY,
+				easy ? BossConstants.BALROG_EASY_LARM : BossConstants.BALROG_HARD_LARM,
+				easy ? BossConstants.BALROG_EASY_RARM : BossConstants.BALROG_HARD_RARM,
+				easy ? BossConstants.BALROG_EASY_DMGSINK : BossConstants.BALROG_HARD_DMGSINK,
+		};
 
-		short pX = BossConstants.BALROG_SPAWN_X;
-		short pY = BossConstants.BALROG_SPAWN_Y;
-
-		Mob balrogDmgSink = spawnMob(dmgSink, pX, pY, false);
-		Mob balrogBody = spawnMob(bodyId, pX, pY, false);
-		Mob balrogRarm = spawnMob(larmId, pX, pY, false);
-		Mob balrogLarm = spawnMob(rarmId, pX, pY, false);
+		for (int i = 0; i < spawns.length; i++) {
+			spawnMob(spawns[i], BossConstants.BALROG_SPAWN_X, BossConstants.BALROG_SPAWN_Y, false);
+		}
 	}
 
 	public void resetBossMap(int fieldId) {
@@ -2890,11 +2895,8 @@ public class ScriptManagerImpl implements ScriptManager {
 	}
 
 	public boolean zakumAlreadySpawned(int map) {
-		try {
-			return chr.getOrCreateFieldByCurrentInstanceType(map).getProperties().get("zakum").equals("1");
-		} catch (Exception e) {
-			return false;
-		}
+		field = chr.getClient().getChannelInstance().getFieldIfExists(map);
+		return field != null && field.getProperties().containsKey("zakum") && field.getProperties().get("zakum").equals("1");
 	}
 
 	/**
@@ -2921,14 +2923,14 @@ public class ScriptManagerImpl implements ScriptManager {
 	}
 
 	public void sendAutoEventClock() {
-		try {
-			InGameEventManager.getInstance().getActiveEvent().sendLobbyClock(chr);
-			if (isRouletteActive()) {
-				showEffect("Effect/BasicEff.img/Event1/roulette");
-			}
+		InGameEvent ige = InGameEventManager.getInstance().getActiveEvent();
 
-		} catch (Exception ex) {
-			// no active event
+		if (ige == null) {
+			return;
+		}
+
+		if (ige.isActive()) {
+			ige.sendLobbyClock(chr);
 		}
 	}
 

@@ -15,4 +15,5 @@ public interface InGameEvent {
     int getEventEntryMap();
     boolean charInEvent(int charId);
     void onMigrateDeath(Char c);
+    void clear();
 }

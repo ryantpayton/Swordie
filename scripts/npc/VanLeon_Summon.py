@@ -14,7 +14,6 @@ dic = {
 if sm.sendAskYesNo("Are you the warriors who came to defeat me? Or are you from the Anti Black Mage Alliance? It doesn't matter who you are ...There's no need for chitchatting if we are sure about each other's purpose...\r\nBring it on, you fools!"):
 	sm.removeNpc(VON_LEON_NPC)
 	sm.spawnMob(dic[sm.getFieldID()], SPAWNX, SPAWNY, False)
-	sm.killMob(dic[sm.getFieldID()]) # spawns the real one with the spawn animation
 	
 	for c in sm.getPartyMembersInSameField(chr):
 		c.completeQuest(3173) # Queen Ifia's quest -> needed to proceed to Ani's Jail

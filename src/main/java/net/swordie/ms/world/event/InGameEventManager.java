@@ -7,7 +7,10 @@ import net.swordie.ms.client.character.Char;
 import net.swordie.ms.connection.packet.WvsContext;
 import net.swordie.ms.enums.ChatType;
 import net.swordie.ms.handlers.EventManager;
+import net.swordie.ms.life.Life;
 import net.swordie.ms.util.Randomizer;
+import net.swordie.ms.world.Channel;
+import net.swordie.ms.world.field.Field;
 
 import java.util.*;
 import java.util.concurrent.ScheduledFuture;
@@ -38,33 +41,38 @@ public class InGameEventManager {
     }
 
     public void forceNextEvent() { // for testing only, this should not be used in prod
-        doEvent();
+        if (ServerConfig.DEBUG_MODE) {
+            doEvent();
+        } // else notify character that server is in prod
     }
 
     private void doEvent() {
-        InGameEvent event = null;
-        while (true) {
-            if (events.size() == 1) {
-                event = events.get(0);
-                break;
-            }
+        clearForNextEvent(previousEvent);
 
-            event = events.get(Randomizer.rand(0, events.size() - 1));
+        InGameEvent event = events.stream()
+                .filter(e -> e.getEventType() != previousEvent)
+                .findFirst()
+                .orElse(events.get(0)); // this check ensure that even if theres only 1 total event it will select one
 
-            if (previousEvent == null)
-                break;
-
-            if (event.getEventType() != previousEvent)
-                break;
-        }
         previousEvent = event.getEventType();
 
-        if (!ServerConfig.DEBUG_MODE)
+        if (!ServerConfig.DEBUG_MODE) {
             reminderTimer = EventManager.addFixedRateEvent(this::sendReminder, 30, 60, TimeUnit.SECONDS);
+        }
 
         Server.getInstance().getWorldById(ServerConfig.WORLD_ID)
                 .broadcastPacket(WvsContext.broadcastMsg(BroadcastMsg.notice(event.getEventName() + " event registration has started! Registration will close in " + REGISTRATION_DURATION_MINS + " minutes.")));
         event.doEvent();
+    }
+
+
+    private void clearForNextEvent(InGameEventType type) {
+        InGameEvent ige = getEvent(type);
+        if (ige == null) {
+            return;
+        }
+
+        ige.clear();
     }
 
     private void sendReminder() {
@@ -88,7 +96,7 @@ public class InGameEventManager {
         InGameEvent e = null;
         for (InGameEvent ige : events) {
             if (ige.isActive())
-                e = ige;
+                return ige;
         }
         return e;
     }
@@ -108,14 +116,15 @@ public class InGameEventManager {
     public InGameEvent getEvent(InGameEventType type) {
         return events.stream()
                 .filter(c -> c.getEventType() == type)
-                .findFirst().orElseGet(null); // if it returns null then something is wrong
+                .findFirst().orElseGet(null); // it cannot return null since we put two events in in in the constructor
     }
 
     public boolean charInEventMap(int charId) {
         InGameEvent e = getActiveEvent();
 
-        if (e == null)
+        if (e == null) {
             return false;
+        }
 
         return e.charInEvent(charId);
     }

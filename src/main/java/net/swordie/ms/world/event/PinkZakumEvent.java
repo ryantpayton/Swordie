@@ -8,6 +8,7 @@ import net.swordie.ms.connection.packet.FieldPacket;
 import net.swordie.ms.connection.packet.WvsContext;
 import net.swordie.ms.enums.WeatherEffNoticeType;
 import net.swordie.ms.handlers.EventManager;
+import net.swordie.ms.life.drop.Drop;
 import net.swordie.ms.life.mob.Mob;
 import net.swordie.ms.world.Channel;
 import net.swordie.ms.world.field.ClockPacket;
@@ -50,7 +51,6 @@ public class PinkZakumEvent implements InGameEvent {
         startTimer = EventManager.addEvent(this::start, InGameEventManager.REGISTRATION_DURATION_MINS, TimeUnit.MINUTES);
         startTimeMillis = System.currentTimeMillis() + InGameEventManager.REGISTRATION_DURATION_MINS * 60* 1000;
         channelInstance.getField(LOBBY_MAP).setDropsDisabled(true); // to reduce lag
-        channelInstance.destroyField(BATTLE_MAP); // gotta make sure this is void so it requests an OnFirstUserEnter script
         sendNotice(LOBBY_MAP, "Get ready for an epic Pink Zakum showdown!", InGameEventManager.REGISTRATION_DURATION_MINS * 60);
     }
 
@@ -102,18 +102,27 @@ public class PinkZakumEvent implements InGameEvent {
         endTimer = null;
         warpMap(BATTLE_MAP, WARPOUT_MAP);
 
-        channelInstance.destroyField(BATTLE_MAP); // reset map
-
-        if (getTimeLeft() <= 0)
+        if (getTimeLeft() <= 0) {
             sendNotice(BATTLE_MAP, "Time's up, better luck next time!", 10);
-        else
+        } else {
             distributeRewards();
+        }
 
         channelInstance.getField(WARPOUT_MAP).broadcastPacket(FieldPacket.clock(ClockPacket.removeClock()));
     }
 
+    public void clear() {
+        warpMap(BATTLE_MAP, WARPOUT_MAP);
+
+        for (Drop d : channelInstance.getField(BATTLE_MAP).getDrops()) {
+            channelInstance.getField(BATTLE_MAP).removeLife(d);
+        }
+
+        channelInstance.clearCache();
+    }
+
     private void distributeRewards() {
-        // tood
+        // todo
     }
 
     @Override

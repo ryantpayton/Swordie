@@ -101,7 +101,15 @@ public class Channel {
             }
         }
         return createAndReturnNewField(id);
+    }
 
+    public Field getFieldIfExists(int fieldId) {
+        for (Field field : getFields()) {
+            if (field.getId() == fieldId) {
+                return field;
+            }
+        }
+        return null;
     }
 
     private Field createAndReturnNewField(int id) {
@@ -172,22 +180,5 @@ public class Channel {
             }
         }
         getFields().removeAll(toRemove);
-    }
-
-    public void destroyField(int mapId) {
-        for (Field field : getFields()) {
-            if (field.getId() == mapId) {
-                for (Char c : field.getChars()) {
-                    c.warp(1000000000); // ideally we check to make sure we warp people out before calling this function...
-                }
-
-                for (Life l : field.getLifes().values()) {
-                    field.removeLife(l);
-                }
-
-                fields.remove(field);
-                break;
-            }
-        }
     }
 }

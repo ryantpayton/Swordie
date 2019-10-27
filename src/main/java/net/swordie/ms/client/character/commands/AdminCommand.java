@@ -1,5 +1,7 @@
 package net.swordie.ms.client.character.commands;
 
+import net.swordie.ms.ServerConfig;
+
 /**
  * Created on 12/22/2017.
  */
@@ -9,6 +11,6 @@ public abstract class AdminCommand implements ICommand {
     }
 
     public static char getPrefix() {
-        return '!';
+        return ServerConfig.ADMIN_COMMAND;
     }
 }

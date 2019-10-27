@@ -41,17 +41,18 @@ public class ChatHandler {
         inPacket.decodeInt(); // timestamp
         String msg = inPacket.decodeString();
 
-        if (msg.length() <= 0)
+        if (msg.length() <= 0) {
             return;
+        }
 
         String command = msg.split(" ")[0].replace(String.valueOf(msg.charAt(0)), "");
         Class[] commandClasses = null;
 
-        if (msg.startsWith(String.valueOf(ServerConfig.PLAYER_COMMAND)))
+        if (msg.startsWith(String.valueOf(ServerConfig.PLAYER_COMMAND))) {
             commandClasses = PlayerCommands.class.getClasses();
-
-        if (msg.startsWith(String.valueOf(ServerConfig.ADMIN_COMMAND)))
+        } else if (msg.startsWith(String.valueOf(ServerConfig.ADMIN_COMMAND))) {
             commandClasses = AdminCommands.class.getClasses();
+        }
 
         // doesn't start with command prefix
         if (commandClasses == null) {
@@ -64,11 +65,13 @@ public class ChatHandler {
             Command cmd = (Command) commandClass.getAnnotation(Command.class);
             for (String name : cmd.names()) {
 
-                if (!name.equalsIgnoreCase(command))
+                if (!name.equalsIgnoreCase(command)) {
                     continue;
+                }
 
-                if (chr.getUser().getAccountType().ordinal() < cmd.requiredType().ordinal())
-                    break;
+                if (chr.getUser().getAccountType().ordinal() < cmd.requiredType().ordinal()) {
+                    continue;
+                }
 
                 try {
                     ICommand iCommand = null;

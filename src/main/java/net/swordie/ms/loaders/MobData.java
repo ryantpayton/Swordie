@@ -305,7 +305,7 @@ public class MobData {
             mob.setDamageRecordQuest(dataInputStream.readInt());
             mob.setSealedCooltime(dataInputStream.readInt());
             mob.setWillEXP(dataInputStream.readInt());
-            mob.setFixedMoveDir(dataInputStream.readUTF()); // eof
+            mob.setFixedMoveDir(dataInputStream.readUTF());
             mob.setEscortMob(dataInputStream.readBoolean());
             boolean banMap = dataInputStream.readBoolean();
             if (banMap) {
