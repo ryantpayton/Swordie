@@ -455,7 +455,7 @@ public class UserHandler {
             field.broadcastPacket(UserRemote.effect(chrId, Effect.showDarkShockSkill(skillId, slv, origin, dest)));
         } else {
             log.error(String.format("Unhandled Remote Effect Skill id %d", skillId));
-            chr.chatMessage(String.format("Unhandled Remote Effect Skill:  id = %d", skillId));
+            chr.dbgChatMsg(String.format("Unhandled Remote Effect Skill:  id = %d", skillId));
         }
     }
 

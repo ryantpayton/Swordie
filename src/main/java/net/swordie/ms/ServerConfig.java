@@ -11,4 +11,8 @@ public class ServerConfig {
     public static final String EVENT_MSG = "#bSwordieMS#k v176\r\nPoggers";
     public static final String RECOMMEND_MSG = "I recommend this world to you.";
     public static final int MAX_CHARACTERS = 30;
+
+    public static final boolean DEBUG_MODE = true;
+    public static final char ADMIN_COMMAND = '!';
+    public static final char PLAYER_COMMAND = '@';
 }

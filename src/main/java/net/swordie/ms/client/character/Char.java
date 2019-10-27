@@ -1,6 +1,7 @@
 package net.swordie.ms.client.character;
 
 import net.swordie.ms.Server;
+import net.swordie.ms.ServerConfig;
 import net.swordie.ms.client.Account;
 import net.swordie.ms.client.Client;
 import net.swordie.ms.client.LinkSkill;
@@ -203,6 +204,9 @@ public class Char {
 
 	private int partyID = 0; // Just for DB purposes
 	private int previousFieldID;
+
+	@Transient
+	private int previousPortalID; // not super important so we wont save to db
 
 	@ElementCollection(fetch = FetchType.EAGER)
 	@CollectionTable(name = "skillcooltimes", joinColumns = @JoinColumn(name = "charID"))
@@ -2195,6 +2199,16 @@ public class Char {
 		getClient().write(UserLocal.chatMsg(clr, msg));
 	}
 
+    /**
+     * Sends a message to the character if the debug config flag is turned on.
+     *
+     * @param message message to send
+     */
+	public void dbgChatMsg(String message) {
+	    if (ServerConfig.DEBUG_MODE)
+	        chatMessage(message);
+    }
+
 	/**
 	 * Unequips an {@link Item}. Ensures that the hairEquips and both inventories get updated.
 	 *
@@ -2481,10 +2495,30 @@ public class Char {
 			tsm.removeStatsBySkill(aa.getSkillID());
 		}
 		Field currentField = getField();
-		if (currentField != null && saveReturnMap) {
-			setPreviousFieldID(currentField.getId()); // this may be a bad idea in some cases? idk
+
+		if (currentField != null) {
+			if (saveReturnMap) {
+				setPreviousFieldID(currentField.getId()); // this may be a bad idea in some cases? idk
+
+				Rect rect = new Rect(
+						new Position(
+								getPosition().getX() - 30,
+								getPosition().getY() - 30),
+						new Position(
+								getPosition().getX() + 50, // wide girth
+								getPosition().getY() + 50)
+				);
+
+				List<Portal> portals = getField().getClosestPortal(rect);
+
+				setPreviousPortalID(portals.get(0) != null
+						? portals.get(0).getId()
+						: 0
+				);
+			}
 			currentField.removeChar(this);
 		}
+
 		setField(toField);
 		toField.addChar(this);
 		getAvatarData().getCharacterStat().setPortal(portal.getId());
@@ -4325,6 +4359,12 @@ public class Char {
 	public void setPreviousFieldID(int previousFieldID) {
 		this.previousFieldID = previousFieldID;
 	}
+
+	public int getPreviousPortalID() {
+		return previousPortalID;
+	}
+
+	public void setPreviousPortalID(int portalId) { previousPortalID = portalId; }
 
 	public long getNextRandomPortalTime() {
 		return nextRandomPortalTime;

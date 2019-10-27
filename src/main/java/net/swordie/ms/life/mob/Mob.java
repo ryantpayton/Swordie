@@ -1346,7 +1346,8 @@ public class Mob extends Life {
                 break;
             }
         }
-        getField().drop(getDrops(), getField().getFootholdById(fhID), getPosition(), ownerID, totalMesoRate, totalDropRate);
+        if (!getField().getDropsDisabled())
+            getField().drop(getDrops(), getField().getFootholdById(fhID), getPosition(), ownerID, totalMesoRate, totalDropRate);
     }
 
     public Map<Char, Long> getDamageDone() {

@@ -26,6 +26,9 @@ import net.swordie.ms.life.Summon;
 import net.swordie.ms.life.mob.Mob;
 import net.swordie.ms.loaders.SkillData;
 import net.swordie.ms.util.Rect;
+import net.swordie.ms.world.event.InGameEvent;
+import net.swordie.ms.world.event.InGameEventManager;
+import net.swordie.ms.world.event.PinkZakumEvent;
 import net.swordie.ms.world.field.Field;
 import net.swordie.ms.world.field.fieldeffect.FieldEffect;
 import org.apache.log4j.Logger;
@@ -40,7 +43,7 @@ public class AttackHandler {
     // No handler, gets called from other handlers
     private static void handleAttack(Client c, AttackInfo attackInfo) {
         Char chr = c.getChr();
-        chr.chatMessage(attackInfo.skillId + "");
+        chr.dbgChatMsg(attackInfo.skillId + "");
         int skillID = attackInfo.skillId;
         Field field = chr.getField();
         if ((field.getFieldLimit() & FieldOption.SkillLimit.getVal()) > 0 ||
@@ -55,7 +58,7 @@ public class AttackHandler {
         }
         if (summonedAttack || chr.checkAndSetSkillCooltime(skillID) || chr.hasSkillCDBypass() || multiAttack) {
             byte slv = attackInfo.slv;
-            chr.chatMessage(Mob, "SkillID: " + skillID);
+            chr.dbgChatMsg("SkillID: " + skillID);
             Job sourceJobHandler = chr.getJobHandler();
             SkillInfo si = SkillData.getSkillInfoById(skillID);
             if (si != null && si.getExtraSkillInfo().size() > 0) {
@@ -111,6 +114,13 @@ public class AttackHandler {
                         mob.handleDamageReflect(chr, skillID, totalDamage);
                     }
 
+                    if (mob.getTemplateId() == 9400902) { // pink zakum third body
+                        InGameEvent event = InGameEventManager.getInstance().getActiveEvent();
+
+                        if (event instanceof PinkZakumEvent)
+                            ((PinkZakumEvent)event).win();
+                    }
+
                     if ((mob.getTemplateId() >= 8810202 && mob.getTemplateId() <= 8810209)) {
                         handleHorntailHPBar(field, chr, totalDamage, (byte) 2); // easy horntail
                     } else if ((mob.getTemplateId() >= 8810002 && mob.getTemplateId() <= 8810009)) {
@@ -126,6 +136,8 @@ public class AttackHandler {
                     } else if ((mob.getTemplateId() >= 8830007 && mob.getTemplateId() <= 8830009)) {
                         handleBalrogHPBar(field, chr, totalDamage, true);
                     }
+
+
                 }
                 if (mob != null && mob.getHp() < 0) {
                     mob.onKilledByChar(chr);

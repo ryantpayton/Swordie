@@ -154,7 +154,7 @@ public class SkillHandler {
         if (chr.applyMpCon(skillID, slv) && (chr.checkAndSetSkillCooltime(skillID) || chr.hasSkillCDBypass())) {
             chr.getField().broadcastPacket(UserRemote.effect(chr.getId(), Effect.skillUse(skillID, slv, 0)));
             log.debug("SkillID: " + skillID);
-            c.getChr().chatMessage(ChatType.Mob, "SkillID: " + skillID);
+            c.getChr().dbgChatMsg("SkillID: " + skillID);
             Job sourceJobHandler = c.getChr().getJobHandler();
             SkillInfo si = SkillData.getSkillInfoById(skillID);
             if (si.isMassSpell() && sourceJobHandler.isBuff(skillID) && chr.getParty() != null) {

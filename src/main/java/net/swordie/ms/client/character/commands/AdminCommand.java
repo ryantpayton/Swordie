@@ -8,9 +8,7 @@ public abstract class AdminCommand implements ICommand {
     public AdminCommand() {
     }
 
-    private static char prefix = '!';
-
     public static char getPrefix() {
-        return prefix;
+        return '!';
     }
 }

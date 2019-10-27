@@ -50,6 +50,7 @@ import net.swordie.ms.util.Position;
 import net.swordie.ms.util.Rect;
 import net.swordie.ms.util.Util;
 import net.swordie.ms.world.World;
+import net.swordie.ms.world.event.*;
 import net.swordie.ms.world.field.*;
 import net.swordie.ms.world.field.fieldeffect.FieldEffect;
 import net.swordie.ms.world.field.fieldeffect.GreyFieldType;
@@ -108,6 +109,7 @@ public class ScriptManagerImpl implements ScriptManager {
 	private boolean curNodeEventEnd;
 	private static final Lock fileReadLock = new ReentrantLock();
 	private FieldTransferInfo fieldTransferInfo;
+	private int objectID;
 
 	private ScriptManagerImpl(Char chr, Field field) {
 		this.chr = chr;
@@ -186,6 +188,7 @@ public class ScriptManagerImpl implements ScriptManager {
 			chr.chatMessage(Mob, String.format("Starting script %s, scriptType %s.", scriptName, scriptType));
 			log.debug(String.format("Starting script %s, scriptType %s.", scriptName, scriptType));
 		}
+		objectID = objID;
 		resetParam();
 		Bindings bindings = getBindingsByType(scriptType);
 		if (bindings == null) {
@@ -2842,8 +2845,7 @@ public class ScriptManagerImpl implements ScriptManager {
 					spawnMob(BossConstants.ZAKUM_CHAOS_ARM + i, pX, pY, false);
 				break;
 		}
-
-		chr.getOrCreateFieldByCurrentInstanceType(map).setProperty("zakum", 1);
+		chr.getOrCreateFieldByCurrentInstanceType(map).setProperty("zakum", 1); // todo make sure this is switched back when players leave
 	}
 
 	public void spawnBalrog(boolean easy) {
@@ -2895,5 +2897,75 @@ public class ScriptManagerImpl implements ScriptManager {
 		} catch (Exception e) {
 			return false;
 		}
+	}
+
+	/**
+	 * ObjectID variable gets passed to script in constructor but is not accessible in this class.
+	 * This function solves that.
+	 * Doesn't work with map scripts.
+	 *
+	 * @return the map object ID of the script owner instance.
+	 */
+	public int getObjectID() {
+		return objectID;
+	}
+	public int getObjectPositionX() {
+		return chr.getField().getLifeByObjectID(getObjectID()).getX();
+	}
+
+	public int getObjectPositionY() {
+		return chr.getField().getLifeByObjectID(getObjectID()).getY();
+	}
+
+	public void setDisableDropsInMap(int fieldId, boolean onoff) {
+		Field map = chr.getOrCreateFieldByCurrentInstanceType(fieldId);
+		map.setDropsDisabled(onoff);
+	}
+
+	public void sendAutoEventClock() {
+		try {
+			InGameEventManager.getInstance().getActiveEvent().sendLobbyClock(chr);
+			if (isRouletteActive()) {
+				showEffect("Effect/BasicEff.img/Event1/roulette");
+			}
+
+		} catch (Exception ex) {
+			// no active event
+		}
+	}
+
+	public boolean isRouletteActive() {
+		return InGameEventManager.getInstance().getActiveEvent() instanceof RussianRouletteEvent;
+	}
+
+	public boolean isPinkZakumActive() {
+		return InGameEventManager.getInstance().getActiveEvent() instanceof PinkZakumEvent;
+	}
+
+	public void returnPinkZakum() {
+		InGameEvent e = InGameEventManager.getInstance().getActiveEvent();
+
+		int warpMap = e instanceof PinkZakumEvent
+				? PinkZakumEvent.BATTLE_MAP
+				: chr.getPreviousFieldID();
+
+		chr.warp(warpMap, 0, false);
+	}
+
+	public boolean isPinkZakumOpen() {
+		return isPinkZakumActive() && InGameEventManager.getInstance().getOpenEvent() instanceof PinkZakumEvent;
+	}
+
+	public int getPreviousFieldID() {
+		return chr.getPreviousFieldID();
+	}
+
+	public boolean isPinkZakumWinner() {
+		PinkZakumEvent pze = ((PinkZakumEvent)InGameEventManager.getInstance().getEvent(InGameEventType.PinkZakumBattle));
+		return pze.isWinner(chr) && !pze.getWinnerRewarded(chr);
+	}
+
+	public int getPreviousPortalID() {
+		return chr.getPreviousPortalID();
 	}
 }

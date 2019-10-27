@@ -5,6 +5,7 @@ import net.swordie.ms.client.Account;
 import net.swordie.ms.client.Client;
 import net.swordie.ms.client.character.Char;
 import net.swordie.ms.connection.OutPacket;
+import net.swordie.ms.life.Life;
 import net.swordie.ms.loaders.FieldData;
 import net.swordie.ms.util.Util;
 import net.swordie.ms.util.container.Tuple;
@@ -171,6 +172,22 @@ public class Channel {
             }
         }
         getFields().removeAll(toRemove);
+    }
 
+    public void destroyField(int mapId) {
+        for (Field field : getFields()) {
+            if (field.getId() == mapId) {
+                for (Char c : field.getChars()) {
+                    c.warp(1000000000); // ideally we check to make sure we warp people out before calling this function...
+                }
+
+                for (Life l : field.getLifes().values()) {
+                    field.removeLife(l);
+                }
+
+                fields.remove(field);
+                break;
+            }
+        }
     }
 }

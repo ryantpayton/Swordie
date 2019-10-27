@@ -90,6 +90,7 @@ public class Field {
     private int channel;
     private Map<String, Object> properties;
     private boolean changeToChannelOnLeave;
+    private boolean dropsdisabled;
 
     public Field(int fieldID) {
         this.id = fieldID;
@@ -103,6 +104,7 @@ public class Field {
         this.directionInfo = new HashMap<>();
         this.fixedMobCapacity = GameConstants.DEFAULT_FIELD_MOB_CAPACITY; // default
         this.properties = new HashMap<>();
+        dropsdisabled = false;
     }
 
     public void startFieldScript() {
@@ -111,6 +113,14 @@ public class Field {
             log.debug(String.format("Starting field script %s.", script));
             scriptManagerImpl.startScript(getId(), script, ScriptType.Field);
         }
+    }
+
+    public void setDropsDisabled(boolean val) {
+        dropsdisabled = val;
+    }
+
+    public boolean getDropsDisabled() {
+        return dropsdisabled;
     }
 
     public Rect getRect() {

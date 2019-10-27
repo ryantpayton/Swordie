@@ -60,6 +60,13 @@ public class InventoryHandler {
                 chr.dispose();
                 return;
             }
+
+            if (field.getDropsDisabled()) {
+                chr.chatMessage("Drops are currently disabled in this map.");
+                chr.dispose();
+                return;
+            }
+
             boolean fullDrop;
             Drop drop;
             if (!item.getInvType().isStackable() || quantity >= item.getQuantity() ||

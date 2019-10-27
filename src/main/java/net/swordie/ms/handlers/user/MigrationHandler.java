@@ -24,6 +24,7 @@ import net.swordie.ms.life.npc.Npc;
 import net.swordie.ms.loaders.NpcData;
 import net.swordie.ms.scripts.ScriptType;
 import net.swordie.ms.util.container.Tuple;
+import net.swordie.ms.world.event.InGameEventManager;
 import net.swordie.ms.world.field.Field;
 import net.swordie.ms.world.field.FieldInstanceType;
 import net.swordie.ms.world.field.Portal;
@@ -148,11 +149,23 @@ public class MigrationHandler {
                 chr.warp(toField, toPortal);
             }
         } else if (chr.getHP() <= 0) {
+
+            if (InGameEventManager.getInstance().charInEventMap(chr.getId())) {
+                InGameEventManager.getInstance().getActiveEvent().onMigrateDeath(chr);
+                chr.heal(chr.getMaxHP());
+                chr.healMP(chr.getMaxMP());
+                return;
+            }
+
             // Character is dead, respawn request
             inPacket.decodeByte(); // always 0
             byte tarfield = inPacket.decodeByte(); // ?
             byte reviveType = inPacket.decodeByte();
-            int returnMap = chr.getField().getReturnMap();
+
+            int returnMap = chr.getField().getReturnMap() == 999999999
+                    ? chr.getPreviousFieldID()
+                    : chr.getField().getReturnMap();
+
             switch (reviveType) {
                 // so far only got 0?
             }
@@ -168,38 +181,39 @@ public class MigrationHandler {
                 }
                 chr.warp(chr.getOrCreateFieldByCurrentInstanceType(returnMap));
 
-            } else {
-                if (chr.getInstance() != null) {
-                    chr.getInstance().removeChar(chr);
-                } else {
-                    if (chr.getTransferField() == targetField && chr.getTransferFieldReq() == chr.getField().getId()) {
-                        Field toField = chr.getOrCreateFieldByCurrentInstanceType(chr.getTransferField());
-                        if (toField != null && chr.getTransferField() > 0) {
-                            chr.warp(toField);
-                        }
-                        chr.setTransferField(0);
-                        return;
-                    } else {
-                        chr.warp(chr.getOrCreateFieldByCurrentInstanceType(chr.getField().getForcedReturn()));
-                    }
-                }
-            }
-            chr.heal(chr.getMaxHP());
-            chr.setBuffProtector(false);
-        } else {
-            if (chr.getTransferField() == targetField && chr.getTransferFieldReq() == chr.getField().getId()) {
+            } else if (chr.getInstance() != null) {
+                chr.getInstance().removeChar(chr);
+            } else if (chr.getTransferField() == targetField && chr.getTransferFieldReq() == chr.getField().getId()) {
                 Field toField = chr.getOrCreateFieldByCurrentInstanceType(chr.getTransferField());
                 if (toField != null && chr.getTransferField() > 0) {
                     chr.warp(toField);
                 }
                 chr.setTransferField(0);
+                return;
+            } else {
+                chr.warp(chr.getOrCreateFieldByCurrentInstanceType(chr.getField().getForcedReturn()));
             }
+            chr.heal(chr.getMaxHP());
+            chr.setBuffProtector(false);
+        } else if (chr.getTransferField() == targetField && chr.getTransferFieldReq() == chr.getField().getId()) {
+
+            Field toField = chr.getOrCreateFieldByCurrentInstanceType(chr.getTransferField());
+            if (toField != null && chr.getTransferField() > 0) {
+                chr.warp(toField);
+            }
+            chr.setTransferField(0);
         }
     }
 
     @Handler(op = InHeader.USER_PORTAL_SCRIPT_REQUEST)
     public static void handleUserPortalScriptRequest(Client c, InPacket inPacket) {
         Char chr = c.getChr();
+
+        if (chr.getHP() <= 0) {
+            chr.dispose();
+            return;
+        }
+
         byte portalID = inPacket.decodeByte();
         String portalName = inPacket.decodeString();
         Portal portal = chr.getField().getPortalByName(portalName);
@@ -222,6 +236,12 @@ public class MigrationHandler {
             chr.chatMessage("Could not find that world.");
             return;
         }
+
+        if (chr.getHP() <= 0) {
+            chr.dispose();
+            return;
+        }
+
         Field field = chr.getField();
         if ((field.getFieldLimit() & FieldOption.MigrateLimit.getVal()) > 0
                 || channelId < 1 || channelId > c.getWorld().getChannels().size()) {
@@ -240,6 +260,12 @@ public class MigrationHandler {
             chr.dispose();
             return;
         }
+
+        if (chr.getHP() <= 0) {
+            chr.dispose();
+            return;
+        }
+
         chr.punishLieDetectorEvasion();
         CashShop cs = Server.getInstance().getCashShop();
         c.write(Stage.setCashShop(chr, cs));
@@ -352,6 +378,11 @@ public class MigrationHandler {
     public static void handleEnterTownPortalRequest(Char chr, InPacket inPacket) {
         int chrId = inPacket.decodeInt(); // Char id
         boolean town = inPacket.decodeByte() != 0;
+
+        if (chr.getHP() <= 0) {
+            chr.dispose();
+            return;
+        }
 
         Field field = chr.getField();
         TownPortal townPortal = field.getTownPortalByChrId(chrId);
