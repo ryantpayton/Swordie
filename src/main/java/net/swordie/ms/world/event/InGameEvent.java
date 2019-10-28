@@ -7,6 +7,8 @@ public interface InGameEvent {
 
     String getEventName();
     void doEvent();
+    void endEvent();
+    void clear();
     void joinEvent(Char c);
     void sendLobbyClock(Char c);
     boolean isActive();
@@ -15,5 +17,4 @@ public interface InGameEvent {
     int getEventEntryMap();
     boolean charInEvent(int charId);
     void onMigrateDeath(Char c);
-    void clear();
 }

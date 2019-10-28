@@ -71,13 +71,15 @@ public class PinkZakumEvent implements InGameEvent {
             sendNotice(BATTLE_MAP, "The Zakum will spawn in five seconds!", 5);
             startTimer = EventManager.addEvent(this::spawnZakum, 5, TimeUnit.SECONDS);
             endTimer = EventManager.addEvent(this::endEvent, TIME_LIMIT_SECONDS, TimeUnit.SECONDS);
-        } else
+        } else {
             endEvent();
+        }
     }
 
     private void spawnZakum() {
-        if (startTimer != null)
+        if (startTimer != null) {
             startTimer.cancel(true);
+        }
 
         Field field = channelInstance.getField(689013000);
         if (field.getChars().size() <= 0) {
@@ -89,18 +91,21 @@ public class PinkZakumEvent implements InGameEvent {
         int pX = -5, pY = 329, pZakBody = 9400900, pZakArm = 9400903;
 
         field.spawnMob(pZakBody, pX, pY, false, 0);
-        for (int i = 0; i < 8; i++)
+        for (int i = 0; i < 8; i++) {
             field.spawnMob(pZakArm + i, pX, pY, false, 0);
+        }
     }
 
     public void win() {
         startTimer = EventManager.addEvent(this::endEvent, 5, TimeUnit.SECONDS);
 
-        for(Char c : channelInstance.getField(BATTLE_MAP).getChars())
+        for(Char c : channelInstance.getField(BATTLE_MAP).getChars()) {
             winners.put(c.getId(), false);
+        }
     }
 
-    private void endEvent() {
+    @Override
+    public void endEvent() {
         active = false;
         started = false;
         startTimer = null;
@@ -116,6 +121,7 @@ public class PinkZakumEvent implements InGameEvent {
         channelInstance.getField(WARPOUT_MAP).broadcastPacket(FieldPacket.clock(ClockPacket.removeClock()));
     }
 
+    @Override
     public void clear() {
         Field field = channelInstance.getFieldIfExists(BATTLE_MAP);
 
@@ -204,36 +210,40 @@ public class PinkZakumEvent implements InGameEvent {
 
     @Override
     public boolean charInEvent(int charId) {
-        if (!active)
+        if (!active) {
             return false;
+        }
 
         int map = started ? BATTLE_MAP : LOBBY_MAP;
-        for (Char c : channelInstance.getField(map).getChars())
-            if (c.getId() == charId)
+        for (Char c : channelInstance.getField(map).getChars()) {
+            if (c.getId() == charId) {
                 return true;
+            }
+        }
 
         return false;
     }
 
     @Override
     public void onMigrateDeath(Char c) {
-        if (isActive())
-            c.warp(REENTRY_MAP, 0, false); // todo figure out the correct portal
-        else
+        if (isActive()) {
+            c.warp(REENTRY_MAP, 1, false);
+        } else {
             c.warp(WARPOUT_MAP, 0, false);
-    }
-
-    public boolean isWinner(Char c) {
-        try {
-            return winners.containsKey(c.getId());
-        } catch (NullPointerException npe) {
-            return false; // idk why this happens
         }
     }
 
+    public boolean isWinner(Char c) {
+        if (winners == null) {
+            winners = new HashMap<>();
+        }
+        return winners.containsKey(c.getId());
+    }
+
     public void setWinnerRewarded(Char c) {
-        if (isWinner(c))
+        if (isWinner(c)) {
             winners.replace(c.getId(), true);
+        }
     }
 
     public boolean getWinnerRewarded(Char c) {

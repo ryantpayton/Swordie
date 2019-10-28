@@ -43,6 +43,10 @@ public class InGameEventManager {
 
     public void forceNextEvent() { // for testing only, this should not be used in prod
         if (ServerConfig.DEBUG_MODE) {
+            InGameEvent curEvent = getActiveEvent();
+            if (curEvent != null) {
+                curEvent.endEvent();
+            }
             doEvent();
         } // else notify character that server is in prod
     }
@@ -74,18 +78,18 @@ public class InGameEventManager {
 
     public InGameEvent getOpenEvent() {
         InGameEvent e = null;
-        for (InGameEvent ige : events.values()) {
-            if (ige.isOpen())
+        for (InGameEvent ige : events.values())
+            if (ige.isOpen()) {
                 e = ige;
-        }
+            }
         return e;
     }
 
     public InGameEvent getActiveEvent() {
-        for (InGameEvent ige : events.values()) {
-            if (ige.isActive())
+        for (InGameEvent ige : events.values())
+            if (ige.isActive()) {
                 return ige;
-        }
+            }
         return null;
     }
 

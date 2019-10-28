@@ -368,8 +368,6 @@ public class LoginHandler {
 
     @Handler(op = InHeader.CHANGE_PIC_REQUEST)
     public static void handleChangePicRequest(Client c, InPacket inPacket) {
-        // from 111111 to 000000
-        // CHANGE_PIC_REQUEST, 170/0xAA	| [06 00 31 31 31 31 31 31] [06 00 30 30 30 30 30 30]
         String currentPic = inPacket.decodeString();
 
         if (BCrypt.checkpw(currentPic, c.getUser().getPic())) {

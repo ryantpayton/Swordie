@@ -77,8 +77,9 @@ public class RussianRouletteEvent implements InGameEvent {
             sendNotice("Get in position!", ROUND_LENGTH_SECONDS);
             broadcastClock(ROUND_LENGTH_SECONDS);
             killTimer = EventManager.addEvent(this::broadcastCountdownEffect, ROUND_LENGTH_SECONDS - 3, TimeUnit.SECONDS);
-        } else
+        } else {
             endEvent();
+        }
     }
 
     private void broadcastCountdownEffect() {
@@ -89,9 +90,9 @@ public class RussianRouletteEvent implements InGameEvent {
     private void executeRound() {
         killCharsInRect();
 
-        if (currentRound >= TOTAL_ROUNDS)
+        if (currentRound >= TOTAL_ROUNDS) {
             endEvent();
-        else {
+        } else {
             channelInstance.getField(EVENT_MAP).broadcastPacket(FieldPacket.clock(ClockPacket.removeClock()));
             startTimer = EventManager.addEvent(this::resetRound, 3, TimeUnit.SECONDS);
         }
@@ -104,9 +105,9 @@ public class RussianRouletteEvent implements InGameEvent {
     }
 
     private void killCharsInRect() {
-        if (channelInstance.getField(EVENT_MAP).getChars().size() <= 0)
+        if (channelInstance.getField(EVENT_MAP).getChars().size() <= 0) {
             endEvent();
-        else {
+        } else {
             int[] randDomain = SECTIONS[Util.getRandom(2)]; // holds two X values
 
             // y-axis is inverted for some reason
@@ -116,11 +117,13 @@ public class RussianRouletteEvent implements InGameEvent {
             for (Char c : channelInstance.getField(EVENT_MAP).getChars()) {
                 c.chatMessage(ChatType.Mob, "X: " + c.getPosition().getX() + " Y: " + c.getPosition().getY());
                 // range
-                if (c.getPosition().getY() <= UPPER_BOUNDARY || c.getPosition().getY() >= LOWER_BOUNDARY)
+                if (c.getPosition().getY() <= UPPER_BOUNDARY || c.getPosition().getY() >= LOWER_BOUNDARY) {
                     c.damage(c.getMaxHP());
+                }
                 // domain
-                if (c.getPosition().getX() >= randDomain[0] && c.getPosition().getX() <= randDomain[1])
+                if (c.getPosition().getX() >= randDomain[0] && c.getPosition().getX() <= randDomain[1]) {
                     c.damage(c.getMaxHP());
+                }
             }
 
             List<Char> deadChars = new ArrayList<>();
@@ -135,7 +138,8 @@ public class RussianRouletteEvent implements InGameEvent {
         }
     }
 
-    private void endEvent() {
+    @Override
+    public void endEvent() {
         active = false;
         started = false;
         startTimer = null;
@@ -145,13 +149,15 @@ public class RussianRouletteEvent implements InGameEvent {
         }
     }
 
+    @Override
     public void clear() {
         // unused rn
     }
 
     private void warpOut(List<Char> charList) {
-        for (Char c : charList)
+        for (Char c : charList) {
             warpOut(c);
+        }
     }
 
     private void warpOut(Char c) {
@@ -215,12 +221,15 @@ public class RussianRouletteEvent implements InGameEvent {
 
     @Override
     public boolean charInEvent(int charId) {
-        if (!active)
+        if (!active) {
             return false;
+        }
 
-        for (Char c : channelInstance.getField(EVENT_MAP).getChars())
-            if (c.getId() == charId)
+        for (Char c : channelInstance.getField(EVENT_MAP).getChars()) {
+            if (c.getId() == charId) {
                 return true;
+            }
+        }
         return false;
     }
 

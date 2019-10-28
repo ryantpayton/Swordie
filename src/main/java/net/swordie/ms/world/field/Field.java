@@ -930,7 +930,7 @@ public class Field {
     public void drop(Drop drop, Position posFrom, Position posTo) {
         drop(drop, posFrom, posTo, false);
     }
-    
+
     /**
      * Drops an item to this map, given a {@link Drop}, a starting Position and an ending Position.
      * Immediately broadcasts the drop packet.
@@ -1221,8 +1221,8 @@ public class Field {
             return;
         }
 
-        for (int i : GameConstants.BLOCKED_RUNE_MAPS) {
-            if (getId() == i) {
+        for (int i = 0; i < GameConstants.BLOCKED_RUNE_MAPS.length; i++) {
+            if (getId() == GameConstants.BLOCKED_RUNE_MAPS[i]) {
                 return;
             }
         }
