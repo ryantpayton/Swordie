@@ -126,9 +126,16 @@ public class MigrationHandler {
             c.getChannelInstance().addClientInTransfer(c.getChannel(), chr.getId(), c);
             c.write(ClientSocket.migrateCommand(true, (short) c.getChannelInstance().getPort()));
             return;
-        }
+    }
         byte fieldKey = inPacket.decodeByte();
         int targetField = inPacket.decodeInt();
+        if (targetField == 106020100 || targetField == 106020400) {
+            // same issue as below, its in mushroom kingdom so maybe the maps are just outdated or w/e
+            targetField = 106020403;
+        } else if (targetField == 106020402) {
+            // warping from portal in 106020403 is unable to find defined portal (not a scripted portal)
+            targetField = 106020000;
+        }
         int x = inPacket.decodeShort();
         int y = inPacket.decodeShort();
         String portalName = inPacket.decodeString();
@@ -149,7 +156,6 @@ public class MigrationHandler {
                 chr.warp(toField, toPortal);
             }
         } else if (chr.getHP() <= 0) {
-
             if (InGameEventManager.getInstance().charInEventMap(chr.getId())) {
                 InGameEventManager.getInstance().getActiveEvent().onMigrateDeath(chr);
                 chr.heal(chr.getMaxHP());
@@ -179,7 +185,10 @@ public class MigrationHandler {
                     chr.setDeathCount(deathcount);
                     chr.write(UserLocal.deathCountInfo(deathcount));
                 }
-                chr.warp(chr.getOrCreateFieldByCurrentInstanceType(returnMap));
+                chr.setNearestReturnPortal(); // attempt to respawn them where they died.. maybe portal 0 is better tho?
+                chr.warp(chr.getFieldID(), chr.getPreviousPortalID(), false);
+                chr.healHPMP();
+                return;
 
             } else if (chr.getInstance() != null) {
                 chr.getInstance().removeChar(chr);
@@ -193,7 +202,7 @@ public class MigrationHandler {
             } else {
                 chr.warp(chr.getOrCreateFieldByCurrentInstanceType(chr.getField().getForcedReturn()));
             }
-            chr.heal(chr.getMaxHP());
+            chr.healHPMP();
             chr.setBuffProtector(false);
         } else if (chr.getTransferField() == targetField && chr.getTransferFieldReq() == chr.getField().getId()) {
 

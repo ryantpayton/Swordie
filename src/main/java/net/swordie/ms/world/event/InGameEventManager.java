@@ -15,13 +15,14 @@ import net.swordie.ms.world.field.Field;
 import java.util.*;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
+import java.util.function.Supplier;
 
 public class InGameEventManager {
 
     private static InGameEventManager instance = new InGameEventManager();
     public static final int REGISTRATION_DURATION_MINS = ServerConfig.DEBUG_MODE ? 1 : 5; // devs want fast
 
-    private List<InGameEvent> events = new ArrayList<>();
+    private HashMap<InGameEventType, InGameEvent> events = new HashMap<>();
     private ScheduledFuture schedule;
     private ScheduledFuture reminderTimer;
     private InGameEventType previousEvent;
@@ -32,8 +33,8 @@ public class InGameEventManager {
     }
 
     public InGameEventManager() {
-        events.add(new RussianRouletteEvent());
-        events.add(new PinkZakumEvent());
+        events.put(InGameEventType.RussianRoulette, new RussianRouletteEvent());
+        events.put(InGameEventType.PinkZakumBattle, new PinkZakumEvent());
         // more to come...
 
         if (!ServerConfig.DEBUG_MODE)
@@ -47,15 +48,13 @@ public class InGameEventManager {
     }
 
     private void doEvent() {
-        clearForNextEvent(previousEvent);
-
-        InGameEvent event = events.stream()
-                .filter(e -> e.getEventType() != previousEvent)
-                .findFirst()
-                .orElse(events.get(0)); // this check ensure that even if theres only 1 total event it will select one
+        InGameEvent event = events.entrySet().stream()
+                .filter(e -> e.getValue().getEventType() != previousEvent)
+                .findFirst().get().getValue();
 
         previousEvent = event.getEventType();
 
+        event.clear(); // reset map info for next run
         if (!ServerConfig.DEBUG_MODE) {
             reminderTimer = EventManager.addFixedRateEvent(this::sendReminder, 30, 60, TimeUnit.SECONDS);
         }
@@ -65,27 +64,17 @@ public class InGameEventManager {
         event.doEvent();
     }
 
-
-    private void clearForNextEvent(InGameEventType type) {
-        InGameEvent ige = getEvent(type);
-        if (ige == null) {
-            return;
-        }
-
-        ige.clear();
-    }
-
     private void sendReminder() {
         Server.getInstance().getWorldById(ServerConfig.WORLD_ID)
                 .broadcastPacket(WvsContext.broadcastMsg(BroadcastMsg.notice(getActiveEvent().getEventName() + " event registration is currently open and will begin soon!")));
         remindersSent += 1;
-        if (remindersSent >= 4)
+        if (remindersSent >= 4) // = 5 minutes
             reminderTimer.cancel(true);
     }
 
     public InGameEvent getOpenEvent() {
         InGameEvent e = null;
-        for (InGameEvent ige : events) {
+        for (InGameEvent ige : events.values()) {
             if (ige.isOpen())
                 e = ige;
         }
@@ -93,12 +82,11 @@ public class InGameEventManager {
     }
 
     public InGameEvent getActiveEvent() {
-        InGameEvent e = null;
-        for (InGameEvent ige : events) {
+        for (InGameEvent ige : events.values()) {
             if (ige.isActive())
                 return ige;
         }
-        return e;
+        return null;
     }
 
     public void joinPublicEvent(Char c) {
@@ -114,9 +102,12 @@ public class InGameEventManager {
     }
 
     public InGameEvent getEvent(InGameEventType type) {
-        return events.stream()
-                .filter(c -> c.getEventType() == type)
-                .findFirst().orElseGet(null); // it cannot return null since we put two events in in in the constructor
+        for (InGameEvent ige : events.values()) {
+            if (ige.getEventType() == type) {
+                return ige;
+            }
+        }
+        return null; // shouldnt reach this point
     }
 
     public boolean charInEventMap(int charId) {

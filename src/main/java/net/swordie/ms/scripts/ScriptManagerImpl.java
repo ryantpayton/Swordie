@@ -1057,7 +1057,7 @@ public class ScriptManagerImpl implements ScriptManager {
 			if (instance == null) {
 				// no info, just warp them
 				chr.setDeathCount(-1);
-				chr.warp(fieldId, portalId);
+				chr.warp(fieldId, portalId, false);
 			} else {
 				// remove chr from eligible instance members
 				int forcedReturn;
@@ -1072,9 +1072,9 @@ public class ScriptManagerImpl implements ScriptManager {
 				instance.removeChar(chr);
 				chr.setDeathCount(-1);
 				if (forcedReturnPortal >= 0) {
-					chr.warp(forcedReturn, forcedReturnPortal);
+					chr.warp(forcedReturn, forcedReturnPortal, false);
 				} else {
-					chr.warp(forcedReturn);
+					chr.warp(forcedReturn, 0, false);
 				}
 				// if eligible members' size is 0, clear the instance
 				if (instance.getChars().size() == 0) {
@@ -2967,5 +2967,21 @@ public class ScriptManagerImpl implements ScriptManager {
 
 	public int getPreviousPortalID() {
 		return chr.getPreviousPortalID();
+	}
+
+	public boolean canWarpSilentCrusade(int targetFieldId) {
+		return chr.getClient().getChannelInstance().tryEnterSilentCrusadePortal(chr, targetFieldId, chr.getClient().getChannelInstance().getChannelId());
+	}
+
+	public boolean canWarpAreaBoss(int targetFieldId) {
+		return chr.getClient().getChannelInstance().canWarpAreaBoss(chr, targetFieldId, chr.getClient().getChannelInstance().getChannelId());
+	}
+
+	public void trySpawnAreaBoss() {
+		chr.getClient().getChannelInstance().trySpawnAreaBoss(chr, getFieldID(), chr.getClient().getChannelInstance().getChannelId());
+	}
+
+	public void overrideAreaBossTimer(int targetFieldId) {
+		chr.getClient().getChannelInstance().overrideAreaBossTimer(targetFieldId, chr.getClient().getChannelInstance().getChannelId());
 	}
 }

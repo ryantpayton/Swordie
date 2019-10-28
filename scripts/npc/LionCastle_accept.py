@@ -17,7 +17,7 @@ elif sm.isPartyLeader():
 	selection = sm.sendNext("#e<Boss:Von Leon>#n \r\n Select a mode. \r\n \r\n"
 							"#L0#Easy(Level 125+) #l \r\n"
 							"#L1#Normal (Level 130+) #l \r\n")
-	sm.warpInstanceIn(maps[selection], True)
+	sm.warpInstanceIn(maps[selection], 3, True)
 	sm.setInstanceTime(BossConstants.VON_LEON_TIME, WARP_OUT, 2)
 else:
 	sm.sendSayOkay("Please have your party leader speak to me.")

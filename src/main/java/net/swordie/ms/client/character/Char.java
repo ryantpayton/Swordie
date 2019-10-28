@@ -2478,6 +2478,28 @@ public class Char {
 	}
 
 	/**
+	 * Sets the return portal to the nearest current portal.
+	 */
+	public void setNearestReturnPortal() {
+		Rect rect = new Rect(
+				new Position(
+						getPosition().getX() - 30,
+						getPosition().getY() - 30),
+				new Position(
+						getPosition().getX() + 50, // wide girth
+						getPosition().getY() + 50)
+		);
+
+		List<Portal> portals = getField().getClosestPortal(rect);
+
+		if (portals.size() > 0) {
+			setPreviousPortalID(portals.get(0).getId());
+		} else {
+			setPreviousPortalID(0);
+		}
+	}
+
+	/**
 	 * Warps this character to a given field, at a given portal.
 	 * Ensures that the previous map does not contain this Char anymore, and that the new field
 	 * does.
@@ -2499,22 +2521,7 @@ public class Char {
 		if (currentField != null) {
 			if (saveReturnMap) {
 				setPreviousFieldID(currentField.getId()); // this may be a bad idea in some cases? idk
-
-				Rect rect = new Rect(
-						new Position(
-								getPosition().getX() - 30,
-								getPosition().getY() - 30),
-						new Position(
-								getPosition().getX() + 50, // wide girth
-								getPosition().getY() + 50)
-				);
-
-				List<Portal> portals = getField().getClosestPortal(rect);
-
-				if (portals.size() > 0)
-					setPreviousPortalID(portals.get(0).getId());
-				else
-					setPreviousPortalID(0);
+				setNearestReturnPortal();
 			}
 			currentField.removeChar(this);
 		}
@@ -2970,6 +2977,14 @@ public class Char {
 	 */
 	public int getMaxMP() {
 		return getTotalStat(BaseStat.mmp);
+	}
+
+	/**
+	 * Heals character's MP and HP completely.
+	 */
+	public void healHPMP() {
+		heal(getMaxHP());
+		healMP(getMaxMP());
 	}
 
 	/**

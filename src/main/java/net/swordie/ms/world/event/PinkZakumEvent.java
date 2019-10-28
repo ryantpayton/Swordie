@@ -37,10 +37,15 @@ public class PinkZakumEvent implements InGameEvent {
     private ScheduledFuture endTimer;
     private Channel channelInstance;
     private Map<Integer, Boolean> winners = new HashMap<>();
+    private final int eventNpc = 9000155; // dizzy the roulette event administrator
 
     @Override
     public String getEventName() {
         return "Pink Zakum";
+    }
+
+    public PinkZakumEvent() {
+        channelInstance = Server.getInstance().getWorlds().get(0).getChannels().get(0);
     }
 
     @Override
@@ -112,10 +117,16 @@ public class PinkZakumEvent implements InGameEvent {
     }
 
     public void clear() {
+        Field field = channelInstance.getFieldIfExists(BATTLE_MAP);
+
+        if (field == null) {
+            return; // nothing to clear
+        }
+
         warpMap(BATTLE_MAP, WARPOUT_MAP);
 
-        for (Drop d : channelInstance.getField(BATTLE_MAP).getDrops()) {
-            channelInstance.getField(BATTLE_MAP).removeLife(d);
+        for (Drop d : field.getDrops()) {
+            field.removeLife(d);
         }
 
         channelInstance.clearCache();
