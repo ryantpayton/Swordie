@@ -56,7 +56,7 @@ public class Instance {
      */
     public void reEnter(Char chr) {
         if (canReEnter(chr)) {
-            chr.warp(getEnterFieldId(), getEnterPortalId());
+            chr.warp(getEnterFieldId(), getEnterPortalId(), false);
         }
     }
 
@@ -88,7 +88,7 @@ public class Instance {
         }
         for (Char chr : getChars()) {
             chr.setInstance(this);
-            chr.warp(fieldId, portalId);
+            chr.warp(fieldId, portalId, false);
         }
         setEnterFieldId(fieldId);
         setEnterPortalId(portalId);

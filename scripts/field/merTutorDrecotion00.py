@@ -1,4 +1,8 @@
-# Strange Space : Darkness | 4000000
+# Black Road | After the Battle
+# Field ID: 910150000
+
+sm.heal() # has less than full hp/mp at start for some reason
+
 if sm.sendAskYesNo("Would you like to skip the introduction?"):
     sm.startQuestNoCheck(24005)
     sm.warp(101050010)

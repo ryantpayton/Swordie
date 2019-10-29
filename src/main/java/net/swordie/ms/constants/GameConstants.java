@@ -10,6 +10,7 @@ import net.swordie.ms.util.FileTime;
 import net.swordie.ms.util.Rect;
 import net.swordie.ms.util.Util;
 import net.swordie.ms.util.container.Triple;
+import net.swordie.ms.world.event.PinkZakumEvent;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -85,6 +86,9 @@ public class GameConstants {
     public static final int RUNE_COOLDOWN_TIME = 4; // minutes
     public static final int THUNDER_RUNE_ATTACK_DELAY = 4; // seconds
     public static final int DARKNESS_RUNE_NUMBER_OF_ELITE_MOBS_SPAWNED = 3; // number of elites spawned when activating Rune of Darkness
+    public static final int[] BLOCKED_RUNE_MAPS = { // map ids where runes will not be spawned
+            689013000  // pink zakum battle map
+    };
 
     // BurningField
     public static final int BURNING_FIELD_MAX_LEVEL = 10; //Maximum Burning Field Level
@@ -195,8 +199,9 @@ public class GameConstants {
     public static final int MAX_MERCHANT_SLOTS = 16;
 
     //Inventory
-
     public static final int MAX_INVENTORY_SLOTS = 128;
+
+    public static final int SILENT_CRUSADE_BOSS_COOLDOWN = 240; // minutes between silent crusade attempts (240 min = 4 hours)
 
     // Starforce
     private static final int STARFORCE_LEVELS[][] = {

@@ -1,6 +1,7 @@
 package net.swordie.ms.client.character;
 
 import net.swordie.ms.Server;
+import net.swordie.ms.ServerConfig;
 import net.swordie.ms.client.Account;
 import net.swordie.ms.client.Client;
 import net.swordie.ms.client.LinkSkill;
@@ -203,6 +204,9 @@ public class Char {
 
 	private int partyID = 0; // Just for DB purposes
 	private int previousFieldID;
+
+	@Transient
+	private int previousPortalID; // not super important so we wont save to db
 
 	@ElementCollection(fetch = FetchType.EAGER)
 	@CollectionTable(name = "skillcooltimes", joinColumns = @JoinColumn(name = "charID"))
@@ -2195,6 +2199,16 @@ public class Char {
 		getClient().write(UserLocal.chatMsg(clr, msg));
 	}
 
+    /**
+     * Sends a message to the character if the debug config flag is turned on.
+     *
+     * @param message message to send
+     */
+	public void dbgChatMsg(String message) {
+	    if (ServerConfig.DEBUG_MODE)
+	        chatMessage(message);
+    }
+
 	/**
 	 * Unequips an {@link Item}. Ensures that the hairEquips and both inventories get updated.
 	 *
@@ -2428,7 +2442,7 @@ public class Char {
 	 * @param toField The field to warp to.
 	 */
 	public void warp(Field toField) {
-		warp(toField, toField.getPortalByName("sp"), false);
+		warp(toField, toField.getPortalByName("sp"), false, true);
 	}
 
 	/**
@@ -2441,7 +2455,16 @@ public class Char {
 		if (toField == null) {
 			toField = getOrCreateFieldByCurrentInstanceType(100000000);
 		}
-		warp(toField, toField.getPortalByName("sp"), characterData);
+		warp(toField, toField.getPortalByName("sp"), characterData, true);
+	}
+
+	public void warp(int fieldId, int portalId, boolean saveReturnMap) {
+		Field field = getOrCreateFieldByCurrentInstanceType(fieldId);
+		Portal portal = field.getPortalByID(portalId);
+		if (portal == null) {
+			portal = field.getDefaultPortal();
+		}
+		warp(field, portal, false, saveReturnMap);
 	}
 
 	/**
@@ -2451,7 +2474,29 @@ public class Char {
 	 * @param toPortal The Portal to spawn at.
 	 */
 	public void warp(Field toField, Portal toPortal) {
-		warp(toField, toPortal, false);
+		warp(toField, toPortal, false, true);
+	}
+
+	/**
+	 * Sets the return portal to the nearest current portal.
+	 */
+	public void setNearestReturnPortal() {
+		Rect rect = new Rect(
+				new Position(
+						getPosition().getX() - 30,
+						getPosition().getY() - 30),
+				new Position(
+						getPosition().getX() + 50, // wide girth
+						getPosition().getY() + 50)
+		);
+
+		List<Portal> portals = getField().getClosestPortal(rect);
+
+		if (portals.size() > 0) {
+			setPreviousPortalID(portals.get(0).getId());
+		} else {
+			setPreviousPortalID(0);
+		}
 	}
 
 	/**
@@ -2463,7 +2508,7 @@ public class Char {
 	 * @param toField The {@link Field} to warp to.
 	 * @param portal  The {@link Portal} where to spawn at.
 	 */
-	public void warp(Field toField, Portal portal, boolean characterData) {
+	public void warp(Field toField, Portal portal, boolean characterData, boolean saveReturnMap) {
 		if (toField == null) {
 			return;
 		}
@@ -2472,9 +2517,15 @@ public class Char {
 			tsm.removeStatsBySkill(aa.getSkillID());
 		}
 		Field currentField = getField();
+
 		if (currentField != null) {
+			if (saveReturnMap) {
+				setPreviousFieldID(currentField.getId()); // this may be a bad idea in some cases? idk
+				setNearestReturnPortal();
+			}
 			currentField.removeChar(this);
 		}
+
 		setField(toField);
 		toField.addChar(this);
 		getAvatarData().getCharacterStat().setPortal(portal.getId());
@@ -2926,6 +2977,14 @@ public class Char {
 	 */
 	public int getMaxMP() {
 		return getTotalStat(BaseStat.mmp);
+	}
+
+	/**
+	 * Heals character's MP and HP completely.
+	 */
+	public void healHPMP() {
+		heal(getMaxHP());
+		healMP(getMaxMP());
 	}
 
 	/**
@@ -4315,6 +4374,12 @@ public class Char {
 	public void setPreviousFieldID(int previousFieldID) {
 		this.previousFieldID = previousFieldID;
 	}
+
+	public int getPreviousPortalID() {
+		return previousPortalID;
+	}
+
+	public void setPreviousPortalID(int portalId) { previousPortalID = portalId; }
 
 	public long getNextRandomPortalTime() {
 		return nextRandomPortalTime;

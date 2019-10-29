@@ -114,6 +114,52 @@ public class BossConstants {
     public static final int GOLLUX_BREATH_ATTACK = 1;
     public static final int GOLLUX_DROP_STONE_CHANCE = 25;
 
+    // Balrog
+    public static final int BALROG_ENTRY_MAP = 105100100; // lobby map
+    public static final short BALROG_TIME_LIMIT = 20 * 60; // 20 min
+    public static final short BALROG_SPAWN_X = 412;
+    public static final short BALROG_SPAWN_Y = 258;
+
+    public static final int BALROG_EASY_DMGSINK = 8830010; // has the hp bar, dmg gets splashed to this from all the below mobs
+    public static final int BALROG_EASY_BODY = 8830007;
+    public static final int BALROG_EASY_LARM = 8830008;
+    public static final int BALROG_EASY_RARM = 8830009;
+    public static final int BALROG_EASY_BATTLE_MAP = 105100400;
+    public static final int BALROG_EASY_WIN_MAP = 105100401;
+
+    public static final int BALROG_HARD_DMGSINK = 8830003;
+    public static final int BALROG_HARD_BODY = 8830000;
+    public static final int BALROG_HARD_LARM = 8830001;
+    public static final int BALROG_HARD_RARM = 8830002;
+    public static final int BALROG_HARD_BATTLE_MAP = 105100300;
+    public static final int BALROG_HARD_WIN_MAP = 105100301;
+
+    // Zakum
+    public static final int ZAKUM_JQ_MAP_1 = 280020000; // first  stage of JQ
+    public static final int ZAKUM_JQ_MAP_2 = 280020001; // second and final stage of JQ
+    public static final int ZAKUM_DOOR_TO_ENTRANCE = 211042300; // jq warps to this corridor map, npc exists in this map that warps to entrances based on difficulty
+    public static final int ZAKUM_TIME_BASE = 15 * 60; // 15 min * difficulty (15 easy, 30 normal, 45 chaos)
+
+    public static final int ZAKUM_SPAWN_X = -54;
+    public static final int ZAKUM_SPAWN_Y = 86;
+
+    public static final int ZAKUM_EASY_SPAWN_ITEM = 4001796; // Eye of fire chunk
+    public static final int ZAKUM_EASY_ENTRANCE = 211042402;
+    public static final int ZAKUM_EASY_ALTAR = 280030200;
+    public static final int ZAKUM_EASY_BODY = 8800020;
+    public static final int ZAKUM_EASY_ARM = 8800023;
+
+    public static final int ZAKUM_HARD_SPAWN_ITEM = 4001017; // Eye of fire
+    public static final int ZAKUM_HARD_ENTRANCE = 211042400;
+    public static final int ZAKUM_HARD_ALTAR = 280030100;
+    public static final int ZAKUM_HARD_BODY = 8800000;
+    public static final int ZAKUM_HARD_ARM = 8800003;
+
+    public static final int ZAKUM_CHAOS_SPAWN_ITEM = 4001017; // Eye of fire
+    public static final int ZAKUM_CHAOS_ENTRANCE = 211042401;
+    public static final int ZAKUM_CHAOS_ALTAR = 280030000;
+    public static final int ZAKUM_CHAOS_BODY = 8800100;
+    public static final int ZAKUM_CHAOS_ARM = 8800103;
 
     // TODO More bosses to be noted down...
 }

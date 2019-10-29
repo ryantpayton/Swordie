@@ -8,7 +8,7 @@ import java.util.List;
  */
 public enum OutHeader {
 
-    // CLogin::OnPacket
+    // CLogin::OnPacket : v176 -> 00ADA117
     CHECK_PASSWORD_RESULT(0),
     WORLD_INFORMATION(1),
     LATEST_CONNECTED_WORLD(2),
@@ -356,12 +356,13 @@ public enum OutHeader {
 
     MACRO_SYS_DATA_INIT(427),
 
-    // CStage::OnPacket
+    // CStage::OnPacket : v176 -> 00E75B70
     SET_FIELD(428),
     SET_FARM_FIELD(429),
+    // sub_E759A0(430),
     SET_CASH_SHOP(431),
 
-    // CField::OnPacket (general)
+    // CField::OnPacket (general) : v176 -> 00844E10
     TRANSFER_FIELD_REQ_IGNORED(432),
     TRANSFER_CHANNEL_REQ_IGNORED(433),
     TRANSFER_PVP_REQ_IGNORED(434),
@@ -419,7 +420,7 @@ public enum OutHeader {
     ELITE_STATE(499),
     PLAY_SOUND(500),
     STACK_EVENT_GAUGE(501),
-    SET_UNIFIELD(502),
+    SET_UNION_FIELD(502),
     STAR_PLANET_BURNING_TIME_INFO(504),
     PUBLIC_SHARE_STATE(505),
     FUNCTION_TEMP_BLOCK(506),
@@ -433,7 +434,6 @@ public enum OutHeader {
     CREATE_MIRROR_IMAGE(514),
     FUNTION_FOOTHOLD_MAN(515),
 
-
     // CField_KillCount::OnPacket
     FIELD_KILL_COUNT(470),
 
@@ -441,7 +441,7 @@ public enum OutHeader {
     USER_ENTER_FIELD(516),
     USER_LEAVE_FIELD(517),
 
-    // CUserPool::OnCommonPacket
+    // CUserPool::OnCommonPacket : v176 -> 018566C0
     CHAT(518),
     AD_BOARD(519),
     MINI_ROOM_BALLOON(520),
@@ -458,7 +458,10 @@ public enum OutHeader {
     SHOW_ITEM_FIRE_WORKS_EFFEC(532),
     SHOW_ITEM_OPTION_CHANGE_EFFECT(533),
     RED_CUBE_RESULT(534),
-    DAMAGE_BY_USER(535),
+    HIT_BY_USER(535), // OnHitByUser -> KMST, verified v176 idb
+    DOT_BY_USER(536), // OnDotByUser
+    RESET_ALL_DOT(537), // OnResetAllDot
+    DAMAGE_BY_USER(538), // OnDamageByUser
     TESLA_TRIANGLE(539),
     FOLLOW_CHARACTER(540),
     SHOW_PQ_REWARD(541),
@@ -547,7 +550,7 @@ public enum OutHeader {
     FAMILIAR_TRANSFER_FIELD(627),
     FAMILIAR_UPDATE_INFO(628),
 
-    // CUserRemote::OnPacket
+    // CUserRemote::OnPacket : v176 -> 018548E0
     REMOTE_MOVE(633),
     REMOTE_MELEE_ATTACK(634),
     REMOTE_SHOOT_ATTACK(635),
@@ -853,7 +856,7 @@ public enum OutHeader {
     MINION_CHANGE_CONTROLLER(982),
     MINION_GEN_BEYOND_SPLIT(983),
 
-    // CNpcPool::OnPacket
+    // CNpcPool::OnPacket : v176 -> 00CB5250
     NPC_ENTER_FIELD(984),
     NPC_LEAVE_FIELD(985),
     NPC_ENTER_FIELD_FOR_QUICK_MOVE(986),
@@ -862,7 +865,7 @@ public enum OutHeader {
     NPC_UPDATE_LIMITED_DISABLE_INFO(153),
     SET_NPC_SCRIPT(1004),
 
-    // CNpcPool::OnNpcPacket
+    // CNpcPool::OnNpcPacket : v176 -> 00CB4BF0
     NPC_MOVE(988),
     NPC_UPDATE_LIMITED_INFO(989),
     NPC_SET_QUIZ_SCORE(990),
@@ -1060,17 +1063,6 @@ public enum OutHeader {
     ADMIN_SHOP_RESULT(1311),
     ADMIN_SHOP_COMMODITY(1312),
 
-//    // CField_Soul::OnPacket not sure
-//    SOUL_PIECE_CHANGE(1313),
-//    SOUL_ITEM_USE_VOTE_REQUEST(1314),
-//    SOUL_ITEM_USE_RESULT(1315),
-//    SOUL_ITEM_MAP_INFO(1316),
-//    SOUL_ITEM_MAP_CLOSE(1317),
-//    SOUL_ITEM_DATA_CHANGE(1318),
-//    SOUL_ITEM_VOTE_RESULT(1319),
-//    SOUL_DUNGEON_EFFECT(1320),
-//    SOUL_MINI_MAP_INFO(1321),
-
     // CField_GhostPark::OnPacket
     GHOST_PARK_RUNE_USE_ACK(1326),
     GHOST_PARK_RUNE_APPEAR(1327),
@@ -1079,6 +1071,7 @@ public enum OutHeader {
     GHOST_PARK_CURSE_LEVEL_EXP_RATE(1330),
     GHOST_PARK_HOMING_BULLET_CREATE(1331),
 
+    // CCashShop::Init : v176 -> 01A1B510
     // CCashShop::OnPacket
     CASH_SHOP(1340),
     CASH_SHOP_QUERY_CASH_RESULT(1341),
@@ -1137,6 +1130,134 @@ public enum OutHeader {
     SERVER_ON_CALC_REQUEST_RESULT(1475),
     AGGRO_MONITORING_INFO(1476),
     SKILL_DAMAGE_LOG(1477),
+
+    // CMonsterFarm::OnPacket : v176 -> 00C69BC6
+    FARM_UPDATE_INVENTORY(1496),
+    FARM_CONSOLE_MESSAGE(1497), // empty func in v176??
+    FARM_OBJECT_INTERACT(1498),
+    FARM_CONSUME_OBJECT(1499),
+    FARM_DICTIONARY_RESULT(1500),
+    FARM_UPDATE_BUY_OBJECT(1501),
+    FARM_UPDATE_SELL_OBJECT(1502),
+    FARM_COMBINE_RESULT(1503),
+    FARM_MONSTER_SEARCH_RESULT(1504), // in KMST redirects to CUIFarmMatching::OnPacket
+    FARM_VISIT_RESULT(1505),
+    FARM_UPDATE_NEWS_FEED(1506),
+    FARM_UPDATE_DICTIONARY(1507),
+    FARM_AUTO_HARVEST_RESULT(1508),
+    FARM_SOUL_RECHARGE_RESULT(1509),
+
+    // CFarmUser::OnPacket : v176 -> 007FB400
+    FARM_SET_USER(1512),
+    FARM_SET_INVENTORY(1513),
+    FARM_SET_QUEST_ALL(1514),
+    FARM_QUEST_MESSAGE(1515),
+    FARM_NOTICE_MESSAGE(1516),
+    FARM_UPDATE_MONSTER_LIST(1517),
+    FARM_UPDATE_DECO(1518),
+    FARM_UPDATE_POINT(1519),
+    FARM_UPDATE_CASH(1520),
+    FARM_UPDATE_THEME(1521),
+    FARM_UPDATE_MONSTER_SLOT(1522),
+    FARM_UPDATE_MONSTER_LOCKER_SLOT(1523),
+    FARM_UPDATE_EXP(1524),
+    FARM_RESULT_CHECK_NAME(1525),
+    FARM_RESULT_CHECK_NAME_BY_CONSUME(1526),
+    FARM_RESULT_COMPLETE_QUEST(1527),
+    FARM_RESULT_GET_USER_PHOTO(1528),
+    FARM_RESULT_UPDATE_PHOTO(1529),
+    FARM_RESULT_REFILL_DAILY_QUEST(1530),
+    FARM_SEND_GIFT(1531),
+    FARM_SET_FRIEND_LIST(1532),
+    FARM_ONLINE_REFRESH(1533),
+    FARM_RESULT_ADD_FRIEND(1534),
+    FARM_RESULT_SEND_NOTICE(1535), // corrupted in my pdb :(
+    FARM_RESULT_LOAD_MAIN_LOG(1536),
+    FARM_RESULT_ADD_BLACKLIST(1537),
+    FARM_RESULT_USER_INFO_UI(1538),
+    FARM_SET_GUEST_OWNER_INFO(1539),
+    FARM_WHISPER(1540),
+    FARM_GROUP_MESSAGE(1541),
+    FARM_BROADCAST_MSG(1542),
+    FARM_NEW_LIST_RESULT(1543), // CFarmFriendRecommendMan::OnResultNewList
+    FARM_SET_IN_GAME_INFO(1544),
+    FARM_FORCED_SHOP_OPEN(1545),
+    FARM_REQUEST_SET_IN_GAME_INFO(1546),
+    // UNK 1547
+    FARM_RESULT_IN_GAME_FRIEND_REQUEST(1548),
+    FARM_IN_GAME_FRIEND_EVENT(1549),
+    FARM_RESULT_WORLD_WHISPER(1550),
+    FARM_TOTAL_INFO(1551), // CFarmStaticClientMan::OnTotalInfo
+
+    // CField_Zakum::OnPacket : v176 -> 0092FB00
+    FIELD_ZAKUM_DYNAMIC_OBJ_VISIBLE(468),
+    FIELD_ZAKUM_SYNC_DYNAMIC_FOOTHOLD(469),
+
+    // CField_Urus::OnPacket : v176 -> 0092E230
+    FIELD_URUS_DYNAMIC_OBJ_MOVE(467),
+    FIELD_URUS_DYNAMIC_OBJ_VISIBLE(468),
+    FIELD_URUS_SYNC_DYNAMIC_FOOTHOLD(469),
+
+    // CField_SummonEvent::OnPacket : v176 -> 0091D220
+    FIELD_SUMMONEVENT_EVENT_RANK(750),
+    FIELD_SUMMONEVENT_EVENT_REWARD(751),
+
+    // CField_SnowBall::OnPacket : v176 -> 00909DB0
+    // todo :: op 1038 - 1041
+
+    // CField_Witchtower::OnPacket : v176 -> 0092F770
+    FIELD_WITCHTOWER_SCORE_UPDATE(1060),
+
+    // CField_PvP::OnPacket : v176 -> 008E2990
+
+
+    // CField_BaseBallDrop::OnPacket : v176 -> 008E7320
+    FIELD_BASEBALLDROP_ONPACKET(1080), // (*(this[-1].m_mPoint._Mysize + 208))(&this[-1].m_mPoint._Mysize, iPacket);
+
+    FIELD_RANDOMDROP_ONPACKET(1080), // idk why this is the same as above -- (*(*this[-1].m_pBNSmall.gap0 + 204))(&this[-1].m_pBNSmall, iPacket);
+    FIELD_RANDOMDROP_ONPACKET2(1083), // (*(*this[-1].m_pBNSmall.gap0 + 208))(&this[-1].m_pBNSmall, iPacket);
+
+    // CField_FlyingKiteDrop::OnPacket : V176 -> 008F1620
+    FIELD_FLYINGKITEDROP_UNK(1081), // (this[-1].m_mPoint._Myhead[8]._Myval.second)(&this[-1].m_mPoint._Myhead, iPacket);
+    FIELD_FLYINGKITEDROP_UNK2(1082), // single decode4 with a few pointer operations, not in a function in kmst
+    FIELD_FLYINGKITEDROP_POINT_EFFECT(1084),
+
+    // CField_PvPHardCore::OnPacket : v176 -> 008E71D0
+    // todo :: op 1085 - 1093
+
+    // CField_RhythmGame::OnPacket : v176 -> 008FCFA0
+    // todo :: op 1097 - 1108
+    FIELD_RHYTHMGAME_USER_NAME(1112),
+
+    // CField_RunningGame::OnPacket : v176 -> 008FD3E0
+    FIELD_RUNNINGGAME_MOB_INFO(1111),
+
+    // CField_MountainRiding::OnPacket : v176 -> 008EBA50
+    // todo :: op 1109 - 1111... why does this clash with running game??
+
+    // CField_SpaceMoonRabbit::OnPacket : v176 -> 00912440
+    // todo :: op 1148 - 1154
+
+    // CField_PoloFritoBountyHunting::OnPacket : v176 -> 008D2B60
+    FIELD_POLOFRITO_BOUNTYHUNTING_UPDATE_STAGE_INFO_UI(1166),
+
+    // CField_PoloFritoTownDefense::OnPacket : v176 -> 008D66D0
+    FIELD_POLOFRITO_TOWNDEFENSE_UPDATE_WAVE_INFO_UI(1167), // maybe shorten these names.. theyre kinda long ._.
+    FIELD_POLOFRITO_TOWNDEFENSE_UPDATE_LINE_INFO_UI(1168),
+
+    // CField_TypingGame::OnPacket : v176 -> 0092D7E0
+    // todo :: op 1187 - 1198
+
+    // CField_SideScrollFlyShooting : v176 -> 009077D0
+    // todo :: op 1226 - 1232
+
+    // CField_StarPlanetRps::OnPacket : V176 -> 009174B0
+    // todo :: op 1219 - 1225
+
+    // CField_Soul::OnPacket : v176 -> 0090B2F0
+    // todo :: op 1295 - 1303
+
+
 
     SOCKET_CREATE_RESULT(1481),
     GOLLUX_MINIMAP(1568),
