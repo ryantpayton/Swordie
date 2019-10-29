@@ -13,6 +13,7 @@ public class ServerConfig {
     public static final int MAX_CHARACTERS = 30;
 
     public static final boolean DEBUG_MODE = true;
+    public static final boolean AUTO_CREATE_UNCODED_SCRIPTS = true; // if this is enabled then when a player runs into uncoded scripts a file with basic info will be created
     public static final char ADMIN_COMMAND = '!';
     public static final char PLAYER_COMMAND = '@';
 }

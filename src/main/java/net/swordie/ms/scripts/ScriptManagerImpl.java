@@ -1,5 +1,6 @@
 package net.swordie.ms.scripts;
 
+import net.swordie.ms.ServerConfig;
 import net.swordie.ms.ServerConstants;
 import net.swordie.ms.client.Account;
 import net.swordie.ms.client.Client;
@@ -187,7 +188,7 @@ public class ScriptManagerImpl implements ScriptManager {
 			return;
 		}
 		if (!isField()) {
-			chr.chatMessage(Mob, String.format("Starting script %s, scriptType %s.", scriptName, scriptType));
+			chr.dbgChatMsg(String.format("Starting script %s, scriptType %s.", scriptName, scriptType));
 			log.debug(String.format("Starting script %s, scriptType %s.", scriptName, scriptType));
 		}
 		objectID = objID;
@@ -237,8 +238,35 @@ public class ScriptManagerImpl implements ScriptManager {
 		if (!exists) {
 			log.error(String.format("[Error] Could not find script %s/%s", scriptType.getDir().toLowerCase(), name));
 			if(chr != null) {
-				chr.chatMessage(Mob, String.format("[Script] Could not find script %s/%s", scriptType.getDir().toLowerCase(), name));
+				chr.dbgChatMsg(String.format("[Script] Could not find script %s/%s", scriptType.getDir().toLowerCase(), name));
 			}
+
+			if (ServerConfig.AUTO_CREATE_UNCODED_SCRIPTS) {
+				dir = String.format("%s/%s/%s%s", ServerConstants.SCRIPT_DIR, // dev will remove script prefix when script has been coded
+						scriptType.getDir().toLowerCase(), "autogen_" + name, SCRIPT_ENGINE_EXTENSION);
+				try {
+					ScriptInfo info = getScriptInfoByType(scriptType);
+					List<String> content = new ArrayList<>(Util.makeSet(
+							"# Character field ID when accessed: " + getFieldID(),
+							"# ObjectID: " + info.getObjectID(),
+							"# ParentID: " + info.getParentID()
+					));
+					switch (scriptType) {
+						case Portal:
+						case Reactor:
+						case Npc:
+							content.addAll(Util.makeSet(
+									"# Object Position X: " + getObjectPositionX(),
+									"# Object Position Y: " + getObjectPositionY()
+							));
+					}
+
+					Util.createAndWriteToFile(dir, content);
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+			}
+
 			dir = String.format("%s/%s/%s%s", ServerConstants.SCRIPT_DIR,
 					scriptType.getDir().toLowerCase(), DEFAULT_SCRIPT, SCRIPT_ENGINE_EXTENSION);
 		}
