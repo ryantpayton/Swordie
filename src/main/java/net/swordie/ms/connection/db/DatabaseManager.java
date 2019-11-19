@@ -191,9 +191,17 @@ public class DatabaseManager {
         log.info(String.format("%s: Trying to get obj %s with id %d.", LocalDateTime.now(), clazz, id));
         Object o;
         try(Session session = getSession()) {
-            Transaction t = session.beginTransaction();
-            o = session.get(clazz, id);
-            t.commit();
+            Transaction transaction = session.beginTransaction();
+            // String.format for query, just to fill in the class
+            // Can't set the FROM clause with a parameter it seems
+            // session.get doesn't work for Chars for whatever reason
+            javax.persistence.Query query = session.createQuery(String.format("FROM %s WHERE id = :val", clazz.getName()));
+            query.setParameter("val", id);
+            List l = ((org.hibernate.query.Query) query).list();
+            if (l != null && l.size() > 0) {
+                o = l.get(0);
+            }
+            transaction.commit();
         }
         return o;
     }
