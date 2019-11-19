@@ -1,6 +1,7 @@
 package net.swordie.ms.client.character;
 
 import net.swordie.ms.Server;
+import net.swordie.ms.ServerConfig;
 import net.swordie.ms.client.Account;
 import net.swordie.ms.client.Client;
 import net.swordie.ms.client.LinkSkill;
@@ -68,6 +69,7 @@ import net.swordie.ms.loaders.SkillData;
 import net.swordie.ms.loaders.StringData;
 import net.swordie.ms.loaders.containerclasses.AndroidInfo;
 import net.swordie.ms.loaders.containerclasses.ItemInfo;
+import net.swordie.ms.scripts.ScriptInfo;
 import net.swordie.ms.scripts.ScriptManagerImpl;
 import net.swordie.ms.scripts.ScriptType;
 import net.swordie.ms.util.*;
@@ -202,6 +204,9 @@ public class Char {
 
 	private int partyID = 0; // Just for DB purposes
 	private int previousFieldID;
+
+	@Transient
+	private int previousPortalID; // not super important so we wont save to db
 
 	@ElementCollection(fetch = FetchType.EAGER)
 	@CollectionTable(name = "skillcooltimes", joinColumns = @JoinColumn(name = "charID"))
@@ -617,7 +622,7 @@ public class Char {
 					addItemToInventory(itemCopy);
 				}
 			}
-			setBulletIDForAttack(calculateBulletIDForAttack());
+			setBulletIDForAttack(calculateBulletIDForAttack(1));
 		}
 	}
 
@@ -2194,6 +2199,16 @@ public class Char {
 		getClient().write(UserLocal.chatMsg(clr, msg));
 	}
 
+    /**
+     * Sends a message to the character if the debug config flag is turned on.
+     *
+     * @param message message to send
+     */
+	public void dbgChatMsg(String message) {
+	    if (ServerConfig.DEBUG_MODE)
+	        chatMessage(message);
+    }
+
 	/**
 	 * Unequips an {@link Item}. Ensures that the hairEquips and both inventories get updated.
 	 *
@@ -2427,7 +2442,7 @@ public class Char {
 	 * @param toField The field to warp to.
 	 */
 	public void warp(Field toField) {
-		warp(toField, toField.getPortalByName("sp"), false);
+		warp(toField, toField.getPortalByName("sp"), false, true);
 	}
 
 	/**
@@ -2440,7 +2455,16 @@ public class Char {
 		if (toField == null) {
 			toField = getOrCreateFieldByCurrentInstanceType(100000000);
 		}
-		warp(toField, toField.getPortalByName("sp"), characterData);
+		warp(toField, toField.getPortalByName("sp"), characterData, true);
+	}
+
+	public void warp(int fieldId, int portalId, boolean saveReturnMap) {
+		Field field = getOrCreateFieldByCurrentInstanceType(fieldId);
+		Portal portal = field.getPortalByID(portalId);
+		if (portal == null) {
+			portal = field.getDefaultPortal();
+		}
+		warp(field, portal, false, saveReturnMap);
 	}
 
 	/**
@@ -2450,7 +2474,29 @@ public class Char {
 	 * @param toPortal The Portal to spawn at.
 	 */
 	public void warp(Field toField, Portal toPortal) {
-		warp(toField, toPortal, false);
+		warp(toField, toPortal, false, true);
+	}
+
+	/**
+	 * Sets the return portal to the nearest current portal.
+	 */
+	public void setNearestReturnPortal() {
+		Rect rect = new Rect(
+				new Position(
+						getPosition().getX() - 30,
+						getPosition().getY() - 30),
+				new Position(
+						getPosition().getX() + 50, // wide girth
+						getPosition().getY() + 50)
+		);
+
+		List<Portal> portals = getField().getClosestPortal(rect);
+
+		if (portals.size() > 0) {
+			setPreviousPortalID(portals.get(0).getId());
+		} else {
+			setPreviousPortalID(0);
+		}
 	}
 
 	/**
@@ -2462,7 +2508,7 @@ public class Char {
 	 * @param toField The {@link Field} to warp to.
 	 * @param portal  The {@link Portal} where to spawn at.
 	 */
-	public void warp(Field toField, Portal portal, boolean characterData) {
+	public void warp(Field toField, Portal portal, boolean characterData, boolean saveReturnMap) {
 		if (toField == null) {
 			return;
 		}
@@ -2471,9 +2517,15 @@ public class Char {
 			tsm.removeStatsBySkill(aa.getSkillID());
 		}
 		Field currentField = getField();
+
 		if (currentField != null) {
+			if (saveReturnMap) {
+				setPreviousFieldID(currentField.getId()); // this may be a bad idea in some cases? idk
+				setNearestReturnPortal();
+			}
 			currentField.removeChar(this);
 		}
+
 		setField(toField);
 		toField.addChar(this);
 		getAvatarData().getCharacterStat().setPortal(portal.getId());
@@ -2928,6 +2980,14 @@ public class Char {
 	}
 
 	/**
+	 * Heals character's MP and HP completely.
+	 */
+	public void healHPMP() {
+		heal(getMaxHP());
+		healMP(getMaxMP());
+	}
+
+	/**
 	 * Heals this Char's HP for a certain amount. Caps off at maximum HP.
 	 *
 	 * @param amount The amount to heal.
@@ -2984,7 +3044,7 @@ public class Char {
 			write(WvsContext.inventoryOperation(true, false,
 					UpdateQuantity, (short) item.getBagIndex(), (byte) -1, 0, item));
 		}
-		setBulletIDForAttack(calculateBulletIDForAttack());
+		setBulletIDForAttack(calculateBulletIDForAttack(1));
 	}
 
 	/**
@@ -3387,6 +3447,7 @@ public class Char {
 			getTradeRoom().cancelTrade();
 			other.chatMessage("Your trade partner disconnected.");
 		}
+		getScriptManager().getScripts().values().forEach(ScriptInfo::reset);
 		getWorld().getConnectedChatClients().remove(getAccId());
 		setOnline(false);
 		getJobHandler().handleCancelTimer(this);
@@ -3452,26 +3513,26 @@ public class Char {
 		}
 	}
 
-	public int calculateBulletIDForAttack() {
+	public int calculateBulletIDForAttack(int requiredAmount) {
 		Item weapon = getEquippedInventory().getFirstItemByBodyPart(BodyPart.Weapon);
 		if (weapon == null) {
 			return 0;
 		}
-		Predicate<Item> p;
+		Predicate<Item> kindOfBulletPred;
 		int id = weapon.getItemId();
 
 		if (ItemConstants.isClaw(id)) {
-			p = i -> ItemConstants.isThrowingStar(i.getItemId());
+			kindOfBulletPred = i -> ItemConstants.isThrowingStar(i.getItemId());
 		} else if (ItemConstants.isBow(id)) {
-			p = i -> ItemConstants.isBowArrow(i.getItemId());
+			kindOfBulletPred = i -> ItemConstants.isBowArrow(i.getItemId());
 		} else if (ItemConstants.isXBow(id)) {
-			p = i -> ItemConstants.isXBowArrow(i.getItemId());
+			kindOfBulletPred = i -> ItemConstants.isXBowArrow(i.getItemId());
 		} else if (ItemConstants.isGun(id)) {
-			p = i -> ItemConstants.isBullet(i.getItemId());
+			kindOfBulletPred = i -> ItemConstants.isBullet(i.getItemId());
 		} else {
 			return 0;
 		}
-		Item i = getConsumeInventory().getItems().stream().sorted(Comparator.comparing(Item::getBagIndex)).filter(p).findFirst().orElse(null);
+		Item i = getConsumeInventory().getItems().stream().sorted(Comparator.comparing(Item::getBagIndex)).filter(kindOfBulletPred).filter(item -> item.getQuantity() >= requiredAmount).findFirst().orElse(null);
 		return i != null ? i.getItemId() : 0;
 	}
 
@@ -3762,6 +3823,8 @@ public class Char {
 		if (baseStat.getRateVar() != null) {
 			stat += stat * (getTotalStat(baseStat.getRateVar()) / 100D);
 		}
+		// Stat gained by set effects
+		stat += getStatAmountSetEffect(baseStat);
 		// --- Everything below this doesn't get affected by the rate var
 		// Character potential
 		for (CharacterPotential cp : getPotentials()) {
@@ -4312,6 +4375,12 @@ public class Char {
 		this.previousFieldID = previousFieldID;
 	}
 
+	public int getPreviousPortalID() {
+		return previousPortalID;
+	}
+
+	public void setPreviousPortalID(int portalId) { previousPortalID = portalId; }
+
 	public long getNextRandomPortalTime() {
 		return nextRandomPortalTime;
 	}
@@ -4433,6 +4502,32 @@ public class Char {
 		boolean hasEnough = curMp >= mpCon;
 		if (hasEnough) {
 			addStatAndSendPacket(Stat.mp, -mpCon);
+		}
+		return hasEnough;
+	}
+
+	public boolean applyBulletCon(int skillID, byte slv) {
+		if (getTemporaryStatManager().hasStat(NoBulletConsume) || JobConstants.isPhantom(getJob())) {
+			return true;
+		}
+		SkillInfo si = SkillData.getSkillInfoById(skillID);
+		if (si == null) {
+			return true;
+		}
+		int bulletCon = si.getValue(SkillStat.bulletCount, slv) + si.getValue(SkillStat.bulletConsume, slv);
+		if (bulletCon <= 0) {
+			return true;
+		}
+		int bulletItemId = getBulletIDForAttack();
+		if (bulletItemId == 0) {
+			return false;
+		}
+		if (!hasItemCount(getBulletIDForAttack(), bulletCon)) {
+			setBulletIDForAttack(calculateBulletIDForAttack(bulletCon));
+		}
+		boolean hasEnough = hasItemCount(bulletItemId, bulletCon);
+		if (hasEnough) {
+			consumeItem(bulletItemId, bulletCon);
 		}
 		return hasEnough;
 	}
@@ -4830,5 +4925,92 @@ public class Char {
 		addMoney(earnings);
 		employeeTrunk.setMoney(0);
 		DatabaseManager.saveToDB(employeeTrunk);
+	}
+
+	public Map<ScrollStat, Integer> getStatsBySetEffects() {
+		HashMap<ScrollStat, Integer> stats = new HashMap<>();
+		HashMap<Integer, Integer> setIdToLevel = new HashMap<>();
+		for (Item item : getEquippedInventory().getItems()) {
+			Equip equip = (Equip) item;
+			int setItemId = equip.getSetItemID();
+			if (setItemId > 0) {
+				int level = setIdToLevel.getOrDefault(setItemId, 0);
+				level++;
+				setIdToLevel.put(setItemId, level);
+			}
+		}
+		for (Map.Entry<Integer, Integer> entry : setIdToLevel.entrySet()) {
+			int setId = entry.getKey();
+			int setLevel = entry.getValue();
+			SetEffect setEffect = EtcData.getSetEffectInfoById(setId);
+			for (int i = 1; i <= setLevel; i++) {
+				if (setEffect.getStatsByLevel(i) == null) {
+					continue;
+				}
+				for (Object effect : setEffect.getStatsByLevel(i)) {
+					if (effect instanceof net.swordie.ms.util.container.Tuple) {
+						ScrollStat ss = (ScrollStat) (((net.swordie.ms.util.container.Tuple) effect).getLeft());
+						int amount = (int) (((net.swordie.ms.util.container.Tuple) effect).getRight());
+						stats.put(ss, amount);
+					}
+				}
+			}
+		}
+		return stats;
+	}
+
+	public List<ItemOption> getItemOptionsBySetEffects() {
+		List<ItemOption> options = new ArrayList<>();
+		HashMap<Integer, Integer> setIdToLevel = new HashMap<>();
+		for (Item item : getEquippedInventory().getItems()) {
+			Equip equip = (Equip) item;
+			int setItemId = equip.getSetItemID();
+			if (setItemId > 0) {
+				int level = setIdToLevel.getOrDefault(setItemId, 0);
+				level++;
+				setIdToLevel.put(setItemId, level);
+			}
+		}
+		for (Map.Entry<Integer, Integer> entry : setIdToLevel.entrySet()) {
+			int setId = entry.getKey();
+			int setLevel = entry.getValue();
+			SetEffect setEffect = EtcData.getSetEffectInfoById(setId);
+			for (int i = 1; i <= setLevel; i++) {
+				if (setEffect.getStatsByLevel(i) == null) {
+					continue;
+				}
+				for (Object effect : setEffect.getStatsByLevel(i)) {
+					if (effect instanceof ItemOption) {
+						options.add((ItemOption) effect);
+					}
+				}
+			}
+		}
+		return options;
+	}
+
+
+
+	public int getStatAmountSetEffect(BaseStat baseStat) {
+		int amount = 0;
+		Map<ScrollStat, Integer> stats = getStatsBySetEffects();
+		for (Map.Entry<ScrollStat, Integer> entry : stats.entrySet()) {
+			if (entry.getKey().getBaseStat() == baseStat) {
+				amount += entry.getValue();
+			}
+		}
+
+		List<ItemOption> options = getItemOptionsBySetEffects();
+		for (ItemOption option : options) {
+			int id = option.getId();
+			int level = option.getReqLevel();
+			ItemOption io = ItemData.getItemOptionById(id);
+			if (io != null) {
+				Map<BaseStat, Double> valMap = io.getStatValuesByLevel(level);
+				amount += valMap.getOrDefault(baseStat, 0D);
+			}
+		}
+
+		return amount;
 	}
 }

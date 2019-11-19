@@ -48,6 +48,7 @@ import net.swordie.ms.world.field.Portal;
 import net.swordie.ms.world.field.fieldeffect.FieldEffect;
 import org.apache.log4j.Logger;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
@@ -129,9 +130,19 @@ public class MobHandler {
                             mobSkill.getSkillID(), MobSkillID.getMobSkillIDByVal(mobSkill.getSkillID()), mobSkill.getLevel()));
                     mob.putSkillCooldown(skillID, slv, nextUseableTime);
                     if (mobSkill.getSkillAfter() > 0) {
+                        List<Rect> rects = new ArrayList<Rect>();
+                        MobSkillID msID = MobSkillID.getMobSkillIDByVal(skillID);
+                        switch (msID) {
+                            case Toos:
+                                Rect rectangle = new Rect(-49, -1016, 211, -16);
+                                rects.add(rectangle);
+                                rects.add(rectangle.moveRight().moveRight());
+                                rects.add(rectangle.moveLeft().moveLeft());
+                                break;
+                        }
                         mob.getSkillDelays().add(mobSkill);
                         mob.setSkillDelay(mobSkill.getSkillAfter());
-                        c.write(MobPool.setSkillDelay(mob.getObjectId(), mobSkill.getSkillAfter(), skillID, slv, 0, null));
+                        c.write(MobPool.setSkillDelay(mob, mobSkill.getSkillAfter(), msi, 0, rects));
                     } else {
                         mobSkill.applyEffect(mob);
                     }

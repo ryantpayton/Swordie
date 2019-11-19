@@ -2,6 +2,8 @@ package net.swordie.ms.client.character.items;
 
 import net.swordie.ms.connection.db.DatabaseManager;
 import net.swordie.ms.constants.GameConstants;
+import net.swordie.ms.constants.ItemConstants;
+import net.swordie.ms.constants.JobConstants;
 import net.swordie.ms.enums.InvType;
 import net.swordie.ms.loaders.ItemData;
 import net.swordie.ms.loaders.containerclasses.ItemInfo;

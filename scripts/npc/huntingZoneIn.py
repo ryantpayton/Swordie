@@ -21,17 +21,24 @@ maps = {
     270020500 : 931050432,
     270030500 : 931050433,
 }
+
+# TODO add a timer for these maps
+
 MYSTIC_GATE = 9073008
-time = 6 *60
+time = 6 * 60
 map = sm.getFieldID()
 
 sm.setSpeakerID(MYSTIC_GATE)
-response = sm.sendAskYesNo("Do you want to enter?")
 
-if not sm.getFieldID() in maps:
-    sm.sendSayOkay("Sorry, I haven't been coded for this map yet. Please notify the devs")
-    sm.dispose()
+if sm.canWarpSilentCrusade(maps[map]):
+	response = sm.sendAskYesNo("Do you want to enter?")
 
-if response:
-    sm.warpInstanceIn(maps[sm.getFieldID()], 0)
-    sm.setInstanceTime(time)
+	if not sm.getFieldID() in maps:
+		sm.sendSayOkay("Sorry, I haven't been coded for this map yet. Please notify the devs")
+		sm.dispose()
+
+	if response:
+		sm.warpInstanceIn(maps[sm.getFieldID()], 0)
+		sm.setInstanceTime(time)
+else:
+	sm.sendSayOkay("I must rest, too many brave fighters have battled here today.")

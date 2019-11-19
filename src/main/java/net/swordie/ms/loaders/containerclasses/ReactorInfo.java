@@ -1,6 +1,10 @@
 package net.swordie.ms.loaders.containerclasses;
 
+import net.swordie.ms.life.drop.DropInfo;
 import net.swordie.ms.util.Rect;
+
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * Created on 4/21/2018.
@@ -25,6 +29,8 @@ public class ReactorInfo {
     private boolean activateByTouch;
     private boolean notHittable;
     private Rect rect;
+    private Set<DropInfo> drops = new HashSet<>();
+
 
     public void setId(int id) {
         this.id = id;
@@ -183,5 +189,13 @@ public class ReactorInfo {
         return "ReactorInfo{" +
                 "id=" + id +
                 '}';
+    }
+
+    public Set<DropInfo> getDrops() {
+        return drops;
+    }
+
+    public void setDrops(Set<DropInfo> drops) {
+        this.drops = drops;
     }
 }

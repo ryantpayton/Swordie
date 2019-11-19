@@ -38,7 +38,29 @@ public enum ScrollStat {
     incRandVol,
     reqEquipLevelMax,
     createType,
-    optionType, recover, reset, perfectReset;
+    optionType, recover, reset, perfectReset, reduceCooltime,
+    boss,
+    ignoreTargetDEF,
+    incSTRr,
+    incDEXr,
+    incINTr,
+    incLUKr,
+    incCriticaldamageMin,
+    incCriticaldamageMax,
+    cCr,
+    incDAMr,
+    incPDDr,
+    incMDDr,
+    incEVAr,
+    incACCr,
+    incMHPr,
+    incMMPr,
+    incTerR,
+    incAsrR,
+    incMesoProp,
+    incRewardProp,
+    setItemCategory,
+    ;
 
     public static ScrollStat getScrollStatByString(String name) {
         return Arrays.stream(values()).filter(ss -> ss.toString().equalsIgnoreCase(name))
@@ -83,6 +105,54 @@ public enum ScrollStat {
                 return iJump;
             case incReqLevel:
                 return iReduceReq;
+            default:
+                return null;
+        }
+    }
+
+    public BaseStat getBaseStat() {
+        switch(this) {
+            case incSTR:
+                return BaseStat.str;
+            case incDEX:
+                return BaseStat.dex;
+            case incINT:
+                return BaseStat.inte;
+            case incLUK:
+                return BaseStat.luk;
+            case incPAD:
+                return BaseStat.pad;
+            case incMAD:
+                return BaseStat.mad;
+            case incPDD:
+                return BaseStat.pdd;
+            case incMDD:
+                return BaseStat.mdd;
+            case incACC:
+                return BaseStat.acc;
+            case incEVA:
+                return BaseStat.eva;
+            case incMHP:
+                return BaseStat.mhp;
+            case incMMP:
+                return BaseStat.mmp;
+            case incSpeed:
+            case speed:
+                return BaseStat.speed;
+            case incJump:
+                return BaseStat.jump;
+            case incSTRr:
+                return BaseStat.strR;
+            case incDEXr:
+                return BaseStat.dexR;
+            case incINTr:
+                return BaseStat.intR;
+            case incLUKr:
+                return BaseStat.lukR;
+            case incMHPr:
+                return  BaseStat.mhpR;
+            case incMMPr:
+                return BaseStat.mmpR;
             default:
                 return null;
         }

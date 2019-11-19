@@ -1,8 +1,10 @@
 package net.swordie.ms.client.character.items;
 
+import net.swordie.ms.client.character.Char;
 import net.swordie.ms.connection.OutPacket;
 import net.swordie.ms.connection.db.FileTimeConverter;
 import net.swordie.ms.connection.db.InlinedIntArrayConverter;
+import net.swordie.ms.connection.packet.FieldPacket;
 import net.swordie.ms.constants.GameConstants;
 import net.swordie.ms.constants.ItemConstants;
 import net.swordie.ms.enums.*;
@@ -12,6 +14,8 @@ import net.swordie.ms.util.Util;
 
 import javax.persistence.*;
 import java.util.*;
+
+import static net.swordie.ms.enums.ChatType.SystemNotice;
 
 /**
  * Created on 11/23/2017.
@@ -1198,35 +1202,35 @@ public class Equip extends Item {
             case cuc:
                 return getCuc();
             case iStr:
-                return getiStr() + getfSTR() + getEnchantStat(EnchantStat.STR);
+                return getiStr() + getfSTR() + getEnchantStat(EnchantStat.STR) + getSocketStat(ScrollStat.incSTR);
             case iDex:
-                return getiDex() + getfDEX() + getEnchantStat(EnchantStat.DEX);
+                return getiDex() + getfDEX() + getEnchantStat(EnchantStat.DEX) + getSocketStat(ScrollStat.incDEX);
             case iInt:
-                return getiInt() + getfINT() + getEnchantStat(EnchantStat.INT);
+                return getiInt() + getfINT() + getEnchantStat(EnchantStat.INT) + getSocketStat(ScrollStat.incINT);
             case iLuk:
-                return getiLuk() + getfLUK() + getEnchantStat(EnchantStat.LUK);
+                return getiLuk() + getfLUK() + getEnchantStat(EnchantStat.LUK) + getSocketStat(ScrollStat.incLUK);
             case iMaxHP:
-                return getiMaxHp() + getfHP() + getEnchantStat(EnchantStat.MHP);
+                return getiMaxHp() + getfHP() + getEnchantStat(EnchantStat.MHP) + getSocketStat(ScrollStat.incMHP);
             case iMaxMP:
-                return getiMaxMp() + getfMP() + getEnchantStat(EnchantStat.MMP);
+                return getiMaxMp() + getfMP() + getEnchantStat(EnchantStat.MMP) + getSocketStat(ScrollStat.incMMP);
             case iPAD:
-                return getiPad() + getfATT() + getEnchantStat(EnchantStat.PAD);
+                return getiPad() + getfATT() + getEnchantStat(EnchantStat.PAD) + getSocketStat(ScrollStat.incPAD);
             case iMAD:
-                return getiMad() + getfMATT() + getEnchantStat(EnchantStat.MAD);
+                return getiMad() + getfMATT() + getEnchantStat(EnchantStat.MAD) + getSocketStat(ScrollStat.incMAD);
             case iPDD:
-                return getiPDD() + getfDEF() + getEnchantStat(EnchantStat.PDD);
+                return getiPDD() + getfDEF() + getEnchantStat(EnchantStat.PDD) + getSocketStat(ScrollStat.incPDD);
             case iMDD:
-                return getiMDD() + getfDEF() + getEnchantStat(EnchantStat.MDD);
+                return getiMDD() + getfDEF() + getEnchantStat(EnchantStat.MDD) + getSocketStat(ScrollStat.incMDD);
             case iACC:
-                return getiAcc() + getEnchantStat(EnchantStat.ACC);
+                return getiAcc() + getEnchantStat(EnchantStat.ACC) + getSocketStat(ScrollStat.incACC);
             case iEVA:
-                return getiEva() + getEnchantStat(EnchantStat.EVA);
+                return getiEva() + getEnchantStat(EnchantStat.EVA) + getSocketStat(ScrollStat.incEVA);
             case iCraft:
                 return getiCraft();
             case iSpeed:
-                return getiSpeed() + getfSpeed() + getEnchantStat(EnchantStat.SPEED);
+                return getiSpeed() + getfSpeed() + getEnchantStat(EnchantStat.SPEED) + getSocketStat(ScrollStat.incSpeed);
             case iJump:
-                return getiJump() + getfJump() + getEnchantStat(EnchantStat.JUMP);
+                return getiJump() + getfJump() + getEnchantStat(EnchantStat.JUMP) + getSocketStat(ScrollStat.incJump);
             case attribute:
                 return getAttribute();
             case levelUpType:
@@ -1254,11 +1258,11 @@ public class Equip extends Item {
             case psEnchant:
                 return getPsEnchant(); // final strike
             case bdr:
-                return getBdr() + getfBoss(); // bd
+                return getBdr() + getfBoss() + getSocketStat(ScrollStat.boss); // bd
             case imdr:
-                return getImdr(); // ied
+                return getImdr() + getSocketStat(ScrollStat.ignoreTargetDEF); // ied
             case damR:
-                return getDamR() + getfDamage(); // td
+                return getDamR() + getfDamage() + getSocketStat(ScrollStat.incDAMr); // td
             case statR:
                 return getStatR() + getfAllStat(); // as
             case cuttable:
@@ -1520,6 +1524,57 @@ public class Equip extends Item {
         }
     }
 
+    public void setBaseStatFlame(EquipBaseStat equipBaseStat, int amount) {
+        switch (equipBaseStat) {
+            case iStr:
+                setfSTR(amount);
+                break;
+            case iDex:
+                setfDEX(amount);
+                break;
+            case iInt:
+                setfINT(amount);
+                break;
+            case iLuk:
+                setfLUK(amount);
+                break;
+            case iMaxHP:
+                setfHP(amount);
+                break;
+            case iMaxMP:
+                setfMP(amount);
+                break;
+            case iPAD:
+                setfATT(amount);
+                break;
+            case iMAD:
+                setfMATT(amount);
+                break;
+            case iPDD:
+            case iMDD:
+                setfDEF(amount);
+                break;
+            case iSpeed:
+                setfSpeed(amount);
+                break;
+            case iJump:
+                setfJump(amount);
+                break;
+            case statR:
+                setfAllStat(amount);
+                break;
+            case bdr:
+                setfBoss(amount);
+                break;
+            case damR:
+                setfDamage(amount);
+                break;
+            case iReduceReq:
+                setfLevel(amount);
+                break;
+        }
+    }
+
     public long getEnchantmentStat(EquipBaseStat equipBaseStat) {
         switch (equipBaseStat) {
             case iStr:
@@ -1731,6 +1786,19 @@ public class Equip extends Item {
         return getEnchantStats().getOrDefault(es, 0);
     }
 
+    public int getSocketStat(ScrollStat ss) {
+        int amount = 0;
+        for (int i = 0; i < getSockets().size(); i++) {
+            int id = getSocket(i);
+            if (id != 0 && id != ItemConstants.EMPTY_SOCKET_ID) {
+                int nebuliteId = ItemConstants.NEBILITE_BASE_ID + id;
+                Map<ScrollStat, Integer> vals = ItemData.getItemInfoByID(nebuliteId).getScrollStats();
+                amount += vals.getOrDefault(ss, 0);
+            }
+        }
+        return amount;
+    }
+
     public List<Short> getSockets() {
         return sockets;
     }
@@ -1807,10 +1875,37 @@ public class Equip extends Item {
                 res += getAttackSpeed();
                 break;
             case strR:
+                res += getSocketStat(ScrollStat.incSTRr) + getTotalStat(EquipBaseStat.statR);
+                break;
             case dexR:
+                res += getSocketStat(ScrollStat.incDEXr) + getTotalStat(EquipBaseStat.statR);
+                break;
             case intR:
+                res += getSocketStat(ScrollStat.incINTr) + getTotalStat(EquipBaseStat.statR);
+                break;
             case lukR:
-                res += getTotalStat(EquipBaseStat.statR);
+                res += getSocketStat(ScrollStat.incLUKr) + getTotalStat(EquipBaseStat.statR);
+                break;
+            case reduceCooltime:
+                res += getSocketStat(ScrollStat.reduceCooltime);
+                break;
+            case minCd:
+                res += getSocketStat(ScrollStat.incCriticaldamageMin);
+                break;
+            case maxCd:
+                res += getSocketStat(ScrollStat.incCriticaldamageMax);
+                break;
+            case evaR:
+                res += getSocketStat(ScrollStat.incEVAr);
+                break;
+            case accR:
+                res += getSocketStat(ScrollStat.incACCr);
+                break;
+            case dropR:
+                res += getSocketStat(ScrollStat.incRewardProp);
+                break;
+            case mesoR:
+                res += getSocketStat(ScrollStat.incMesoProp);
                 break;
         }
         return res;
@@ -2010,5 +2105,91 @@ public class Equip extends Item {
             setBaseStat(ebs, normalEquip.getBaseStat(ebs));
         }
         resetFlameStats();
+    }
+
+    public void applyScroll(Item scroll, Char chr, boolean success) {
+        if (scroll == null || hasSpecialAttribute(EquipSpecialAttribute.Vestige)) {
+            chr.chatMessage(SystemNotice, "Could not find scroll or equip.");
+            chr.dispose();
+            return;
+        }
+        int scrollID = scroll.getItemId();
+        boolean boom = false;
+        Map<ScrollStat, Integer> vals = ItemData.getItemInfoByID(scrollID).getScrollStats();
+        if (vals.size() > 0) {
+            boolean recover = vals.getOrDefault(ScrollStat.recover, 0) != 0;
+            if (getBaseStat(EquipBaseStat.tuc) <= 0 && !recover) {
+                chr.dispose();
+                return;
+            }
+            boolean reset = vals.getOrDefault(ScrollStat.reset, 0) + vals.getOrDefault(ScrollStat.perfectReset, 0) != 0;
+            boolean useTuc = !recover && !reset;
+            int curse = vals.getOrDefault(ScrollStat.cursed, 0);
+            if (success) {
+                boolean chaos = vals.containsKey(ScrollStat.randStat);
+                if (chaos) {
+                    boolean noNegative = vals.containsKey(ScrollStat.noNegative);
+                    int max = vals.containsKey(ScrollStat.incRandVol) ? ItemConstants.INC_RAND_CHAOS_MAX : ItemConstants.RAND_CHAOS_MAX;
+                    for (EquipBaseStat ebs : ScrollStat.getRandStats()) {
+                        int cur = (int) getBaseStat(ebs);
+                        if (cur == 0) {
+                            continue;
+                        }
+                        int randStat = Util.getRandom(max);
+                        randStat = !noNegative && Util.succeedProp(50) ? -randStat : randStat;
+                        addStat(ebs, randStat);
+                    }
+                }
+                if (recover) {
+                    Equip fullTucEquip = ItemData.getEquipDeepCopyFromID(getItemId(), false);
+                    int maxTuc = fullTucEquip.getTuc();
+                    if (getTuc() + getCuc() < maxTuc) {
+                        addStat(EquipBaseStat.tuc, 1);
+                    } else {
+                        return; //clean slate scroll won't be consumed on items that it cannot be used on
+                    }
+                } else if (reset) {
+                    resetStats();
+                } else {
+                    for (Map.Entry<ScrollStat, Integer> entry : vals.entrySet()) {
+                        ScrollStat ss = entry.getKey();
+                        int val = entry.getValue();
+                        if (ss.getEquipStat() != null) {
+                            addStat(ss.getEquipStat(), val);
+                        }
+                    }
+                }
+                if (useTuc) {
+                    addStat(EquipBaseStat.tuc, -1);
+                    addStat(EquipBaseStat.cuc, 1);
+                }
+            } else {
+                if (curse > 0) {
+                    boom = Util.succeedProp(curse);
+                    if (boom && !hasAttribute(EquipAttribute.ProtectionScroll)) {
+                        chr.consumeItem(this);
+                    } else {
+                        boom = false;
+                    }
+                }
+                if (useTuc && !hasAttribute(EquipAttribute.UpgradeCountProtection)) {
+                    addStat(EquipBaseStat.tuc, -1);
+                }
+            }
+            removeAttribute(EquipAttribute.ProtectionScroll);
+            removeAttribute(EquipAttribute.LuckyDay);
+            if (useTuc) {
+                removeAttribute(EquipAttribute.UpgradeCountProtection);
+            }
+            chr.write(FieldPacket.showItemUpgradeEffect(chr.getId(), success, false, scrollID, getItemId(), boom));
+            if (!boom) {
+                recalcEnchantmentStats();
+                updateToChar(chr);
+            }
+            chr.consumeItem(scroll);
+        } else {
+            chr.chatMessage("Could not find scroll data.");
+            chr.dispose();
+        }
     }
 }

@@ -4,15 +4,13 @@ import net.swordie.ms.ServerConstants;
 import net.swordie.ms.client.character.Char;
 import net.swordie.ms.client.character.items.Equip;
 import net.swordie.ms.connection.packet.QuickMoveInfo;
-import net.swordie.ms.enums.BaseStat;
-import net.swordie.ms.enums.EnchantStat;
-import net.swordie.ms.enums.ItemJob;
-import net.swordie.ms.enums.QuickMoveType;
+import net.swordie.ms.enums.*;
 import net.swordie.ms.loaders.ItemData;
 import net.swordie.ms.util.FileTime;
 import net.swordie.ms.util.Rect;
 import net.swordie.ms.util.Util;
 import net.swordie.ms.util.container.Triple;
+import net.swordie.ms.world.event.PinkZakumEvent;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -88,6 +86,9 @@ public class GameConstants {
     public static final int RUNE_COOLDOWN_TIME = 4; // minutes
     public static final int THUNDER_RUNE_ATTACK_DELAY = 4; // seconds
     public static final int DARKNESS_RUNE_NUMBER_OF_ELITE_MOBS_SPAWNED = 3; // number of elites spawned when activating Rune of Darkness
+    public static final int[] BLOCKED_RUNE_MAPS = { // map ids where runes will not be spawned
+            689013000  // pink zakum battle map
+    };
 
     // BurningField
     public static final int BURNING_FIELD_MAX_LEVEL = 10; //Maximum Burning Field Level
@@ -198,8 +199,9 @@ public class GameConstants {
     public static final int MAX_MERCHANT_SLOTS = 16;
 
     //Inventory
-
     public static final int MAX_INVENTORY_SLOTS = 128;
+
+    public static final int SILENT_CRUSADE_BOSS_COOLDOWN = 240; // minutes between silent crusade attempts (240 min = 4 hours)
 
     // Starforce
     private static final int STARFORCE_LEVELS[][] = {
@@ -800,5 +802,16 @@ public class GameConstants {
     public static boolean isFreeMarketField(int id) {
         // room 1~22
         return id > 910000000 && id < 910001000;
+    }
+
+    public static ReactorType getReactorType(int reactorId) {
+        int prefix = reactorId / 100000;
+        switch (prefix) {
+            case 1:
+                return ReactorType.HERB;
+            case 2:
+                return ReactorType.VEIN;
+        }
+        return null;
     }
 }

@@ -14,6 +14,7 @@ import net.swordie.ms.client.jobs.legend.Evan;
 import net.swordie.ms.client.jobs.legend.Phantom;
 import net.swordie.ms.client.jobs.nova.AngelicBuster;
 import net.swordie.ms.client.jobs.resistance.Demon;
+import net.swordie.ms.client.jobs.resistance.Mechanic;
 import net.swordie.ms.loaders.SkillData;
 import org.apache.log4j.Logger;
 
@@ -48,6 +49,8 @@ public class SkillConstants {
     public static final int MAKING_SKILL_MASTER_LEVEL = 11;
     public static final int MAKING_SKILL_MEISTER_LEVEL = 12;
 
+    public static final int MINING_SKILL = 92010000;
+    public static final int HERBALISM_SKILL = 92000000;
 
 
     //custom skill cd's
@@ -314,7 +317,7 @@ public class SkillConstants {
 
     public static boolean isFlipAffectAreaSkill(int skillID) {
         return skillID == 33111013 || skillID == 33121016 || skillID == 33121012 || skillID == 131001207 ||
-                skillID == 131001107 || skillID == 4121015 || skillID == 51120057;
+                skillID == 131001107 || skillID == 4121015 || skillID == 51120057 || skillID == Mechanic.DISTORTION_BOMB;
     }
 
     public static boolean isShootSkillNotConsumingBullets(int skillID) {
@@ -1261,6 +1264,9 @@ public class SkillConstants {
             case ThunderBreaker.GALE:
             case ThunderBreaker.TYPHOON:
             case Demon.DEMON_CRY:
+            case Mechanic.DISTORTION_BOMB:
+            case BALLISTIC_HURRICANE:
+            case BALLISTIC_HURRICANE_1:
                 return true;
         }
         return false;

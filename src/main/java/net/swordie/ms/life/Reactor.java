@@ -1,12 +1,19 @@
 package net.swordie.ms.life;
 
 import net.swordie.ms.client.character.Char;
+import net.swordie.ms.constants.ItemConstants;
+import net.swordie.ms.enums.BaseStat;
 import net.swordie.ms.handlers.EventManager;
+import net.swordie.ms.life.drop.DropInfo;
+import net.swordie.ms.life.mob.MobStat;
 import net.swordie.ms.loaders.containerclasses.ReactorInfo;
 import net.swordie.ms.loaders.ReactorData;
 import net.swordie.ms.connection.packet.ReactorPool;
+import net.swordie.ms.util.Position;
 import net.swordie.ms.world.field.Field;
+import net.swordie.ms.world.field.Foothold;
 
+import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -37,7 +44,7 @@ public class Reactor extends Life {
     public void increaseState() {
         this.state++;
     }
-    
+
     public String getName() {
         return name;
     }
@@ -90,7 +97,7 @@ public class Reactor extends Life {
         init();
         getField().broadcastPacket(ReactorPool.reactorEnterField(this));
     }
-    
+
     @Override
     public void broadcastLeavePacket() {
         Field field = getField();
@@ -125,5 +132,27 @@ public class Reactor extends Life {
 
     public void incHitCount() {
         setHitCount(getHitCount() + 1);
+    }
+
+    public void die(boolean drops) { //idk sorry
+        getField().removeLife(this);
+        if (drops) {
+            dropDrops();
+        }
+    }
+
+    public void dropDrops() {
+        int fhID = getFh();
+        if (fhID == 0) {
+            Position pos = getPosition();
+            pos.setY(pos.getY());
+            Foothold fhBelow = getField().findFootHoldBelow(pos);
+            if (fhBelow != null) {
+                fhID = fhBelow.getId();
+            }
+        }
+        Set<DropInfo> dropInfoSet = ReactorData.getReactorInfoByID(getTemplateId()).getDrops();
+        getField().drop(dropInfoSet, getField().getFootholdById(fhID), getPosition(), ownerID, 100,
+                100);
     }
 }

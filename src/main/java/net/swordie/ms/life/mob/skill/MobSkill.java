@@ -6,8 +6,10 @@ import net.swordie.ms.client.character.skills.temp.CharacterTemporaryStat;
 import net.swordie.ms.client.character.skills.temp.TemporaryStatBase;
 import net.swordie.ms.client.character.skills.temp.TemporaryStatManager;
 import net.swordie.ms.connection.packet.MobPool;
+import net.swordie.ms.connection.packet.UserPacket;
 import net.swordie.ms.enums.BaseStat;
 import net.swordie.ms.enums.TSIndex;
+import net.swordie.ms.handlers.EventManager;
 import net.swordie.ms.life.AffectedArea;
 import net.swordie.ms.life.mob.Mob;
 import net.swordie.ms.life.mob.MobStat;
@@ -21,9 +23,7 @@ import net.swordie.ms.world.field.Field;
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 
-import java.util.HashSet;
-import java.util.Objects;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import static net.swordie.ms.life.mob.skill.MobSkillStat.*;
@@ -478,7 +478,9 @@ public class MobSkill {
                 // Not needed? Automatically handled well by the controller
                 break;
             case Toos:
-                //todo Lotus toss attack
+                for (Char character : mob.getField().getChars()) {
+                    character.write(UserPacket.tossedByMobSkill(character.getId(), mob, msi,  -1400));
+                }
                 break;
             case Unk:
                 log.warn(String.format("[MobSkill::applyEffect] Unknown mob skillID %d, slv = %d", skill, slv));
