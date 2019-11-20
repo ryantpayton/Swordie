@@ -161,5 +161,8 @@ public class BossConstants {
     public static final int ZAKUM_CHAOS_BODY = 8800100;
     public static final int ZAKUM_CHAOS_ARM = 8800103;
 
+    //Von Bon
+    public static final String [] VON_BON_PORTAL_NAMES = {"Pt01", "Pt02", "Pt04gate", "Pt05gate", "Pt06gate", "Pt08gate", "Pt09gate", "Pt03gate", "Pt07gate"};
+
     // TODO More bosses to be noted down...
 }
