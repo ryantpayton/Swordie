@@ -1053,4 +1053,13 @@ public class FieldPacket {
         }
 
     }
+
+    public static OutPacket setObjectState(String name, int mode) {
+        OutPacket outPacket = new OutPacket(OutHeader.SET_OBJECT_STATE);
+
+        outPacket.encodeString(name);
+        outPacket.encodeInt(mode);
+
+        return outPacket;
+    }
 }

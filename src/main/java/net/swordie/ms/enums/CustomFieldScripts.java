@@ -8,7 +8,8 @@ import java.util.Arrays;
  * @author Asura
  */
 public enum CustomFieldScripts { // Custom Field Scripts
-    easy_zakum_enter(280030200)
+    easy_zakum_enter(280030200),
+    vonbonInsideMob(105200520),
     ;
     private int id;
 
