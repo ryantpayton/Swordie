@@ -76,7 +76,7 @@ public class JobSkillHandler {
         chr.addPsychicArea(pa);
         chr.write(FieldPacket.createPsychicArea(chr.getId(), pa));
         chr.getField().broadcastPacket(UserLocal.enterFieldPsychicInfo(chr.getId(), null, Collections.singletonList(pa)), chr);
-        chr.chatMessage(ChatType.Mob, "SkillID: " + pa.skillID + " (Psychic Area)");
+        chr.dbgChatMsg("SkillID: " + pa.skillID + " (Psychic Area)");
     }
 
     @Handler(op = InHeader.RELEASE_PSYCHIC_AREA)
@@ -539,7 +539,7 @@ public class JobSkillHandler {
             BeastTamer.beastTamerRegroup(chr);
         } else {
             log.error(String.format("Unhandled Beast Tamer Request %d", skillId));
-            chr.chatMessage(String.format("Unhandled Beast Tamer Request %d", skillId));
+            chr.dbgChatMsg(String.format("Unhandled Beast Tamer Request %d", skillId));
         }
     }
 

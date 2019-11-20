@@ -94,6 +94,9 @@ public class MobData {
                 dataOutputStream.writeUTF(mob.getElemAttr());
                 dataOutputStream.writeInt(mob.getHpTagColor());
                 dataOutputStream.writeInt(mob.getHpTagBgcolor());
+
+                dataOutputStream.writeLong(mob.getRespawnDelay());
+
                 dataOutputStream.writeBoolean(mob.isHPgaugeHide());
                 dataOutputStream.writeBoolean(mob.isBoss());
                 dataOutputStream.writeBoolean(mob.isUndead());
@@ -246,6 +249,9 @@ public class MobData {
             mob.setElemAttr(dataInputStream.readUTF());
             mob.setHpTagColor(dataInputStream.readInt());
             mob.setHpTagBgcolor(dataInputStream.readInt());
+
+            mob.setRespawnDelay(dataInputStream.readLong());
+
             mob.setHPgaugeHide(dataInputStream.readBoolean());
             mob.setBoss(dataInputStream.readBoolean());
             mob.setUndead(dataInputStream.readBoolean());
@@ -412,6 +418,30 @@ public class MobData {
             if (node == null) {
                 continue;
             }
+
+            // handle death delay calculcation
+            String[] deathnodes = {"die1", "die2", "dieF"}; // idk there may be more
+            long respawnDelay = 0;
+            for (String s : deathnodes) {
+                Node deathNode = XMLApi.getFirstChildByNameBF(node, s);
+
+                if (deathNode == null)
+                    continue;
+
+                for (Node n : XMLApi.getAllChildren(deathNode)) {
+
+                    for (Node n2 : XMLApi.getAllChildren(n)) {
+                        String name = XMLApi.getNamedAttribute(n2, "name");
+
+                        if (!name.equalsIgnoreCase("delay"))
+                            continue;
+
+                        String value = XMLApi.getNamedAttribute(n2, "value");
+                        respawnDelay += Integer.parseInt(value);
+                    }
+                }
+            }
+
             int id = Integer.parseInt(XMLApi.getNamedAttribute(node, "name").replace(".img", ""));
             Node infoNode = XMLApi.getFirstChildByNameBF(node, "info");
             Mob mob = new Mob(id);
@@ -744,6 +774,8 @@ public class MobData {
                         }
                         break;
                     case "revive":
+                        mob.setRespawnDelay(respawnDelay);
+                        //log.debug("Adding spawn delay: " + respawnDelay);
                         for (Node reviveNode : XMLApi.getAllChildren(n)) {
                             mob.addRevive(Integer.parseInt((XMLApi.getNamedAttribute(reviveNode, "value"))));
                         }

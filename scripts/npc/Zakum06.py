@@ -1,25 +1,25 @@
-# Amon - (Easy/Chaos) Zakum's Altar
-answer = sm.sendSay("#L0#I want you to spawn Zakum for me.#l\r\n#L1#I want to leave.\r\n#l#L2#Nevermind.#l")
+from net.swordie.ms.constants import BossConstants
 
-if answer == 0:
-    fieldID = sm.getFieldID()
-    if fieldID == 280030200: # Easy
-        # Main Body
-        sm.spawnMob(8800020, -54, 86, False)
-        # Arms
-        for i in range(8):
-            sm.spawnMob(8800023 + i, -54, 86, False)
-    elif fieldID == 280030100: # Normal
-        # Main Body
-        sm.spawnMob(8800000, -54, 86, False)
-        # Arms
-        for i in range(8):
-            sm.spawnMob(8800003 + i, -54, 86, False)
-    elif fieldID == 280030000: # Chaos
-        # Main Body
-        sm.spawnMob(8800100, -54, 86, False)
-        # Arms
-        for i in range(8):
-            sm.spawnMob(8800103 + i, -54, 86, False)
-elif answer == 1:
-    sm.clearPartyInfo(211042300)
+# Amon - (Easy/Chaos) Zakum's Altar
+
+mapText = {
+BossConstants.ZAKUM_JQ_MAP_2 : "I am impressed. Now, for the final stage.\r\nProceed, if you dare..",
+BossConstants.ZAKUM_JQ_MAP_1 : "Intimidated? It's not too late to turn around."
+}
+
+optionOne = "#L0#Take me back to El Nath!!#l"
+optionTwo = "#L1#I will continue.#l"
+
+if sm.getFieldID() in mapText:
+	reply = sm.sendNext(mapText[sm.getFieldID()] + "\r\n" + optionOne + "\r\n" + optionTwo)
+	if reply == 0:
+		if sm.sendAskYesNo("Are you sure you want to leave?\r\nYou will lose any progress you have made."):
+			sm.warpNoReturn(211000000, 11) # El Nath Town
+		else:
+			sm.sendSayOkay("Brave choice, I commend you.")
+	elif reply == 1:
+		sm.sendSayOkay("I'll be here when you return.")
+else:
+	if sm.sendAskYesNo("Are you ready to leave? Your whole party will be warped out and will not be allowed back in."):
+		sm.stopEvents()
+        sm.warpNoReturn(211042300, 1)

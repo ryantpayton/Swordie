@@ -34,6 +34,7 @@ import net.swordie.ms.util.FileTime;
 import net.swordie.ms.util.Position;
 import net.swordie.ms.util.Rect;
 import net.swordie.ms.util.Util;
+import net.swordie.ms.world.event.InGameEventManager;
 import net.swordie.ms.world.field.Field;
 import net.swordie.ms.world.field.Portal;
 import org.apache.log4j.LogManager;
@@ -65,6 +66,13 @@ public class AdminCommands {
             chr.getField().broadcastPacket(
                     UserRemote.effect(chr.getId(), effect));
             chr.write(UserPacket.effect(effect));
+        }
+    }
+
+    @Command(names = {"forceevent"}, requiredType = GameMaster)
+    public static class ForceEvent extends AdminCommand {
+        public static void execute(Char chr, String[] args) {
+            InGameEventManager.getInstance().forceNextEvent();
         }
     }
 

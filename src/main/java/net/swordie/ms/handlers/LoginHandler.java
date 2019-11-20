@@ -365,6 +365,29 @@ public class LoginHandler {
         // if anything is wrong, the 2nd pwd authorizer should return an error
     }
 
+
+    @Handler(op = InHeader.CHANGE_PIC_REQUEST)
+    public static void handleChangePicRequest(Client c, InPacket inPacket) {
+        String currentPic = inPacket.decodeString();
+
+        if (BCrypt.checkpw(currentPic, c.getUser().getPic())) {
+            String unencryptedPic = inPacket.decodeString();
+            if (unencryptedPic.length() < 6) {
+                c.write(Login.changePicResponse(LoginType.InsufficientSPW));
+            } else if (BCrypt.checkpw(unencryptedPic, c.getUser().getPassword())) {
+                c.write(Login.changePicResponse(LoginType.SamePasswordAndSPW));
+            } else {
+                String pic = BCrypt.hashpw(unencryptedPic, BCrypt.gensalt(ServerConstants.BCRYPT_ITERATIONS));
+                c.getUser().setPic(pic);
+                // Update in DB
+                DatabaseManager.saveToDB(c.getUser());
+                c.write(Login.changePicResponse(LoginType.Success));
+            }
+        } else {
+            c.write(Login.changePicResponse(LoginType.IncorrectSPW));
+        }
+    }
+
     @Handler(op = InHeader.CHECK_SPW_REQUEST)
     public static boolean handleCheckSpwRequest(Client c, InPacket inPacket) {
         boolean success = false;

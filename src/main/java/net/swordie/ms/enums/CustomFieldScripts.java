@@ -1,5 +1,8 @@
 package net.swordie.ms.enums;
 
+import net.swordie.ms.constants.BossConstants;
+import net.swordie.ms.world.event.RussianRouletteEvent;
+
 import java.util.Arrays;
 
 /**
@@ -8,7 +11,10 @@ import java.util.Arrays;
  * @author Asura
  */
 public enum CustomFieldScripts { // Custom Field Scripts
-    easy_zakum_enter(280030200)
+    easy_zakum_enter(BossConstants.ZAKUM_EASY_ALTAR),
+    hard_zakum_enter(BossConstants.ZAKUM_HARD_ALTAR),
+    chaos_zakum_enter(BossConstants.ZAKUM_CHAOS_ALTAR),
+    russianRoulette_enter(RussianRouletteEvent.EVENT_MAP),
     ;
     private int id;
 

@@ -25,6 +25,7 @@ import net.swordie.ms.life.mob.skill.MobSkillStat;
 import net.swordie.ms.life.npc.Npc;
 import net.swordie.ms.loaders.ItemData;
 import net.swordie.ms.loaders.MobData;
+import net.swordie.ms.loaders.NpcData;
 import net.swordie.ms.loaders.SkillData;
 import net.swordie.ms.loaders.containerclasses.ItemInfo;
 import net.swordie.ms.loaders.containerclasses.MobSkillInfo;
@@ -35,10 +36,15 @@ import net.swordie.ms.util.FileTime;
 import net.swordie.ms.util.Position;
 import net.swordie.ms.util.Rect;
 import net.swordie.ms.util.Util;
+import net.swordie.ms.util.container.Tuple;
+import net.swordie.ms.world.Channel;
+import net.swordie.ms.world.event.InGameEventManager;
 import org.apache.log4j.Logger;
 
+import java.awt.*;
 import java.time.LocalDateTime;
 import java.util.*;
+import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.ScheduledFuture;
@@ -90,6 +96,7 @@ public class Field {
     private int channel;
     private Map<String, Object> properties;
     private boolean changeToChannelOnLeave;
+    private boolean dropsDisabled;
 
     public Field(int fieldID) {
         this.id = fieldID;
@@ -103,6 +110,7 @@ public class Field {
         this.directionInfo = new HashMap<>();
         this.fixedMobCapacity = GameConstants.DEFAULT_FIELD_MOB_CAPACITY; // default
         this.properties = new HashMap<>();
+        dropsDisabled = false;
     }
 
     public void startFieldScript() {
@@ -111,6 +119,14 @@ public class Field {
             log.debug(String.format("Starting field script %s.", script));
             scriptManagerImpl.startScript(getId(), script, ScriptType.Field);
         }
+    }
+
+    public void setDropsDisabled(boolean val) {
+        dropsDisabled = val;
+    }
+
+    public boolean getDropsDisabled() {
+        return dropsDisabled;
     }
 
     public Rect getRect() {
@@ -380,6 +396,20 @@ public class Field {
         return res;
     }
 
+    public Tuple<Foothold, Foothold> getMinMaxNonWallFH() {
+        Set<Foothold> footholds = getFootholds().stream().filter(fh -> !fh.isWall()).collect(Collectors.toSet());
+        Foothold left = footholds.iterator().next(), right = footholds.iterator().next(); // retun vals
+
+        for (Foothold fh : footholds) {
+            if (fh.getX1() < left.getX1()) {
+                left = fh;
+            } else if (fh.getX1() > right.getX1()) {
+                right = fh;
+            }
+        }
+        return new Tuple<>(left, right);
+    }
+
     public Set<Foothold> getFootholds() {
         return footholds;
     }
@@ -493,10 +523,14 @@ public class Field {
             putLifeController(life,controller);
 
             life.broadcastSpawnPacket(onlyChar);
+
+            if (life instanceof Mob) {
+                Mob mob = ((Mob)life);
+
+                if (mob.getRemoveAfter() > 0) // removeafter == 1 means its supposed to die immediately
+                    mob.die(false);
+            }
         }
-
-
-
     }
 
     private void setRandomController(Life life) {
@@ -542,6 +576,7 @@ public class Field {
             }
         }
         broadcastPacket(UserPool.userEnterField(chr), chr);
+        chr.getClient().getChannelInstance().trySpawnAreaBoss(chr, getId(), getChannel());
     }
 
     private boolean hasUserFirstEnterScript() {
@@ -895,7 +930,7 @@ public class Field {
     public void drop(Drop drop, Position posFrom, Position posTo) {
         drop(drop, posFrom, posTo, false);
     }
-    
+
     /**
      * Drops an item to this map, given a {@link Drop}, a starting Position and an ending Position.
      * Immediately broadcasts the drop packet.
@@ -1130,7 +1165,39 @@ public class Field {
         spawnLife(mob, null);
         return mob;
     }
-    
+
+    /**
+     * Spawns an NPC at given coordinates.
+     */
+    public void spawnNpc(int npcId, int pX, int pY) {
+        Npc npc = NpcData.getNpcDeepCopyById(npcId);
+        Position position = new Position(pX, pY);
+        npc.setPosition(position);
+        npc.setCy(pY);
+        npc.setRx0(pX + 50);
+        npc.setRx1(pX - 50);
+        npc.setFh(findFootHoldBelow(new Position(pX, pY -2)).getId());
+        npc.setNotRespawnable(true);
+        if (npc.getField() == null) {
+            npc.setField(this);
+        }
+
+        spawnLife(npc, null);
+    }
+
+    /**
+     * Spawns a mob at given point.
+     *
+     * @param id ID of the mob
+     * @param p point to spawn mob at
+     * @param respawnable whether mob will respawn automatically
+     * @param hp hp of mob. Set to 0 for default hp.
+     * @return
+     */
+    public Mob spawnMob(int id, Point p, boolean respawnable, long hp) {
+        return spawnMob(id, p.getLocation().x, p.getLocation().y, respawnable, hp);
+    }
+
     public Mob spawnMob(int id, int x, int y, boolean respawnable, long hp) {
         Mob mob = MobData.getMobDeepCopyById(id);
         Position pos = new Position(x, y);
@@ -1150,10 +1217,17 @@ public class Field {
     }
 
     public void spawnRuneStone() {
-        if(getMobs().size() <= 0 || getBossMobID() != 0 || !isChannelField()) {
+        if (getMobs().size() <= 0 || getBossMobID() != 0 || !isChannelField()) {
             return;
         }
-        if(getRuneStone() == null) {
+
+        for (int i = 0; i < GameConstants.BLOCKED_RUNE_MAPS.length; i++) {
+            if (getId() == GameConstants.BLOCKED_RUNE_MAPS[i]) {
+                return;
+            }
+        }
+
+        if (getRuneStone() == null) {
             RuneStone runeStone = new RuneStone().getRandomRuneStone(this);
             setRuneStone(runeStone);
             broadcastPacket(FieldPacket.runeStoneAppear(runeStone));
