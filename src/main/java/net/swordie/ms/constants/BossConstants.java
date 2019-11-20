@@ -115,8 +115,5 @@ public class BossConstants {
     public static final int GOLLUX_DROP_STONE_CHANCE = 25;
 
 
-    // Von Bon
-    public static final String [] VON_BON_PORTAL_NAMES = {"Pt01gate", "Pt02gate", "Pt04gate", "Pt05gate", "Pt06gate", "Pt08gate", "Pt09gate", "Pt03gate", "Pt07gate"};
-
     // TODO More bosses to be noted down...
 }
