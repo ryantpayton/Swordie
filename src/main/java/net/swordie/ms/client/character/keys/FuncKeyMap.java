@@ -15,7 +15,6 @@ public class FuncKeyMap {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
-    private int ord;
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
     @JoinColumn(name = "fkMapId")
     private List<Keymapping> keymap = new ArrayList<>();
@@ -100,13 +99,5 @@ public class FuncKeyMap {
             fkm.putKeyBinding(array1[i], (byte) array2[i], array3[i]);
         }
         return fkm;
-    }
-
-    public int getOrd() {
-        return this.ord;
-    }
-
-    public void setOrd(int ord) {
-        this.ord = ord;
     }
 }
