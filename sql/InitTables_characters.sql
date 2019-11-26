@@ -503,7 +503,7 @@ create table guilds (
     seasonpoints int,
     allianceid int,
     level int,
-    rank int,
+    `rank` int,
     ggp int,
     appliable boolean,
     joinsetting int,
