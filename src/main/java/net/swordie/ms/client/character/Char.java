@@ -154,8 +154,11 @@ public class Char {
 	@JoinColumn(name = "avatarData")
 	@OneToOne(cascade = CascadeType.ALL, orphanRemoval = true)
 	private AvatarData avatarData;
-	@OneToOne(cascade = CascadeType.ALL, orphanRemoval = true)
-	private FuncKeyMap funcKeyMap;
+
+	@OneToMany(cascade = CascadeType.ALL)
+	@JoinColumn(name = "charId")
+	@OrderColumn(name = "ord")
+	private List<FuncKeyMap> funcKeyMaps;
 
 	@JoinColumn(name = "charId")
 	@OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
@@ -506,7 +509,7 @@ public class Char {
 		psychicAreas = new HashMap<>();
 		psychicLocks = new HashMap<>();
 		psychicLockBalls = new HashMap<>();
-
+		funcKeyMaps = new ArrayList<FuncKeyMap>();
 	}
 
 	public static Char getFromDBById(int userId) {
@@ -2350,11 +2353,19 @@ public class Char {
 	}
 
 	public FuncKeyMap getFuncKeyMap() {
-		return funcKeyMap;
+		return funcKeyMaps.get(0);
 	}
 
-	public void setFuncKeyMap(FuncKeyMap funcKeyMap) {
-		this.funcKeyMap = funcKeyMap;
+	public List<FuncKeyMap> getFuncKeyMaps() {
+		return funcKeyMaps;
+	}
+
+	public void initFuncKeyMaps(int keySettingType, boolean beastTamer) {
+		int amount = beastTamer ? 5 : 1;
+		for (int i = 0; i < amount; i++) {
+			FuncKeyMap funcKeyMap = FuncKeyMap.getDefaultMapping(keySettingType);
+			funcKeyMaps.add(funcKeyMap);
+		}
 	}
 
 	/**
