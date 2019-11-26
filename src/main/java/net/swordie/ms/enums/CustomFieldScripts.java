@@ -15,6 +15,7 @@ public enum CustomFieldScripts { // Custom Field Scripts
     hard_zakum_enter(BossConstants.ZAKUM_HARD_ALTAR),
     chaos_zakum_enter(BossConstants.ZAKUM_CHAOS_ALTAR),
     russianRoulette_enter(RussianRouletteEvent.EVENT_MAP),
+    vonbonInsideMob(105200520),
     ;
     private int id;
 

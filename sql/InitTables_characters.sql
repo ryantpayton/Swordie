@@ -472,7 +472,9 @@ create table avatardata (
 
 create table funckeymap (
 	id int not null auto_increment,
-    primary key (id)
+    primary key (id),
+    charId int,
+    ord int
 );
 
 create table keymaps (

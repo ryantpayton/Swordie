@@ -100,7 +100,7 @@ public class MigrationHandler {
             chr.setGuild(chr.getClient().getWorld().getGuildByID(chr.getGuild().getId()));
         }
         if (JobConstants.isBeastTamer(chr.getJob())) {
-            c.write(FieldPacket.beastTamerFuncKeyMappedManInit());
+            c.write(FieldPacket.beastTamerFuncKeyMappedManInit(chr.getFuncKeyMaps()));
         } else {
             c.write(FieldPacket.funcKeyMappedManInit(chr.getFuncKeyMap()));
         }
