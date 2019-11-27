@@ -1,7 +1,8 @@
+sm.setSpeakerID(9390124) #Heart Tree Guardian
 
-# 863010000 - Gollux lobby map
-response = sm.sendAskYesNo("Would you like to leave the battle against gollux?")
-
+response = sm.sendAskYesNo("Are you sure you want to abandon the quest to cleanse the heart tree?")
 if response:
-    sm.warpInstanceOut(863010000)
-    sm.clearGolluxClearedMaps()
+        sm.clearGolluxClearedMaps()
+        sm.warpInstanceOut(863010000, 2)
+else:
+    sm.sendSayOkay("You will be rewarded for your bravery, please help cleanse the corruption that has infected the heart tree!")

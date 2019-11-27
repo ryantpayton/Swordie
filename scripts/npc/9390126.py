@@ -12,5 +12,5 @@ if response == 0:
     elif sm.checkParty():
         sm.warpInstanceIn(863010100, 5, True)
 else:
-    sm.sendSayOkay("#fs16#We are in grave need of your help!\r\n#fs12#Gollux has been almost entirely corrupted, please find the time to join the cause!")
+    sm.sendSayOkay("#fs16#We are in grave need of your help!\r\n#fs12#Gollux has almost entirely been corrupted, please find the time to join the cause!")
 sm.dispose()

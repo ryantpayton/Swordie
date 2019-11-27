@@ -3,10 +3,11 @@ package net.swordie.ms.enums;
 import java.util.Arrays;
 
 public enum GolluxDifficultyType {
-    Hell(0),
-    Hard(1),
-    Normal(2),
-    Easy(3),
+    Easy(0),
+    Normal(1),
+    Hard(2),
+    Hell(3),
+
     ;
 
     private byte val;
