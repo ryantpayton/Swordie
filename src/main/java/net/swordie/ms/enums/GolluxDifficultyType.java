@@ -7,7 +7,6 @@ public enum GolluxDifficultyType {
     Normal(1),
     Hard(2),
     Hell(3),
-
     ;
 
     private byte val;

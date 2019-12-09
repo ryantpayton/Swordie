@@ -288,7 +288,22 @@ public class Instance {
         stopEvents();
         fields.clear();
     }
-
+    /**
+     * Clears all information from this Instance, and stops any events, disregarding return-map.
+     */
+    public void clearWithoutWarp() {
+        if (getParty() != null) {
+            getParty().setInstance(null);
+        }
+        for (Char chr : getChars()) {
+            Field field = chr.getField();
+            chr.setDeathCount(-1);
+            chr.getScriptManager().stopEvents(); // Stops the FixedRate Event from the Field Script
+            chr.setInstance(null);
+        }
+        stopEvents();
+        fields.clear();
+    }
     /**
      * Stops all events of this Instance, and each of the eligible Char's ScriptManager's events.
      */
@@ -316,7 +331,6 @@ public class Instance {
         warpOutTimeout = System.currentTimeMillis() + seconds * 1000;
         broadcast(FieldPacket.clock(ClockPacket.secondsClock(seconds)));
     }
-
     /**
      * Returns the amount of seconds until this Instance closes.
      * @return the remaining time

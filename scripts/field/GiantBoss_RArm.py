@@ -1,10 +1,8 @@
-rightShoulderID=9390610;
+rightShoulderID = 9390610
 
 sm.openGolluxPortal("phase3", 12)
 if not sm.golluxMapAlreadyVisited():
     sm.spawnMob(rightShoulderID)
-    chr.chatMessage(str(sm.findMob(rightShoulderID).getX()))
-    chr.chatMessage(str(sm.findMob(rightShoulderID).getY()))
 if not sm.hasMobsInField():
     sm.openGolluxPortal("clear", 7)
     sm.openGolluxPortal("phase3", 12)

@@ -1,4 +1,7 @@
-# Gollux portals
+import time
+from net.swordie.ms.connection.packet import FieldPacket
+from net.swordie.ms.world.field import ClockPacket
+# Gollux Portals
 fields = {
 # Main map id : main portal id : [to field id, to field portal]
 863010100 : {
@@ -14,7 +17,7 @@ fields = {
     2 : [863010210, 1],
 },
 863010210 : {
-    1 : [863010220, 1],
+    1 : [863010200, 2],
     2 : [863010240, 2],
 },
 863010220 : {
@@ -28,7 +31,6 @@ fields = {
 863010240 : {
     1 : [863010230, 2],
     2 : [863010210, 2],
-    3 : [863010500, 2],
 },
 863010300 :{
     1 : [863010310, 1],
@@ -45,7 +47,6 @@ fields = {
 },
 863010330 : {
     1 : [863010320, 3],
-    3 : [863010500, 4],
 },
 863010400 : {
     1 : [863010410, 1],
@@ -62,7 +63,6 @@ fields = {
 },
 863010430 : {
     1 : [863010420, 3],
-    3 : [863010500, 6],
 },
 863010500 : {
     1 : [863010320, 1],
@@ -77,15 +77,38 @@ fields = {
 },
 }
 
+
 fieldID = sm.getFieldID()
 
 if fieldID not in fields:
     sm.chat("This portal (giantBossPortal.py) is not yet coded for this map (" + str(fieldID) + ")")
+
+
+
+if parentID == 3 and (fieldID == 863010240 or fieldID == 863010330 or fieldID == 863010430):
+    if fieldID == 863010240:
+        if not chr.getField().getLifeByTemplateId(9390612) == None:
+            sm.chatScript("You must defeat Gollux's Abdomen before you are able to move forward through this portal.")
+        else:
+            sm.warp(863010500, 2)
+
+    if fieldID == 863010330:
+        if not chr.getField().getLifeByTemplateId(9390610) == None:
+            sm.chatScript("You must defeat Gollux's Right Shoulder before you are able to move forward through this portal.")
+        else:
+            sm.warp(863010500, 4)
+                
+    if fieldID == 863010430:
+        if not chr.getField().getLifeByTemplateId(9390611) == None:
+            sm.chatScript("You must defeat Gollux's Left Shoulder before you are able to move forward through this portal.")
+        else:
+            sm.warp(863010500, 6)
+                
 else:
     innerDict = fields[fieldID]
-    if parentID not in innerDict:
+    if parentID not in innerDict and not fieldID == 863010240 and not fieldID == 863010330 and not fieldID == 863010430:
         sm.chat("This portal (giantBossPortal, " + str(parentID) + ") is not yet coded for this map (" + str(fieldID) + ")")
-    elif sm.getInstancedMapMobCount(fieldID) > 3 and fieldID != 863010600:
-        sm.chat("This portal is locked until all monsters are defeated! There are " + str(sm.getInstancedMapMobCount(fieldID)-3) +" monsters remaning!")
+    elif chr.getField().getMobs().size() > 3 and fieldID != 863010600:
+        sm.chat("This portal is locked until all monsters are defeated, there is " + str(chr.getField().getMobs().size()-3) +" monster(s) remaning.")
     else:
         sm.warp(innerDict[parentID][0], innerDict[parentID][1])

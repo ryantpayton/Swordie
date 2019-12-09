@@ -1,4 +1,4 @@
-leftShoulderID=9390611;
+leftShoulderID = 9390611
 
 sm.openGolluxPortal("phase3", 12)
 if not sm.golluxMapAlreadyVisited():

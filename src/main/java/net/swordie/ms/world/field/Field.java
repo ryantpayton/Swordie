@@ -1086,6 +1086,53 @@ public class Field {
         }
     }
 
+    /**
+     * Drops a list of items evenly spaced along a line of the specified parameters.
+     *
+     * @param items Array of item ids, along with potentially appended quantities.
+     * @param range Range overall that the items should be dropped along, centered on the starting position.
+     * @param startPosX  The X Position in which the Drops originate from.
+     * @param startPosY  The Y Position in which the Drops originate from.
+     * @param msDelay  Delay between every drop.
+     */
+
+    public void dropItemsAlongLine(int[] items, int range, int startPosX, int startPosY, long msDelay) {
+        if (items.length == 0) {
+            return; // avoid divide by zero error
+        }
+        Tuple<Foothold, Foothold> lrFh = getMinMaxNonWallFH();
+        range = Math.max(range, items.length);
+        int offset = Math.max((range / items.length) * 2, 3); // we want offset >= 3 || multiply by 2 so that the drops go past the start point
+        int i = 0;
+        try{
+            for (Integer value : items) {
+                int endPosX = startPosX - range + (offset * i);
+                endPosX = Math.max(endPosX, lrFh.getLeft().getX1()); // left is lowest x val
+                endPosX = Math.min(endPosX, lrFh.getRight().getX1()); // right is highest x val
+                int quantity = 1;
+                //Get our ID back by splitting away only 7 chars
+                int id = Integer.parseInt(value.toString().substring(0, 7));
+                if(value.toString().length() > 7){
+                    //Split the last number(s) off as that is how we are saving the quantity within the array list
+                    //Our reasoning for using the characters after the ID to store quantity, is due to it allowing you to randomize the array-list without losing quantities associated with the appropriate item.
+                    quantity = Integer.parseInt(value.toString().substring(7, value.toString().length()));
+                }
+                if (id > 999999) { // item
+                    Drop drop = new Drop(getNewObjectID());
+                    drop.setItem(ItemData.getItemDeepCopy(id));
+                    drop.getItem().setQuantity(quantity);
+                    Position startPos = new Position(startPosX, startPosY);
+                    Position endPos = new Position(endPosX, findFootHoldBelow(new Position(endPosX, startPosY-25)).getY1());
+                    drop(drop, startPos, endPos, true);
+                }
+                i++;
+                Thread.sleep(Math.max(msDelay, 0)); // todo figure out this gay delay packet
+            }
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+        }
+    }
+
     public List<Portal> getClosestPortal(Rect rect) {
         List<Portal> portals = new ArrayList<>();
         for (Portal portals2 : getPortals()) {

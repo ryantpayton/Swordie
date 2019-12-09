@@ -1594,9 +1594,6 @@ public interface ScriptManager extends Observer {
 
 	void spawnGollux(byte phase);
 
-	void sendGolluxRewardMap(byte difficulty);
-
-	int getInstancedMapMobCount(int fieldId);
 
 	void changeFootHold(String footHoldName, boolean show);
 

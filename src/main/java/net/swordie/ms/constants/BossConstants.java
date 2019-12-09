@@ -1,6 +1,5 @@
 package net.swordie.ms.constants;
 
-import net.swordie.ms.util.Rect;
 
 /**
  * Created on 2-8-2018.
@@ -104,7 +103,6 @@ public class BossConstants {
     public static final int DEMIAN_PASSIVE_STIGMA_TIME = 30 * 1000; // Every 30 seconds, users are hit with +1 stigma
     public static final int DEMIAN_STIGMA_INCINERATE_OBJECT_RESPAWN_TIME = 20 * 1000; // Stigma Pillar spawns every 20seconds
     public static final int DEMIAN_STIGMA_INCINERATE_OBJECT_DURATION_TIME = 10 * 1000; // Stigma Pillar lasts 10 seconds
-
     //  Gollux ---------------------------------------------------------------------------------------------------------
     public static final int[][] GOLLUX_HP_MULTIPLIERS = {{1, 60, 300, 500}, {1, 10, 150, 3000}, {1, 10, 300, 6000}};
     public static final int GOLLUX_FIRST_MAP = 863010100;
@@ -115,6 +113,7 @@ public class BossConstants {
     public static final int[] GOLLUX_LEFT_HAND_SKILLS = new int[]{2, 4, 7, 9, 11};
     public static final int GOLLUX_BREATH_ATTACK = 1;
     public static final int GOLLUX_DROP_STONE_CHANCE = 25;
+    public static final int[] GOLLUX_MAPS = new int[]{863010100, 863010200, 863010210, 863010220, 863010230, 863010240, 863010300, 863010310, 863010320, 863010330, 863010400, 863010410, 863010420, 863010430, 863010500, 863010600};
 
     // Balrog
     public static final int BALROG_ENTRY_MAP = 105100100; // lobby map
@@ -144,7 +143,6 @@ public class BossConstants {
 
     public static final int ZAKUM_SPAWN_X = -54;
     public static final int ZAKUM_SPAWN_Y = 86;
-    public static Rect ZAKUM_RECT = new Rect(-183, -30, 201, 88);
 
     public static final int ZAKUM_EASY_SPAWN_ITEM = 4001796; // Eye of fire chunk
     public static final int ZAKUM_EASY_ENTRANCE = 211042402;
