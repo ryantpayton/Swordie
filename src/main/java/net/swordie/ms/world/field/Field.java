@@ -1315,25 +1315,6 @@ public class Field {
         return mob;
     }
 
-    public Mob spawnMobWithDirection(int id, int x, int y, byte move, boolean respawnable, long hp) {
-        Mob mob = MobData.getMobDeepCopyById(id);
-        Position pos = new Position(x, y);
-        mob.setPosition(pos.deepCopy());
-        mob.setPrevPos(pos.deepCopy());
-        mob.setPosition(pos.deepCopy());
-        mob.setNotRespawnable(!respawnable);
-        mob.setMoveAction(move);
-        if (hp > 0) {
-            mob.setHp(hp);
-            mob.setMaxHp(hp);
-        }
-        if (mob.getField() == null) {
-            mob.setField(this);
-        }
-        spawnLife(mob, null);
-        return mob;
-    }
-
     public void spawnRuneStone() {
         if (getMobs().size() <= 0 || getBossMobID() != 0 || !isChannelField()) {
             return;
