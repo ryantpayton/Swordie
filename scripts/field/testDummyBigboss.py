@@ -6,6 +6,8 @@ if chr.getFieldID() == 863010100:
     if sm.golluxMapAlreadyVisited():
         sm.openGolluxPortal("open", 2)
     else:
+        chr.getInstance().setTimeout(1800)
+        chr.setDeathCount(5)
         time.sleep(4.5)
         sm.openGolluxPortal("open", 1)
         sm.addClearedGolluxMap()

@@ -289,22 +289,6 @@ public class Instance {
         fields.clear();
     }
     /**
-     * Clears all information from this Instance, and stops any events, disregarding return-map.
-     */
-    public void clearWithoutWarp() {
-        if (getParty() != null) {
-            getParty().setInstance(null);
-        }
-        for (Char chr : getChars()) {
-            Field field = chr.getField();
-            chr.setDeathCount(-1);
-            chr.getScriptManager().stopEvents(); // Stops the FixedRate Event from the Field Script
-            chr.setInstance(null);
-        }
-        stopEvents();
-        fields.clear();
-    }
-    /**
      * Stops all events of this Instance, and each of the eligible Char's ScriptManager's events.
      */
     public void stopEvents() {

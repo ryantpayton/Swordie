@@ -9,50 +9,63 @@ solidPendant = 1122265 #Solid Engraved Gollux Pendant
 powerElixir = 2000005 #Power Elixir
 
 items = []
+quantitys = []
 
 #3 Power Elixir drops with random quantities between 1-4
-items.append(int(str(powerElixir)+str(random.randint(1,4))))
-items.append(int(str(powerElixir)+str(random.randint(1,4))))
-items.append(int(str(powerElixir)+str(random.randint(1,4))))
+items.append(powerElixir)
+quantitys.append(random.randint(1,4))
+items.append(powerElixir)
+quantitys.append(random.randint(1,4))
+items.append(powerElixir)
+quantitys.append(random.randint(1,4))
 
 #2 singular Gollux Penny drops and 3 with random quantities between 1-5
-items.append(int(str(golluxPenny) + str(1)))
-items.append(int(str(golluxPenny) + str(1)))
-items.append(int(str(golluxPenny) + str(random.randint(1,4))))
-items.append(int(str(golluxPenny) + str(random.randint(1,4))))
-items.append(int(str(golluxPenny) + str(random.randint(1,4))))
-
+items.append(golluxPenny)
+quantitys.append(1)
+items.append(golluxPenny)
+quantitys.append(1)
+items.append(golluxPenny)
+quantitys.append(random.randint(1,4))
+items.append(golluxPenny)
+quantitys.append(random.randint(1,4))
+items.append(golluxPenny)
+quantitys.append(random.randint(1,4))
 
 #1 singular Gollux Coin drop and 1 with a random quantity between 5-10
-items.append(int(str(golluxCoin) + str(1)))
-items.append(int(str(golluxCoin) + str(random.randint(5,10))))
-
+items.append(golluxCoin)
+quantitys.append(1)
+items.append(golluxCoin)
+quantitys.append(random.randint(5,10))
 
 
 if random.randint(0,100) < 15:
-    items.append(int(str(crackedBelt) + str(1)))
+    items.append(crackedBelt)
+    quantitys.append(1)
 if random.randint(0,100) < 5:
-    items.append(int(str(crackedBelt) + str(1)))
+    items.append(crackedBelt)
+    quantitys.append(1)
 
 if random.randint(0,100) < 15:
-    items.append(int(str(crackedPendant) + str(1)))
+    items.append(crackedPendant)
+    quantitys.append(1)
 if random.randint(0,100) < 5:
-    items.append(int(str(crackedPendant) + str(1)))
-
+    items.append(crackedPendant)
+    quantitys.append(1)
 
 if random.randint(0,100) < 20:
-    items.append(int(str(solidBelt) + str(1)))
+    items.append(solidBelt)
+    quantitys.append(1)
 if random.randint(0,100) < 10:
-    items.append(int(str(solidBelt) + str(1)))
+    items.append(solidBelt)
+    quantitys.append(1)
 
 if random.randint(0,100) < 30:
-    items.append(int(str(solidPendant) + str(1)))
+    items.append(solidPendant)
+    quantitys.append(1)
 if random.randint(0,100) < 10:
-    items.append(int(str(solidPendant) + str(1)))
+    items.append(solidPendant)
+    quantitys.append(1)
 
-
-
-random.shuffle(items)
 
 
 if reactor.getHitCount() == 0:
@@ -61,4 +74,4 @@ if reactor.getHitCount() == 0:
     sm.removeReactor()
     time.sleep(.75)
     sm.spawnReactorInState(8630004, 95, 67, 1)
-    chr.getField().dropItemsAlongLine(items, 115, 95, 75, 125)
+    chr.getField().dropItemsAlongLine(items, quantitys, True, 115, 95, 75, 125)

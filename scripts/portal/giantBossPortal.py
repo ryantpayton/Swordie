@@ -80,26 +80,21 @@ fields = {
 
 fieldID = sm.getFieldID()
 
-if fieldID not in fields:
-    sm.chat("This portal (giantBossPortal.py) is not yet coded for this map (" + str(fieldID) + ")")
-
-
-
 if parentID == 3 and (fieldID == 863010240 or fieldID == 863010330 or fieldID == 863010430):
     if fieldID == 863010240:
-        if not chr.getField().getLifeByTemplateId(9390612) == None:
+        if chr.getField().getLifeByTemplateId(9390612) is not None:
             sm.chatScript("You must defeat Gollux's Abdomen before you are able to move forward through this portal.")
         else:
             sm.warp(863010500, 2)
 
     if fieldID == 863010330:
-        if not chr.getField().getLifeByTemplateId(9390610) == None:
+        if chr.getField().getLifeByTemplateId(9390610) is not None:
             sm.chatScript("You must defeat Gollux's Right Shoulder before you are able to move forward through this portal.")
         else:
             sm.warp(863010500, 4)
                 
     if fieldID == 863010430:
-        if not chr.getField().getLifeByTemplateId(9390611) == None:
+        if chr.getField().getLifeByTemplateId(9390611) is not None:
             sm.chatScript("You must defeat Gollux's Left Shoulder before you are able to move forward through this portal.")
         else:
             sm.warp(863010500, 6)

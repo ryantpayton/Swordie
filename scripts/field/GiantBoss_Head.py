@@ -40,11 +40,12 @@ if sm.hasMobById(secondPhaseHeadID):
 if sm.hasMobById(thirdPhaseHeadID):
     chr.getField().broadcastPacket(FieldPacket.clock(ClockPacket.timerGauge(chr.getInstance().getRemainingTime() * 1000, 90 * 1000)));
     sm.waitForMobDeath(thirdPhaseHeadID)
-    sm.showFieldEffect("Map/EffectTW.img/arisan/clear")
     difficulty = sm.getGolluxDifficulty()
+    sm.showFieldEffect("Map/EffectTW.img/arisan/clear")
     sm.clearGolluxClearedMaps()
     DemianStigma.resetStigma(chr)
-    chr.getInstance().clearWithoutWarp()
+    chr.setDeathCount(-1)
+    chr.getInstance().setTimeout(305)#5 Minute and 5 second time out after defeating boss
     time.sleep(2.5)
     sm.warpInstanceIn(863010700)
     reactorId = int(str(863000) + str(difficulty.getVal()))
