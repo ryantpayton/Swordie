@@ -42,59 +42,59 @@ items.append(golluxCoin)
 quantitys.append(random.randint(19,39))
 
 
-if random.randint(0,100) < 10:
+if random.randint(1,100) <= 10:
     items.append(crackedBelt)
     quantitys.append(1)
-if random.randint(0,100) < 5:
+if random.randint(1,100) <= 5:
     items.append(crackedBelt)
     quantitys.append(1)
 
-if random.randint(0,100) < 10:
+if random.randint(1,100) <= 10:
     items.append(crackedPendant)
     quantitys.append(1)
-if random.randint(0,100) < 5:
+if random.randint(1,100) <= 5:
     items.append(crackedPendant)
     quantitys.append(1)
 
-if random.randint(0,100) < 10:
+if random.randint(1,100) <= 10:
     items.append(solidBelt)
     quantitys.append(1)
-if random.randint(0,100) < 5:
+if random.randint(1,100) <= 5:
     items.append(solidBelt)
     quantitys.append(1)
 
-if random.randint(0,100) < 10:
+if random.randint(1,100) <= 10:
     items.append(solidPendant)
     quantitys.append(1)
-if random.randint(0,100) < 5:
+if random.randint(1,100) <= 5:
     items.append(solidPendant)
     quantitys.append(1)
 
-if random.randint(0,100) < 15:
+if random.randint(1,100) <= 15:
     items.append(reinforcedBelt)
     quantitys.append(1)
-if random.randint(0,100) < 5:
+if random.randint(1,100) <= 5:
     items.append(reinforcedBelt)
     quantitys.append(1)
 
-if random.randint(0,100) < 15:
+if random.randint(1,100) <= 15:
     items.append(reinforcedPendant)
     quantitys.append(1)
-if random.randint(0,100) < 5:
+if random.randint(1,100) <= 5:
     items.append(reinforcedPendant)
     quantitys.append(1)
 
-if random.randint(0,100) < 20:
+if random.randint(1,100) <= 20:
     items.append(superiorBelt)
     quantitys.append(1)
-if random.randint(0,100) < 5:
+if random.randint(1,100) <= 5:
     items.append(superiorBelt)
     quantitys.append(1)
 
-if random.randint(0,100) < 25:
+if random.randint(1,100) <= 25:
     items.append(superiorPendant)
     quantitys.append(1)
-if random.randint(0,100) < 5:
+if random.randint(1,100) <= 5:
     items.append(superiorPendant)
     quantitys.append(1)
 

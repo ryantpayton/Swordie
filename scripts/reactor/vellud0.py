@@ -36,17 +36,17 @@ items.append(golluxCoin)
 quantitys.append(random.randint(1,4))
 
 
-if random.randint(0,100) < 35:
+if random.randint(1,100) <= 35:
     items.append(crackedBelt)
     quantitys.append(1)
-if random.randint(0,100) < 5:
+if random.randint(1,100) <= 5:
     items.append(crackedBelt)
     quantitys.append(1)
 
-if random.randint(0,100) < 45:
+if random.randint(1,100) <= 45:
     items.append(crackedPendant)
     quantitys.append(1)
-if random.randint(0,100) < 5:
+if random.randint(1,100) <= 5:
     items.append(crackedPendant)
     quantitys.append(1)
 
