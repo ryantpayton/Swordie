@@ -78,7 +78,6 @@ import java.util.stream.Collectors;
 
 import static net.swordie.ms.client.character.skills.temp.CharacterTemporaryStat.RideVehicle;
 import static net.swordie.ms.enums.ChatType.*;
-import static net.swordie.ms.life.mob.skill.MobSkillStat.delay;
 import static net.swordie.ms.life.mob.skill.MobSkillStat.fixDamR;
 import static net.swordie.ms.life.npc.NpcMessageType.*;
 
@@ -1167,17 +1166,17 @@ public class ScriptManagerImpl implements ScriptManager {
 	}
 
 	public Mob waitForMobDeath() {
-		Object response = null;
-		if (isActive(ScriptType.FirstEnterField)) {
-			response = getScriptInfoByType(ScriptType.FirstEnterField).awaitResponse();
-		} else if (isActive(ScriptType.Field)) {
-		    response = getScriptInfoByType(ScriptType.Field).awaitResponse();
+        Object response = null;
+        if (isActive(ScriptType.FirstEnterField)) {
+            response = getScriptInfoByType(ScriptType.FirstEnterField).awaitResponse();
+        } else if (isActive(ScriptType.Field)) {
+            response = getScriptInfoByType(ScriptType.Field).awaitResponse();
         }
-		if (response == null) {
-			throw new NullPointerException(INTENDED_NPE_MSG);
-		}
-		return (Mob) response;
-	}
+        if (response == null) {
+            throw new NullPointerException(INTENDED_NPE_MSG);
+        }
+        return (Mob) response;
+    }
 
 	public Mob waitForMobDeath(int... possibleMobs) {
 		Mob mob = waitForMobDeath();
@@ -1964,6 +1963,9 @@ public class ScriptManagerImpl implements ScriptManager {
 		return chr.getInventoryByType(invType).getEmptySlots();
 	}
 
+    public int getEmptyInventorySlots(int invType) {
+        return chr.getInventoryByType(InvType.getInvTypeByVal(invType)).getEmptySlots();
+    }
 
 
 	// Quest-related methods -------------------------------------------------------------------------------------------
@@ -2695,14 +2697,14 @@ public class ScriptManagerImpl implements ScriptManager {
 
 	public GolluxDifficultyType getGolluxDifficulty() {
 		Map<String, Object> golluxMaps = chr.getOrCreateFieldByCurrentInstanceType(BossConstants.GOLLUX_FIRST_MAP).getProperties();
-		byte difficulty = 0;
+		byte difficulty = 3;
 		ArrayList<Integer> golluxMainParts = new ArrayList<>();
 		golluxMainParts.add(BossConstants.GOLLUX_ABDOMEN);
 		golluxMainParts.add(BossConstants.GOLLUX_RIGHT_SHOULDER);
 		golluxMainParts.add(BossConstants.GOLLUX_LEFT_SHOULDER);
 		for (Map.Entry<String, Object> entry : golluxMaps.entrySet()) {
 			if (golluxMainParts.contains(Integer.valueOf(entry.getKey())) && Integer.valueOf(entry.getValue().toString()) == 2) {
-				difficulty++;
+				difficulty--;
 			}
 		}
 		return GolluxDifficultyType.getByVal(difficulty);
@@ -2714,7 +2716,7 @@ public class ScriptManagerImpl implements ScriptManager {
 		}
 		int mobId = 9390600 + phase;
 		Mob gollux = MobData.getMobDeepCopyById(mobId);
-		int hpMultiplier = BossConstants.GOLLUX_HP_MULTIPLIERS[phase][3 - getGolluxDifficulty().getVal()];
+		int hpMultiplier = BossConstants.GOLLUX_HP_MULTIPLIERS[phase][getGolluxDifficulty().getVal()];
 		Mob mob = spawnMob(mobId, 0, 0, false, gollux.getHp() * Long.valueOf(hpMultiplier));
 		blockGolluxAttacks();
 	}
@@ -2799,32 +2801,6 @@ public class ScriptManagerImpl implements ScriptManager {
 		return GameConstants.MAX_INVENTORY_SLOTS - chr.getInventoryByType(InvType.getInvTypeByVal(type)).getSlots();
 	}
 
-	public void dropItemsAlongLine(int[] items, int range, int startPosX, int startPosY, long msDelay) {
-		if (items.length <= 0) {
-			return; // avoid divide by zero error
-		}
-		Tuple<Foothold, Foothold> lrFh = chr.getField().getMinMaxNonWallFH();
-
-		range = Math.max(range, items.length);
-		int offset = Math.max((range / items.length) * 2, 3); // we want offset >= 3 || multiply by 2 so that the drops go past the start point
-		for (int i = 0; i < items.length; i++) {
-			int endPosX = startPosX - range + (offset * i);
-			endPosX = Math.max(endPosX, lrFh.getLeft().getX1()); // left is lowest x val
-			endPosX = Math.min(endPosX, lrFh.getRight().getX1()); // right is highest x val
-
-			if (items[i] <= 0) { // some fucker
-				continue;
-			}
-
-			if (items[i] > 999999) { // item
-				dropItem(items[i], startPosX, startPosY, endPosX, startPosY);
-			} else { // meso
-				dropMeso(items[i], startPosX, startPosY, endPosX, startPosY);
-			}
-
-			//Thread.sleep(Math.max(msDelay, 0)); // todo figure out this gay delay packet
-		}
-	}
 
 	// only for items with quantity
 	public void dropItem(int itemId, int itemQuantity, Mob deadMob) {

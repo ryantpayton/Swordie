@@ -288,7 +288,6 @@ public class Instance {
         stopEvents();
         fields.clear();
     }
-
     /**
      * Stops all events of this Instance, and each of the eligible Char's ScriptManager's events.
      */
@@ -316,7 +315,6 @@ public class Instance {
         warpOutTimeout = System.currentTimeMillis() + seconds * 1000;
         broadcast(FieldPacket.clock(ClockPacket.secondsClock(seconds)));
     }
-
     /**
      * Returns the amount of seconds until this Instance closes.
      * @return the remaining time
