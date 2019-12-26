@@ -257,14 +257,10 @@ public class ItemUpgradeHandler {
             chr.dispose();
             return;
         }
-        if(!ii.getReqItemIds().isEmpty())
-        {
-            if(!ii.getReqItemIds().contains(equip.getItemId()))
-            {
-                chr.chatMessage(SystemNotice, "You may not scroll the selected equip with this scroll.");
-                chr.dispose();
-                return;
-            }
+        if(ii != null && !ii.getReqItemIds().contains(equip.getItemId())) {
+            chr.chatMessage(SystemNotice, "You may not scroll the selected equip with this scroll.");
+            chr.dispose();
+            return;
         }
         int scrollID = scroll.getItemId();
         boolean success = true;
