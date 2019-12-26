@@ -1,3 +1,2 @@
-# Maple Hall (10000)
-sm.showEffect("maplemap/enter/20000", 0)
-sm.dispose()
+# Snail Park
+sm.showEffect("Map/Effect.img/maplemap/enter/20000")

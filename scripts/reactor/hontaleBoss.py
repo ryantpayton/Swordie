@@ -1,11 +1,15 @@
 # Normal horntail gem
-sm.spawnMob(8810002, 95, 260, False)
-sm.spawnMob(8810003, 95, 260, False)
-sm.spawnMob(8810004, 95, 260, False)
-sm.spawnMob(8810005, 95, 260, False)
-sm.spawnMob(8810006, 95, 260, False)
-sm.spawnMob(8810007, 95, 260, False)
-sm.spawnMob(8810008, 95, 260, False)
-sm.spawnMob(8810009, 95, 260, False)
-sm.spawnMob(8810018, 95, 260, False)
-sm.removeReactor()
+
+from net.swordie.ms.constants import BossConstants
+import random
+
+HORNTAIL = 8810026 # HT invis body, dies immediately and spawns all the parts
+
+SPAWN_PX = 95
+SPAWN_PY = 260
+
+reactor.incHitCount()
+reactor.increaseState()
+if reactor.getHitCount() >= 4:
+	sm.spawnMob(HORNTAIL, SPAWN_PX, SPAWN_PY, False)
+	sm.removeReactor()

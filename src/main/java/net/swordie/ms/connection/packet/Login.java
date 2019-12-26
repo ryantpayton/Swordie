@@ -324,4 +324,10 @@ public class Login {
         oPacket.encodeString(nMsg);
         return oPacket;
     }
+
+    public static OutPacket changePicResponse(LoginType result) {
+        OutPacket outPacket = new OutPacket(OutHeader.CHANGE_SPW_RESULT);
+        outPacket.encodeByte(result.getValue());
+        return outPacket;
+    }
 }

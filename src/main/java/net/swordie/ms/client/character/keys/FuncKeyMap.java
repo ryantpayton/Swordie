@@ -15,7 +15,6 @@ public class FuncKeyMap {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
-
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
     @JoinColumn(name = "fkMapId")
     private List<Keymapping> keymap = new ArrayList<>();
@@ -46,20 +45,14 @@ public class FuncKeyMap {
     }
 
     public void encode(OutPacket outPacket) {
-
-        if (getKeymap() == null || getKeymap().size() == 0) {
-            outPacket.encodeByte(true);
-        } else {
-            outPacket.encodeByte(false);
-            for (int i = 0; i < MAX_KEYBINDS; i++) {
-                Keymapping tuple = getMappingAt(i);
-                if (tuple == null) {
-                    outPacket.encodeByte(0);
-                    outPacket.encodeInt(0);
-                } else {
-                    outPacket.encodeByte(tuple.getType());
-                    outPacket.encodeInt(tuple.getVal());
-                }
+        for (int i = 0; i < MAX_KEYBINDS; i++) {
+            Keymapping tuple = getMappingAt(i);
+            if (tuple == null) {
+                outPacket.encodeByte(0);
+                outPacket.encodeInt(0);
+            } else {
+                outPacket.encodeByte(tuple.getType());
+                outPacket.encodeInt(tuple.getVal());
             }
         }
     }

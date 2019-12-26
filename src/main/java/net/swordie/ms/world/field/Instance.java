@@ -56,7 +56,7 @@ public class Instance {
      */
     public void reEnter(Char chr) {
         if (canReEnter(chr)) {
-            chr.warp(getEnterFieldId(), getEnterPortalId());
+            chr.warp(getEnterFieldId(), getEnterPortalId(), false);
         }
     }
 
@@ -88,7 +88,7 @@ public class Instance {
         }
         for (Char chr : getChars()) {
             chr.setInstance(this);
-            chr.warp(fieldId, portalId);
+            chr.warp(fieldId, portalId, false);
         }
         setEnterFieldId(fieldId);
         setEnterPortalId(portalId);
@@ -288,7 +288,6 @@ public class Instance {
         stopEvents();
         fields.clear();
     }
-
     /**
      * Stops all events of this Instance, and each of the eligible Char's ScriptManager's events.
      */
@@ -316,7 +315,6 @@ public class Instance {
         warpOutTimeout = System.currentTimeMillis() + seconds * 1000;
         broadcast(FieldPacket.clock(ClockPacket.secondsClock(seconds)));
     }
-
     /**
      * Returns the amount of seconds until this Instance closes.
      * @return the remaining time

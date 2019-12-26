@@ -1,7 +1,8 @@
 # Lion King's castle Audience room (211070100)  | enter field for von leon
-if sm.getFieldID() == 211070100:
-    sm.spawnMob(8840007, 28, -181, False)
-elif sm.getFieldID() == 211070102:
-    sm.spawnMob(8840000, 28, -181, False)
+# spawns von leon npc, has a talk, then morphs into boss (in VanLeon_Summon script)
 
+VON_LEON_NPC = 2161000
+SPAWNX = -10
+SPAWNY = -181
 
+sm.spawnNpc(VON_LEON_NPC, SPAWNX, SPAWNY)

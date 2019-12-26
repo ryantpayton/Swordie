@@ -235,7 +235,7 @@ public class LoginHandler {
                 curSelectedSubJob, gender, skin, face, hair, items);
         JobManager.getJobById(job.getJobId(), chr).setCharCreationStats(chr);
 
-        chr.setFuncKeyMap(FuncKeyMap.getDefaultMapping(keySettingType));
+        chr.initFuncKeyMaps(keySettingType, JobConstants.isBeastTamer(chr.getJob()));
         DatabaseManager.saveToDB(chr);
         acc.addCharacter(chr);
 
@@ -363,6 +363,29 @@ public class LoginHandler {
             c.write(Login.selectCharacterResult(LoginType.Success, (byte) 0, channel.getPort(), characterId));
         }
         // if anything is wrong, the 2nd pwd authorizer should return an error
+    }
+
+
+    @Handler(op = InHeader.CHANGE_PIC_REQUEST)
+    public static void handleChangePicRequest(Client c, InPacket inPacket) {
+        String currentPic = inPacket.decodeString();
+
+        if (BCrypt.checkpw(currentPic, c.getUser().getPic())) {
+            String unencryptedPic = inPacket.decodeString();
+            if (unencryptedPic.length() < 6) {
+                c.write(Login.changePicResponse(LoginType.InsufficientSPW));
+            } else if (BCrypt.checkpw(unencryptedPic, c.getUser().getPassword())) {
+                c.write(Login.changePicResponse(LoginType.SamePasswordAndSPW));
+            } else {
+                String pic = BCrypt.hashpw(unencryptedPic, BCrypt.gensalt(ServerConstants.BCRYPT_ITERATIONS));
+                c.getUser().setPic(pic);
+                // Update in DB
+                DatabaseManager.saveToDB(c.getUser());
+                c.write(Login.changePicResponse(LoginType.Success));
+            }
+        } else {
+            c.write(Login.changePicResponse(LoginType.IncorrectSPW));
+        }
     }
 
     @Handler(op = InHeader.CHECK_SPW_REQUEST)

@@ -1,10 +1,11 @@
 package net.swordie.ms.util;
 
 import io.netty.buffer.ByteBuf;
+import javafx.print.Printer;
 
-import java.io.File;
-import java.io.IOException;
+import java.io.*;
 import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.text.NumberFormat;
@@ -79,6 +80,23 @@ public class Util {
     public static String readFile(String path, Charset encoding) throws IOException {
         byte[] encoded = Files.readAllBytes(Paths.get(path));
         return new String(encoded, encoding);
+    }
+
+    /**
+     * Creates a writes to a file with given directory path.
+     * Will overwrite any pre-existing file.
+     *
+     * @param path path to the file
+     * @param content content of new file. Each string in content is on a new line
+     * @throws IOException if file already exists and is currently in use
+     */
+    public static void createAndWriteToFile(String path, List<String> content) throws IOException {
+        try (Writer writer = new BufferedWriter(new OutputStreamWriter(
+                new FileOutputStream(path), StandardCharsets.UTF_8))) {
+            for (String line : content) {
+                writer.write(line + "\r\n");
+            }
+        }
     }
 
     /**

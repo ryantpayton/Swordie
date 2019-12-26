@@ -1,8 +1,6 @@
 # Spinel | World Tour Guide
 
-if sm.canHold(1452002):
-    sm.sendNext("You CAN hold an Equip.")
-else:
-    sm.sendNext("You CANNOT hold an Equip.")
+sm.sendNext("Son, have you seen the world?")
+REPLY = sm.sendAskYesNo("Well, what would you say if I said that you could?")
 
-
+sm.sendSayOkay("Just carry this gun, you'll even get paid..")

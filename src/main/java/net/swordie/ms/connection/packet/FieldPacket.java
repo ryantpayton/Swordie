@@ -12,7 +12,6 @@ import net.swordie.ms.client.character.runestones.RuneStone;
 import net.swordie.ms.client.character.skills.PsychicArea;
 import net.swordie.ms.client.character.skills.TownPortal;
 import net.swordie.ms.client.character.skills.info.ForceAtomInfo;
-import net.swordie.ms.client.jobs.resistance.Mechanic;
 import net.swordie.ms.client.jobs.resistance.OpenGate;
 import net.swordie.ms.client.trunk.TrunkDlg;
 import net.swordie.ms.connection.OutPacket;
@@ -43,14 +42,24 @@ public class FieldPacket {
     public static OutPacket funcKeyMappedManInit(FuncKeyMap funcKeyMap) {
         OutPacket outPacket = new OutPacket(OutHeader.FUNC_KEY_MAPPED_MAN_INIT);
 
-        funcKeyMap.encode(outPacket);
+        if (funcKeyMap.getKeymap() == null || funcKeyMap.getKeymap().size() == 0) {
+            outPacket.encodeByte(true);
+        } else {
+            outPacket.encodeByte(false);
+            funcKeyMap.encode(outPacket);
+        }
 
         return outPacket;
     }
-    public static  OutPacket beastTamerFuncKeyMappedManInit(){
-        OutPacket outPacket = new OutPacket();
-        outPacket.encodeShort(0);
-        return  outPacket;
+
+    public static OutPacket beastTamerFuncKeyMappedManInit(List<FuncKeyMap> funcKeyMaps) {
+        OutPacket outPacket = new OutPacket(OutHeader.FUNC_KEY_MAPPED_MAN_INIT);
+        outPacket.encodeByte(false);
+        for (FuncKeyMap funcKeyMap : funcKeyMaps) {
+            funcKeyMap.encode(outPacket);
+        }
+
+        return outPacket;
     }
 
     public static OutPacket affectedAreaCreated(AffectedArea aa) {
@@ -1052,5 +1061,14 @@ public class FieldPacket {
                 return createFallingCatcher("DropStoneGiantBoss" + String.valueOf(x), 25, 1, pos);
         }
 
+    }
+
+    public static OutPacket setObjectState(String name, int mode) {
+        OutPacket outPacket = new OutPacket(OutHeader.SET_OBJECT_STATE);
+
+        outPacket.encodeString(name);
+        outPacket.encodeInt(mode);
+
+        return outPacket;
     }
 }

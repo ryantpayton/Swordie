@@ -60,6 +60,13 @@ public class InventoryHandler {
                 chr.dispose();
                 return;
             }
+
+            if (field.getDropsDisabled()) {
+                chr.chatMessage("Drops are currently disabled in this map.");
+                chr.dispose();
+                return;
+            }
+
             boolean fullDrop;
             Drop drop;
             if (!item.getInvType().isStackable() || quantity >= item.getQuantity() ||
@@ -126,7 +133,7 @@ public class InventoryHandler {
         }
 //        log.debug("Equipped after: " + chr.getEquippedInventory());
 //        log.debug("Equip after: " + chr.getEquipInventory());
-        chr.setBulletIDForAttack(chr.calculateBulletIDForAttack());
+        chr.setBulletIDForAttack(chr.calculateBulletIDForAttack(1));
         if (newPos < 0
                 && -newPos >= BodyPart.APBase.getVal() && -newPos < BodyPart.APEnd.getVal()
                 && chr.getAndroid() != null) {

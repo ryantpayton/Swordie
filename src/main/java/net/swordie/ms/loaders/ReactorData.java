@@ -2,6 +2,7 @@ package net.swordie.ms.loaders;
 
 import net.swordie.ms.ServerConstants;
 import net.swordie.ms.life.Reactor;
+import net.swordie.ms.life.drop.DropInfo;
 import net.swordie.ms.loaders.containerclasses.ReactorInfo;
 import org.apache.log4j.Logger;
 import org.w3c.dom.Node;
@@ -11,6 +12,7 @@ import net.swordie.ms.util.XMLApi;
 
 import java.io.*;
 import java.util.HashMap;
+import java.util.stream.Collectors;
 
 /**
  * Created on 4/21/2018.
@@ -179,6 +181,7 @@ public class ReactorData {
                 r.setBottom(dis.readShort());
                 ri.setRect(r);
             }
+            ri.setDrops(DropData.getDropInfoByID(ri.getId()).stream().filter(DropInfo::getReactorDrop).collect(Collectors.toSet()));
             addReactorInfo(ri);
         } catch (IOException e) {
             e.printStackTrace();

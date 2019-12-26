@@ -26,6 +26,9 @@ import net.swordie.ms.life.Summon;
 import net.swordie.ms.life.mob.Mob;
 import net.swordie.ms.loaders.SkillData;
 import net.swordie.ms.util.Rect;
+import net.swordie.ms.world.event.InGameEvent;
+import net.swordie.ms.world.event.InGameEventManager;
+import net.swordie.ms.world.event.PinkZakumEvent;
 import net.swordie.ms.world.field.Field;
 import net.swordie.ms.world.field.fieldeffect.FieldEffect;
 import org.apache.log4j.Logger;
@@ -40,7 +43,7 @@ public class AttackHandler {
     // No handler, gets called from other handlers
     private static void handleAttack(Client c, AttackInfo attackInfo) {
         Char chr = c.getChr();
-        chr.chatMessage(attackInfo.skillId + "");
+        chr.dbgChatMsg(attackInfo.skillId + "");
         int skillID = attackInfo.skillId;
         Field field = chr.getField();
         if ((field.getFieldLimit() & FieldOption.SkillLimit.getVal()) > 0 ||
@@ -50,12 +53,12 @@ public class AttackHandler {
         }
         boolean summonedAttack = attackInfo.attackHeader == OutHeader.SUMMONED_ATTACK;
         boolean multiAttack = SkillConstants.isMultiAttackCooldownSkill(skillID);
-        if (!summonedAttack && !multiAttack && !chr.applyMpCon(attackInfo.skillId, attackInfo.slv)) {
+        if (chr.applyBulletCon(attackInfo.skillId, attackInfo.slv) && !summonedAttack && !multiAttack && !chr.applyMpCon(attackInfo.skillId, attackInfo.slv)) {
             return;
         }
         if (summonedAttack || chr.checkAndSetSkillCooltime(skillID) || chr.hasSkillCDBypass() || multiAttack) {
             byte slv = attackInfo.slv;
-            chr.chatMessage(Mob, "SkillID: " + skillID);
+            chr.dbgChatMsg("SkillID: " + skillID);
             Job sourceJobHandler = chr.getJobHandler();
             SkillInfo si = SkillData.getSkillInfoById(skillID);
             if (si != null && si.getExtraSkillInfo().size() > 0) {
@@ -101,38 +104,40 @@ public class AttackHandler {
                 net.swordie.ms.life.mob.Mob mob = (Mob) field.getLifeByObjectID(mai.mobId);
                 if (mob == null) {
                     chr.chatMessage(ChatType.Expedition, String.format("Wrong attack info parse (probably)! SkillID = %d, Mob ID = %d", skillID, mai.mobId));
-                } else if (mob.getHp() > 0) {
+                } else { // this check was making the sponge not die because it skips the last bit of hp from the dead mob
                     long totalDamage = 0;
                     for (int dmg : mai.damages) {
                         totalDamage += dmg;
                     }
-                    mob.damage(chr, totalDamage);
-                    mob.handleDamageReflect(chr, skillID, totalDamage);
-                    //TODO Horntail sponge damage, should make a separate function
+                    if (mob.getHp() > 0) {
+                        mob.damage(chr, totalDamage);
+                        mob.handleDamageReflect(chr, skillID, totalDamage);
+                    }
+
+                    if (mob.getTemplateId() == 9400902) { // pink zakum third body
+                        InGameEvent event = InGameEventManager.getInstance().getActiveEvent();
+
+                        if (event instanceof PinkZakumEvent)
+                            ((PinkZakumEvent)event).win();
+                    }
+
                     if ((mob.getTemplateId() >= 8810202 && mob.getTemplateId() <= 8810209)) {
-                        Life life = field.getLifeByTemplateId(8810214);
-                        if (life != null) {
-                            Mob mob2 = (Mob) life;
-                            mob2.damage(chr, totalDamage);
-                            field.broadcastPacket(FieldPacket.fieldEffect(FieldEffect.mobHPTagFieldEffect(mob2)));
-                        }
+                        handleHorntailHPBar(field, chr, totalDamage, (byte) 2); // easy horntail
+                    } else if ((mob.getTemplateId() >= 8810002 && mob.getTemplateId() <= 8810009)) {
+                        handleHorntailHPBar(field, chr, totalDamage, (byte) 0); // normal horntail
+                    } else if ((mob.getTemplateId() >= 8810102 && mob.getTemplateId() <= 8810109)) {
+                        handleHorntailHPBar(field, chr, totalDamage, (byte) 1); // chaos horntail
+                    } else if (mob.getTemplateId() >= 8820001 && mob.getTemplateId() <= 8820006) {
+                        handlePinkBeanHPBar(field, chr, totalDamage, false);
+                    } else if (mob.getTemplateId() >= 8820101 && mob.getTemplateId() <= 8820106) {
+                        handlePinkBeanHPBar(field, chr, totalDamage, true);
+                    } else if ((mob.getTemplateId() >= 8830000 && mob.getTemplateId() <= 8830002)) {
+                        handleBalrogHPBar(field, chr, totalDamage, false);
+                    } else if ((mob.getTemplateId() >= 8830007 && mob.getTemplateId() <= 8830009)) {
+                        handleBalrogHPBar(field, chr, totalDamage, true);
                     }
-                    if ((mob.getTemplateId() >= 8810002 && mob.getTemplateId() <= 8810009)) {
-                        Life life2 = field.getLifeByTemplateId(8810018);
-                        if (life2 != null) {
-                            Mob mob2 = (Mob) life2;
-                            mob2.damage(chr, totalDamage);
-                            field.broadcastPacket(FieldPacket.fieldEffect(FieldEffect.mobHPTagFieldEffect(mob2)));
-                        }
-                    }
-                    if ((mob.getTemplateId() >= 8810102 && mob.getTemplateId() <= 8810109)) {
-                        Life life3 = field.getLifeByTemplateId(8810118);
-                        if (life3 != null) {
-                            Mob mob3 = (Mob) life3;
-                            mob3.damage(chr, totalDamage);
-                            field.broadcastPacket(FieldPacket.fieldEffect(FieldEffect.mobHPTagFieldEffect(mob3)));
-                        }
-                    }
+
+
                 }
                 if (mob != null && mob.getHp() < 0) {
                     mob.onKilledByChar(chr);
@@ -142,18 +147,56 @@ public class AttackHandler {
                 }
             }
 
-
             // MultiKill Message Popup & Exp
             if (multiKillMessage > 2) {
                 int bonusExpMultiplier = (multiKillMessage - 2) * 5;
                 long totalBonusExp = (long) (mobexp * (bonusExpMultiplier * GameConstants.MULTI_KILL_BONUS_EXP_MULTIPLIER));
-                chr.write(UserLocal.comboCounter((byte) 0, (int) totalBonusExp, multiKillMessage > 10 ? 10 : multiKillMessage));
+                chr.write(UserLocal.comboCounter((byte) 0, (int) totalBonusExp, Math.min(multiKillMessage, 10)));
                 chr.addExpNoMsg(totalBonusExp);
             }
 
         }
     }
 
+    private static void handleHorntailHPBar(Field field, Char chr, long totalDamage, byte type) {
+        int[][] options = new int[][] {
+                { 8810018 }, // normal has one dmg sink
+                { 8810118, 8810119, 8810120, 8810121, 8810122 }, // chaos has five dmg sinks
+                { 8810214 }, // easy has one dmg sink
+        };
+
+        for (int i = 0; i < options[type].length; i++) {
+            Life htDmgSoak = field.getLifeByTemplateId(options[type][i]);
+            if (htDmgSoak != null) {
+                Mob ht = (Mob) htDmgSoak;
+                ht.damage(chr, totalDamage);
+                field.broadcastPacket(FieldPacket.fieldEffect(FieldEffect.mobHPTagFieldEffect(ht)));
+                return;
+            }
+        }
+    }
+
+    private static void handlePinkBeanHPBar(Field field, Char chr, long totalDamage, boolean chaos) {
+        int pbDmgSoakId = chaos ? 8820110 : 8820010;
+        for (int i = 0; i < 5; i++) { // pb has one dmg sink for each 'round' of the statues spawning so we need to loop thru the possibilities
+            Life cpbDmgSoak = field.getLifeByTemplateId(pbDmgSoakId + i);
+            if (cpbDmgSoak != null) {
+                Mob cpb = (Mob) cpbDmgSoak;
+                cpb.damage(chr, totalDamage);
+                field.broadcastPacket(FieldPacket.fieldEffect(FieldEffect.mobHPTagFieldEffect(cpb)));
+                return;
+            }
+        }
+    }
+
+    private static void handleBalrogHPBar(Field field, Char chr, long totalDamage, boolean easy) {
+        Life balrogDmgSoak = field.getLifeByTemplateId(easy ? 8830003 : 8830010);
+        if (balrogDmgSoak != null) {
+            Mob balrog = (Mob) balrogDmgSoak;
+            balrog.damage(chr, totalDamage);
+            field.broadcastPacket(FieldPacket.fieldEffect(FieldEffect.mobHPTagFieldEffect(balrog)));
+        }
+    }
 
     @Handler(op = InHeader.USER_BODY_ATTACK)
     public static void handleBodyAttack(Client c, InPacket inPacket) {

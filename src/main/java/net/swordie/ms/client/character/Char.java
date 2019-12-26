@@ -1,6 +1,7 @@
 package net.swordie.ms.client.character;
 
 import net.swordie.ms.Server;
+import net.swordie.ms.ServerConfig;
 import net.swordie.ms.client.Account;
 import net.swordie.ms.client.Client;
 import net.swordie.ms.client.LinkSkill;
@@ -153,8 +154,11 @@ public class Char {
 	@JoinColumn(name = "avatarData")
 	@OneToOne(cascade = CascadeType.ALL, orphanRemoval = true)
 	private AvatarData avatarData;
-	@OneToOne(cascade = CascadeType.ALL, orphanRemoval = true)
-	private FuncKeyMap funcKeyMap;
+
+	@OneToMany(cascade = CascadeType.ALL)
+	@JoinColumn(name = "charId")
+	@OrderColumn(name = "ord")
+	private List<FuncKeyMap> funcKeyMaps;
 
 	@JoinColumn(name = "charId")
 	@OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
@@ -203,6 +207,9 @@ public class Char {
 
 	private int partyID = 0; // Just for DB purposes
 	private int previousFieldID;
+
+	@Transient
+	private int previousPortalID; // not super important so we wont save to db
 
 	@ElementCollection(fetch = FetchType.EAGER)
 	@CollectionTable(name = "skillcooltimes", joinColumns = @JoinColumn(name = "charID"))
@@ -502,7 +509,7 @@ public class Char {
 		psychicAreas = new HashMap<>();
 		psychicLocks = new HashMap<>();
 		psychicLockBalls = new HashMap<>();
-
+		funcKeyMaps = new ArrayList<FuncKeyMap>();
 	}
 
 	public static Char getFromDBById(int userId) {
@@ -618,7 +625,7 @@ public class Char {
 					addItemToInventory(itemCopy);
 				}
 			}
-			setBulletIDForAttack(calculateBulletIDForAttack());
+			setBulletIDForAttack(calculateBulletIDForAttack(1));
 		}
 	}
 
@@ -2195,6 +2202,16 @@ public class Char {
 		getClient().write(UserLocal.chatMsg(clr, msg));
 	}
 
+    /**
+     * Sends a message to the character if the debug config flag is turned on.
+     *
+     * @param message message to send
+     */
+	public void dbgChatMsg(String message) {
+	    if (ServerConfig.DEBUG_MODE)
+	        chatMessage(message);
+    }
+
 	/**
 	 * Unequips an {@link Item}. Ensures that the hairEquips and both inventories get updated.
 	 *
@@ -2336,11 +2353,19 @@ public class Char {
 	}
 
 	public FuncKeyMap getFuncKeyMap() {
-		return funcKeyMap;
+		return funcKeyMaps.get(0);
 	}
 
-	public void setFuncKeyMap(FuncKeyMap funcKeyMap) {
-		this.funcKeyMap = funcKeyMap;
+	public List<FuncKeyMap> getFuncKeyMaps() {
+		return funcKeyMaps;
+	}
+
+	public void initFuncKeyMaps(int keySettingType, boolean beastTamer) {
+		int amount = beastTamer ? 5 : 1;
+		for (int i = 0; i < amount; i++) {
+			FuncKeyMap funcKeyMap = FuncKeyMap.getDefaultMapping(keySettingType);
+			funcKeyMaps.add(funcKeyMap);
+		}
 	}
 
 	/**
@@ -2428,7 +2453,7 @@ public class Char {
 	 * @param toField The field to warp to.
 	 */
 	public void warp(Field toField) {
-		warp(toField, toField.getPortalByName("sp"), false);
+		warp(toField, toField.getPortalByName("sp"), false, true);
 	}
 
 	/**
@@ -2441,7 +2466,16 @@ public class Char {
 		if (toField == null) {
 			toField = getOrCreateFieldByCurrentInstanceType(100000000);
 		}
-		warp(toField, toField.getPortalByName("sp"), characterData);
+		warp(toField, toField.getPortalByName("sp"), characterData, true);
+	}
+
+	public void warp(int fieldId, int portalId, boolean saveReturnMap) {
+		Field field = getOrCreateFieldByCurrentInstanceType(fieldId);
+		Portal portal = field.getPortalByID(portalId);
+		if (portal == null) {
+			portal = field.getDefaultPortal();
+		}
+		warp(field, portal, false, saveReturnMap);
 	}
 
 	/**
@@ -2451,7 +2485,29 @@ public class Char {
 	 * @param toPortal The Portal to spawn at.
 	 */
 	public void warp(Field toField, Portal toPortal) {
-		warp(toField, toPortal, false);
+		warp(toField, toPortal, false, true);
+	}
+
+	/**
+	 * Sets the return portal to the nearest current portal.
+	 */
+	public void setNearestReturnPortal() {
+		Rect rect = new Rect(
+				new Position(
+						getPosition().getX() - 30,
+						getPosition().getY() - 30),
+				new Position(
+						getPosition().getX() + 50, // wide girth
+						getPosition().getY() + 50)
+		);
+
+		List<Portal> portals = getField().getClosestPortal(rect);
+
+		if (portals.size() > 0) {
+			setPreviousPortalID(portals.get(0).getId());
+		} else {
+			setPreviousPortalID(0);
+		}
 	}
 
 	/**
@@ -2463,7 +2519,7 @@ public class Char {
 	 * @param toField The {@link Field} to warp to.
 	 * @param portal  The {@link Portal} where to spawn at.
 	 */
-	public void warp(Field toField, Portal portal, boolean characterData) {
+	public void warp(Field toField, Portal portal, boolean characterData, boolean saveReturnMap) {
 		if (toField == null) {
 			return;
 		}
@@ -2472,9 +2528,15 @@ public class Char {
 			tsm.removeStatsBySkill(aa.getSkillID());
 		}
 		Field currentField = getField();
+
 		if (currentField != null) {
+			if (saveReturnMap) {
+				setPreviousFieldID(currentField.getId()); // this may be a bad idea in some cases? idk
+				setNearestReturnPortal();
+			}
 			currentField.removeChar(this);
 		}
+
 		setField(toField);
 		toField.addChar(this);
 		getAvatarData().getCharacterStat().setPortal(portal.getId());
@@ -2929,6 +2991,14 @@ public class Char {
 	}
 
 	/**
+	 * Heals character's MP and HP completely.
+	 */
+	public void healHPMP() {
+		heal(getMaxHP());
+		healMP(getMaxMP());
+	}
+
+	/**
 	 * Heals this Char's HP for a certain amount. Caps off at maximum HP.
 	 *
 	 * @param amount The amount to heal.
@@ -2985,7 +3055,7 @@ public class Char {
 			write(WvsContext.inventoryOperation(true, false,
 					UpdateQuantity, (short) item.getBagIndex(), (byte) -1, 0, item));
 		}
-		setBulletIDForAttack(calculateBulletIDForAttack());
+		setBulletIDForAttack(calculateBulletIDForAttack(1));
 	}
 
 	/**
@@ -3454,26 +3524,26 @@ public class Char {
 		}
 	}
 
-	public int calculateBulletIDForAttack() {
+	public int calculateBulletIDForAttack(int requiredAmount) {
 		Item weapon = getEquippedInventory().getFirstItemByBodyPart(BodyPart.Weapon);
 		if (weapon == null) {
 			return 0;
 		}
-		Predicate<Item> p;
+		Predicate<Item> kindOfBulletPred;
 		int id = weapon.getItemId();
 
 		if (ItemConstants.isClaw(id)) {
-			p = i -> ItemConstants.isThrowingStar(i.getItemId());
+			kindOfBulletPred = i -> ItemConstants.isThrowingStar(i.getItemId());
 		} else if (ItemConstants.isBow(id)) {
-			p = i -> ItemConstants.isBowArrow(i.getItemId());
+			kindOfBulletPred = i -> ItemConstants.isBowArrow(i.getItemId());
 		} else if (ItemConstants.isXBow(id)) {
-			p = i -> ItemConstants.isXBowArrow(i.getItemId());
+			kindOfBulletPred = i -> ItemConstants.isXBowArrow(i.getItemId());
 		} else if (ItemConstants.isGun(id)) {
-			p = i -> ItemConstants.isBullet(i.getItemId());
+			kindOfBulletPred = i -> ItemConstants.isBullet(i.getItemId());
 		} else {
 			return 0;
 		}
-		Item i = getConsumeInventory().getItems().stream().sorted(Comparator.comparing(Item::getBagIndex)).filter(p).findFirst().orElse(null);
+		Item i = getConsumeInventory().getItems().stream().sorted(Comparator.comparing(Item::getBagIndex)).filter(kindOfBulletPred).filter(item -> item.getQuantity() >= requiredAmount).findFirst().orElse(null);
 		return i != null ? i.getItemId() : 0;
 	}
 
@@ -4316,6 +4386,12 @@ public class Char {
 		this.previousFieldID = previousFieldID;
 	}
 
+	public int getPreviousPortalID() {
+		return previousPortalID;
+	}
+
+	public void setPreviousPortalID(int portalId) { previousPortalID = portalId; }
+
 	public long getNextRandomPortalTime() {
 		return nextRandomPortalTime;
 	}
@@ -4437,6 +4513,32 @@ public class Char {
 		boolean hasEnough = curMp >= mpCon;
 		if (hasEnough) {
 			addStatAndSendPacket(Stat.mp, -mpCon);
+		}
+		return hasEnough;
+	}
+
+	public boolean applyBulletCon(int skillID, byte slv) {
+		if (getTemporaryStatManager().hasStat(NoBulletConsume) || JobConstants.isPhantom(getJob())) {
+			return true;
+		}
+		SkillInfo si = SkillData.getSkillInfoById(skillID);
+		if (si == null) {
+			return true;
+		}
+		int bulletCon = si.getValue(SkillStat.bulletCount, slv) + si.getValue(SkillStat.bulletConsume, slv);
+		if (bulletCon <= 0) {
+			return true;
+		}
+		int bulletItemId = getBulletIDForAttack();
+		if (bulletItemId == 0) {
+			return false;
+		}
+		if (!hasItemCount(getBulletIDForAttack(), bulletCon)) {
+			setBulletIDForAttack(calculateBulletIDForAttack(bulletCon));
+		}
+		boolean hasEnough = hasItemCount(bulletItemId, bulletCon);
+		if (hasEnough) {
+			consumeItem(bulletItemId, bulletCon);
 		}
 		return hasEnough;
 	}

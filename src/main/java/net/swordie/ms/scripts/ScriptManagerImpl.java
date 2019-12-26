@@ -1,5 +1,6 @@
 package net.swordie.ms.scripts;
 
+import net.swordie.ms.ServerConfig;
 import net.swordie.ms.ServerConstants;
 import net.swordie.ms.client.Account;
 import net.swordie.ms.client.Client;
@@ -49,7 +50,9 @@ import net.swordie.ms.util.FileTime;
 import net.swordie.ms.util.Position;
 import net.swordie.ms.util.Rect;
 import net.swordie.ms.util.Util;
+import net.swordie.ms.util.container.Tuple;
 import net.swordie.ms.world.World;
+import net.swordie.ms.world.event.*;
 import net.swordie.ms.world.field.*;
 import net.swordie.ms.world.field.fieldeffect.FieldEffect;
 import net.swordie.ms.world.field.fieldeffect.GreyFieldType;
@@ -108,6 +111,7 @@ public class ScriptManagerImpl implements ScriptManager {
 	private boolean curNodeEventEnd;
 	private static final Lock fileReadLock = new ReentrantLock();
 	private FieldTransferInfo fieldTransferInfo;
+	private int objectID;
 
 	private ScriptManagerImpl(Char chr, Field field) {
 		this.chr = chr;
@@ -183,9 +187,10 @@ public class ScriptManagerImpl implements ScriptManager {
 			return;
 		}
 		if (!isField()) {
-			chr.chatMessage(Mob, String.format("Starting script %s, scriptType %s.", scriptName, scriptType));
+			chr.dbgChatMsg(String.format("Starting script %s, scriptType %s.", scriptName, scriptType));
 			log.debug(String.format("Starting script %s, scriptType %s.", scriptName, scriptType));
 		}
+		objectID = objID;
 		resetParam();
 		Bindings bindings = getBindingsByType(scriptType);
 		if (bindings == null) {
@@ -232,8 +237,35 @@ public class ScriptManagerImpl implements ScriptManager {
 		if (!exists) {
 			log.error(String.format("[Error] Could not find script %s/%s", scriptType.getDir().toLowerCase(), name));
 			if(chr != null) {
-				chr.chatMessage(Mob, String.format("[Script] Could not find script %s/%s", scriptType.getDir().toLowerCase(), name));
+				chr.dbgChatMsg(String.format("[Script] Could not find script %s/%s", scriptType.getDir().toLowerCase(), name));
 			}
+
+			if (ServerConfig.AUTO_CREATE_UNCODED_SCRIPTS) {
+				dir = String.format("%s/%s/%s%s", ServerConstants.SCRIPT_DIR, // dev will remove script prefix when script has been coded
+						scriptType.getDir().toLowerCase(), "autogen_" + name, SCRIPT_ENGINE_EXTENSION);
+				try {
+					ScriptInfo info = getScriptInfoByType(scriptType);
+					List<String> content = new ArrayList<>(Util.makeSet(
+							"# Character field ID when accessed: " + getFieldID(),
+							"# ObjectID: " + info.getObjectID(),
+							"# ParentID: " + info.getParentID()
+					));
+					switch (scriptType) {
+						case Portal:
+						case Reactor:
+						case Npc:
+							content.addAll(Util.makeSet(
+									"# Object Position X: " + getObjectPositionX(),
+									"# Object Position Y: " + getObjectPositionY()
+							));
+					}
+
+					Util.createAndWriteToFile(dir, content);
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+			}
+
 			dir = String.format("%s/%s/%s%s", ServerConstants.SCRIPT_DIR,
 					scriptType.getDir().toLowerCase(), DEFAULT_SCRIPT, SCRIPT_ENGINE_EXTENSION);
 		}
@@ -1053,7 +1085,7 @@ public class ScriptManagerImpl implements ScriptManager {
 			if (instance == null) {
 				// no info, just warp them
 				chr.setDeathCount(-1);
-				chr.warp(fieldId, portalId);
+				chr.warp(fieldId, portalId, false);
 			} else {
 				// remove chr from eligible instance members
 				int forcedReturn;
@@ -1068,9 +1100,9 @@ public class ScriptManagerImpl implements ScriptManager {
 				instance.removeChar(chr);
 				chr.setDeathCount(-1);
 				if (forcedReturnPortal >= 0) {
-					chr.warp(forcedReturn, forcedReturnPortal);
+					chr.warp(forcedReturn, forcedReturnPortal, false);
 				} else {
-					chr.warp(forcedReturn);
+					chr.warp(forcedReturn, 0, false);
 				}
 				// if eligible members' size is 0, clear the instance
 				if (instance.getChars().size() == 0) {
@@ -1134,17 +1166,17 @@ public class ScriptManagerImpl implements ScriptManager {
 	}
 
 	public Mob waitForMobDeath() {
-		Object response = null;
-		if (isActive(ScriptType.FirstEnterField)) {
-			response = getScriptInfoByType(ScriptType.FirstEnterField).awaitResponse();
-		} else if (isActive(ScriptType.Field)) {
-		    response = getScriptInfoByType(ScriptType.Field).awaitResponse();
+        Object response = null;
+        if (isActive(ScriptType.FirstEnterField)) {
+            response = getScriptInfoByType(ScriptType.FirstEnterField).awaitResponse();
+        } else if (isActive(ScriptType.Field)) {
+            response = getScriptInfoByType(ScriptType.Field).awaitResponse();
         }
-		if (response == null) {
-			throw new NullPointerException(INTENDED_NPE_MSG);
-		}
-		return (Mob) response;
-	}
+        if (response == null) {
+            throw new NullPointerException(INTENDED_NPE_MSG);
+        }
+        return (Mob) response;
+    }
 
 	public Mob waitForMobDeath(int... possibleMobs) {
 		Mob mob = waitForMobDeath();
@@ -1183,6 +1215,24 @@ public class ScriptManagerImpl implements ScriptManager {
 		List<Mob> mobs = new ArrayList<>(chr.getField().getMobs());
 		for (Mob mob : mobs) {
 			mob.die(false);
+		}
+	}
+
+	/**
+	 * Kill one or all mobs with the given mob ID in the characters map
+	 * @param mobId mob id to kill
+	 * @param killAll whether or not to kill all of them or just the first one
+	 */
+	public void killMob(int mobId, boolean killAll) {
+		Field field = chr.getOrCreateFieldByCurrentInstanceType(chr.getFieldID());
+
+		for (Mob m : field.getMobs()) {
+			if (m.getTemplateId() == mobId) {
+				m.die(false);
+
+				if (!killAll)
+					return;
+			}
 		}
 	}
 
@@ -1715,7 +1765,15 @@ public class ScriptManagerImpl implements ScriptManager {
 		return new ArrayList<>(list);
 	}
 
+	public void resetPartyQRValue(int qId) {
+		setPartyQRValue(qId, "0");
+	}
 
+	public void setPartyQRValue(int qId, String value) {
+		for (Char c : chr.getParty().getOnlineChars()) {
+			createQuestWithQRValue(c, qId, value, true);
+		}
+	}
 
 	// Guild/Alliance related methods -------------------------------------------------------------------------------------------
 
@@ -1905,6 +1963,9 @@ public class ScriptManagerImpl implements ScriptManager {
 		return chr.getInventoryByType(invType).getEmptySlots();
 	}
 
+    public int getEmptyInventorySlots(int invType) {
+        return chr.getInventoryByType(InvType.getInvTypeByVal(invType)).getEmptySlots();
+    }
 
 
 	// Quest-related methods -------------------------------------------------------------------------------------------
@@ -2360,7 +2421,7 @@ public class ScriptManagerImpl implements ScriptManager {
 	}
 
 	public void createClockForMultiple(int seconds, int... fieldIDs) {
-	    for(int fieldID : fieldIDs) {
+	    for (int fieldID : fieldIDs) {
 	        Field field = chr.getOrCreateFieldByCurrentInstanceType(fieldID);
 	        new Clock(ClockType.SecondsClock, field, seconds);
         }
@@ -2533,7 +2594,7 @@ public class ScriptManagerImpl implements ScriptManager {
 											 int executes, String methodName, Object...args) {
 		ScheduledFuture scheduledFuture;
 		if (executes == 0) {
-			scheduledFuture =  EventManager.addFixedRateEvent(() -> invoke(this, methodName, args), initialDelay,
+			scheduledFuture = EventManager.addFixedRateEvent(() -> invoke(this, methodName, args), initialDelay,
 					delayBetweenExecutions);
 		} else {
 			scheduledFuture = EventManager.addFixedRateEvent(() -> invoke(this, methodName, args), initialDelay,
@@ -2636,14 +2697,14 @@ public class ScriptManagerImpl implements ScriptManager {
 
 	public GolluxDifficultyType getGolluxDifficulty() {
 		Map<String, Object> golluxMaps = chr.getOrCreateFieldByCurrentInstanceType(BossConstants.GOLLUX_FIRST_MAP).getProperties();
-		byte difficulty = 0;
+		byte difficulty = 3;
 		ArrayList<Integer> golluxMainParts = new ArrayList<>();
 		golluxMainParts.add(BossConstants.GOLLUX_ABDOMEN);
 		golluxMainParts.add(BossConstants.GOLLUX_RIGHT_SHOULDER);
 		golluxMainParts.add(BossConstants.GOLLUX_LEFT_SHOULDER);
 		for (Map.Entry<String, Object> entry : golluxMaps.entrySet()) {
 			if (golluxMainParts.contains(Integer.valueOf(entry.getKey())) && Integer.valueOf(entry.getValue().toString()) == 2) {
-				difficulty++;
+				difficulty--;
 			}
 		}
 		return GolluxDifficultyType.getByVal(difficulty);
@@ -2655,7 +2716,7 @@ public class ScriptManagerImpl implements ScriptManager {
 		}
 		int mobId = 9390600 + phase;
 		Mob gollux = MobData.getMobDeepCopyById(mobId);
-		int hpMultiplier = BossConstants.GOLLUX_HP_MULTIPLIERS[phase][3 - getGolluxDifficulty().getVal()];
+		int hpMultiplier = BossConstants.GOLLUX_HP_MULTIPLIERS[phase][getGolluxDifficulty().getVal()];
 		Mob mob = spawnMob(mobId, 0, 0, false, gollux.getHp() * Long.valueOf(hpMultiplier));
 		blockGolluxAttacks();
 	}
@@ -2738,5 +2799,190 @@ public class ScriptManagerImpl implements ScriptManager {
 
 	public int getSlotsLeftToAddByInvType(byte type) {
 		return GameConstants.MAX_INVENTORY_SLOTS - chr.getInventoryByType(InvType.getInvTypeByVal(type)).getSlots();
+	}
+
+
+	// only for items with quantity
+	public void dropItem(int itemId, int itemQuantity, Mob deadMob) {
+		Field field = chr.getField();
+		Drop drop = new Drop(field.getNewObjectID());
+		drop.setItem(ItemData.getItemDeepCopy(itemId));
+		if (ItemConstants.isEquip(itemId)) {
+			drop.getItem().setQuantity(itemQuantity);
+		}
+		field.drop(drop, deadMob.getPosition());
+	}
+
+	public void dropItem(int itemId, int startPosX, int startPosY, int endPosX, int endPosY) {
+		Field field = chr.getField();
+		Drop drop = new Drop(field.getNewObjectID());
+		drop.setItem(ItemData.getItemDeepCopy(itemId));
+		Position startPos = new Position(startPosX, startPosY);
+		Position endPos = new Position(endPosX, endPosY);
+		field.drop(drop, startPos, endPos, true);
+	}
+
+	public void dropMeso(int mesoAmount, int startPosX, int startPosY, int endPosX, int endPosY) {
+		Field field = chr.getField();
+		Drop drop = new Drop(field.getNewObjectID(), mesoAmount);
+		Position startPos = new Position(startPosX, startPosY);
+		Position endPos = new Position(endPosX, endPosY);
+		field.drop(drop, startPos, endPos, true);
+	}
+
+	public void spawnZakum(int map) {
+		short pX = BossConstants.ZAKUM_SPAWN_X;
+		short pY = BossConstants.ZAKUM_SPAWN_Y;
+		int zakBody = BossConstants.ZAKUM_EASY_BODY;
+		int zakArm = BossConstants.ZAKUM_EASY_ARM;
+		switch (map) {
+			case BossConstants.ZAKUM_HARD_ALTAR:
+				zakBody = BossConstants.ZAKUM_HARD_BODY;
+				zakArm = BossConstants.ZAKUM_HARD_ARM;
+				break;
+			case BossConstants.ZAKUM_CHAOS_ALTAR:
+				zakBody = BossConstants.ZAKUM_CHAOS_BODY;
+				zakArm = BossConstants.ZAKUM_CHAOS_ARM;
+				break;
+		}
+
+		spawnMob(zakArm, pX, pY, false);
+		for (int i = 1; i <= 8; i++) {
+			spawnMob(zakBody + i, pX, pY, false);
+		}
+
+		chr.getOrCreateFieldByCurrentInstanceType(map).setProperty("zakum", 1);
+	}
+
+	public void spawnBalrog(boolean easy) {
+		int[] spawns = {
+				easy ? BossConstants.BALROG_EASY_BODY : BossConstants.BALROG_HARD_BODY,
+				easy ? BossConstants.BALROG_EASY_LARM : BossConstants.BALROG_HARD_LARM,
+				easy ? BossConstants.BALROG_EASY_RARM : BossConstants.BALROG_HARD_RARM,
+				easy ? BossConstants.BALROG_EASY_DMGSINK : BossConstants.BALROG_HARD_DMGSINK,
+		};
+
+		for (int i = 0; i < spawns.length; i++) {
+			spawnMob(spawns[i], BossConstants.BALROG_SPAWN_X, BossConstants.BALROG_SPAWN_Y, false);
+		}
+	}
+
+	public void resetBossMap(int fieldId) {
+		Field map = chr.getOrCreateFieldByCurrentInstanceType(fieldId);
+
+		if (map.getClock() != null) {
+			map.getClock().removeClock();
+		}
+		for (Mob m : map.getMobs()) {
+			map.removeLife(m);
+		}
+		for (Drop d : map.getDrops()) {
+			map.removeLife(d);
+		}
+		for (Char c : map.getChars()) {
+			c.setDeathCount(0);
+			c.write(UserLocal.deathCountInfo(0));
+		}
+	}
+
+	/**
+	 * Don't save return map on warp
+	 *
+	 * @param id  fieldId
+	 * @param pid portalId
+	 */
+	public void warpNoReturn(int id, int pid) {
+		chr.warp(id, pid, false);
+	}
+
+	public boolean zakumAlreadySpawned(int map) {
+		field = chr.getClient().getChannelInstance().getFieldIfExists(map);
+		return field != null && field.getProperties().containsKey("zakum") && field.getProperties().get("zakum").equals("1");
+	}
+
+	/**
+	 * ObjectID variable gets passed to script in constructor but is not accessible in this class.
+	 * This function solves that.
+	 * Doesn't work with map scripts.
+	 *
+	 * @return the map object ID of the script owner instance.
+	 */
+	public int getObjectID() {
+		return objectID;
+	}
+	public int getObjectPositionX() {
+		return chr.getField().getLifeByObjectID(getObjectID()).getX();
+	}
+
+	public int getObjectPositionY() {
+		return chr.getField().getLifeByObjectID(getObjectID()).getY();
+	}
+
+	public void setDisableDropsInMap(int fieldId, boolean onoff) {
+		Field map = chr.getOrCreateFieldByCurrentInstanceType(fieldId);
+		map.setDropsDisabled(onoff);
+	}
+
+	public void sendAutoEventClock() {
+		InGameEvent ige = InGameEventManager.getInstance().getActiveEvent();
+
+		if (ige == null) {
+			return;
+		}
+
+		if (ige.isActive()) {
+			ige.sendLobbyClock(chr);
+		}
+	}
+
+	public boolean isRouletteActive() {
+		return InGameEventManager.getInstance().getActiveEvent() instanceof RussianRouletteEvent;
+	}
+
+	public boolean isPinkZakumActive() {
+		return InGameEventManager.getInstance().getActiveEvent() instanceof PinkZakumEvent;
+	}
+
+	public void returnPinkZakum() {
+		InGameEvent e = InGameEventManager.getInstance().getActiveEvent();
+
+		int warpMap = e instanceof PinkZakumEvent
+				? PinkZakumEvent.BATTLE_MAP
+				: chr.getPreviousFieldID();
+
+		chr.warp(warpMap, 0, false);
+	}
+
+	public boolean isPinkZakumOpen() {
+		return isPinkZakumActive() && InGameEventManager.getInstance().getOpenEvent() instanceof PinkZakumEvent;
+	}
+
+	public int getPreviousFieldID() {
+		return chr.getPreviousFieldID();
+	}
+
+	public boolean isPinkZakumWinner() {
+		PinkZakumEvent pze = ((PinkZakumEvent)InGameEventManager.getInstance().getEvent(InGameEventType.PinkZakumBattle));
+		return pze.isWinner(chr) && !pze.getWinnerRewarded(chr);
+	}
+
+	public int getPreviousPortalID() {
+		return chr.getPreviousPortalID();
+	}
+
+	public boolean canWarpSilentCrusade(int targetFieldId) {
+		return chr.getClient().getChannelInstance().tryEnterSilentCrusadePortal(chr, targetFieldId, chr.getClient().getChannelInstance().getChannelId());
+	}
+
+	public boolean canWarpAreaBoss(int targetFieldId) {
+		return chr.getClient().getChannelInstance().canWarpAreaBoss(chr, targetFieldId, chr.getClient().getChannelInstance().getChannelId());
+	}
+
+	public void trySpawnAreaBoss() {
+		chr.getClient().getChannelInstance().trySpawnAreaBoss(chr, getFieldID(), chr.getClient().getChannelInstance().getChannelId());
+	}
+
+	public void overrideAreaBossTimer(int targetFieldId) {
+		chr.getClient().getChannelInstance().overrideAreaBossTimer(targetFieldId, chr.getClient().getChannelInstance().getChannelId());
 	}
 }

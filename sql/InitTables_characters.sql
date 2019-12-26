@@ -472,7 +472,9 @@ create table avatardata (
 
 create table funckeymap (
 	id int not null auto_increment,
-    primary key (id)
+    primary key (id),
+    charId int,
+    ord int
 );
 
 create table keymaps (
@@ -501,7 +503,7 @@ create table guilds (
     seasonpoints int,
     allianceid int,
     level int,
-    rank int,
+    `rank` int,
     ggp int,
     appliable boolean,
     joinsetting int,

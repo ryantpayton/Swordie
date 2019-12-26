@@ -25,6 +25,7 @@ import net.swordie.ms.life.mob.skill.MobSkillStat;
 import net.swordie.ms.life.npc.Npc;
 import net.swordie.ms.loaders.ItemData;
 import net.swordie.ms.loaders.MobData;
+import net.swordie.ms.loaders.NpcData;
 import net.swordie.ms.loaders.SkillData;
 import net.swordie.ms.loaders.containerclasses.ItemInfo;
 import net.swordie.ms.loaders.containerclasses.MobSkillInfo;
@@ -35,10 +36,16 @@ import net.swordie.ms.util.FileTime;
 import net.swordie.ms.util.Position;
 import net.swordie.ms.util.Rect;
 import net.swordie.ms.util.Util;
+import net.swordie.ms.util.container.Tuple;
+import net.swordie.ms.world.Channel;
+import net.swordie.ms.world.event.InGameEventManager;
 import org.apache.log4j.Logger;
 
+import java.awt.*;
+import java.lang.reflect.Array;
 import java.time.LocalDateTime;
 import java.util.*;
+import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.ScheduledFuture;
@@ -90,6 +97,7 @@ public class Field {
     private int channel;
     private Map<String, Object> properties;
     private boolean changeToChannelOnLeave;
+    private boolean dropsDisabled;
 
     public Field(int fieldID) {
         this.id = fieldID;
@@ -103,6 +111,7 @@ public class Field {
         this.directionInfo = new HashMap<>();
         this.fixedMobCapacity = GameConstants.DEFAULT_FIELD_MOB_CAPACITY; // default
         this.properties = new HashMap<>();
+        dropsDisabled = false;
     }
 
     public void startFieldScript() {
@@ -111,6 +120,14 @@ public class Field {
             log.debug(String.format("Starting field script %s.", script));
             scriptManagerImpl.startScript(getId(), script, ScriptType.Field);
         }
+    }
+
+    public void setDropsDisabled(boolean val) {
+        dropsDisabled = val;
+    }
+
+    public boolean getDropsDisabled() {
+        return dropsDisabled;
     }
 
     public Rect getRect() {
@@ -380,6 +397,20 @@ public class Field {
         return res;
     }
 
+    public Tuple<Foothold, Foothold> getMinMaxNonWallFH() {
+        Set<Foothold> footholds = getFootholds().stream().filter(fh -> !fh.isWall()).collect(Collectors.toSet());
+        Foothold left = footholds.iterator().next(), right = footholds.iterator().next(); // retun vals
+
+        for (Foothold fh : footholds) {
+            if (fh.getX1() < left.getX1()) {
+                left = fh;
+            } else if (fh.getX1() > right.getX1()) {
+                right = fh;
+            }
+        }
+        return new Tuple<>(left, right);
+    }
+
     public Set<Foothold> getFootholds() {
         return footholds;
     }
@@ -493,10 +524,14 @@ public class Field {
             putLifeController(life,controller);
 
             life.broadcastSpawnPacket(onlyChar);
+
+            if (life instanceof Mob) {
+                Mob mob = ((Mob)life);
+
+                if (mob.getRemoveAfter() > 0) // removeafter == 1 means its supposed to die immediately
+                    mob.die(false);
+            }
         }
-
-
-
     }
 
     private void setRandomController(Life life) {
@@ -542,6 +577,7 @@ public class Field {
             }
         }
         broadcastPacket(UserPool.userEnterField(chr), chr);
+        chr.getClient().getChannelInstance().trySpawnAreaBoss(chr, getId(), getChannel());
     }
 
     private boolean hasUserFirstEnterScript() {
@@ -895,7 +931,7 @@ public class Field {
     public void drop(Drop drop, Position posFrom, Position posTo) {
         drop(drop, posFrom, posTo, false);
     }
-    
+
     /**
      * Drops an item to this map, given a {@link Drop}, a starting Position and an ending Position.
      * Immediately broadcasts the drop packet.
@@ -933,6 +969,50 @@ public class Field {
             for (Char chr : getChars()) {
                 if (!chr.getClient().getWorld().isReboot() || drop.canBePickedUpBy(chr)) {
                     broadcastPacket(DropPool.dropEnterField(drop, posFrom, posTo, 0, drop.canBePickedUpBy(chr)));
+                }
+            }
+        }
+
+    }
+
+    /**
+     * Drops an item to this map, given a {@link Drop}, a starting Position and an ending Position.
+     * Broadcasts the drop packet a specified amount of Milliseconds delay.
+     *
+     * @param drop    The Drop to drop.
+     * @param posFrom The Position that the drop starts off from.
+     * @param posTo   The Position where the drop lands.
+     * @param ignoreTradability If the drop should ignore tradability (i.e., untradable items won't disappear)
+     * @param delay   Millisecond delay to drop the item at.
+     */
+    public void drop(Drop drop, Position posFrom, Position posTo, boolean ignoreTradability, int delay) {
+        boolean isTradable = true;
+        Item item = drop.getItem();
+        if (item != null) {
+            ItemInfo itemInfo = ItemData.getItemInfoByID(item.getItemId());
+            // must be tradable, and if not an equip, not a quest item
+            isTradable = ignoreTradability ||
+                    (item.isTradable() && (ItemConstants.isEquip(item.getItemId()) || itemInfo != null
+                            && !itemInfo.isQuest()));
+        }
+        drop.setPosition(posTo);
+        if (isTradable) {
+            addLife(drop);
+            getLifeSchedules().put(drop,
+                    EventManager.addEvent(() -> removeDrop(drop.getObjectId(), 0, true, -1),
+                            GameConstants.DROP_REMAIN_ON_GROUND_TIME, TimeUnit.SECONDS));
+        } else {
+            drop.setObjectId(getNewObjectID()); // just so the client sees the drop
+        }
+        // Check for collision items such as exp orbs from combo kills
+        if (!isTradable) {
+            broadcastPacket(DropPool.dropEnterField(drop, posFrom, 0, DropEnterType.FadeAway));
+        } else if(drop.getItem() != null && ItemConstants.isCollisionLootItem(drop.getItem().getItemId())) {
+            broadcastPacket(DropPool.dropEnterFieldCollisionPickUp(drop, posFrom, 0));
+        } else {
+            for (Char chr : getChars()) {
+                if (!chr.getClient().getWorld().isReboot() || drop.canBePickedUpBy(chr)) {
+                    broadcastPacket(DropPool.dropEnterField(drop, posFrom, posTo, 0, drop.canBePickedUpBy(chr), delay));
                 }
             }
         }
@@ -1051,6 +1131,60 @@ public class Field {
         }
     }
 
+    /**
+     * Drops a list of items evenly spaced along a line of the specified parameters.
+     *
+     * @param items     List of item ids.
+     * @param quantitys List of item quantitys.
+     * @param randomize If the items should be randomized drop in order.
+     * @param range     Range overall that the items should be dropped along, centered on the starting position.
+     * @param startPosX The X Position in which the Drops originate from.
+     * @param startPosY The Y Position in which the Drops originate from.
+     * @param delay     Delay between every drop.
+     */
+
+    public void dropItemsAlongLine(int[] items, int[] quantitys, boolean randomize, int range, int startPosX, int startPosY, int delay) {
+        if (items.length == 0 || items.length != quantitys.length) {
+            return; // avoid divide by zero error
+        }
+
+        List<HashMap<Integer, Integer>> itemList = new ArrayList<>();
+        int i1 = 0;
+        for (int index : items){
+            HashMap<Integer, Integer> quantityMap = new HashMap<>();
+            quantityMap.put(items[i1],quantitys[i1]);
+            itemList.add(i1, quantityMap);
+            i1++;
+        }
+        if (randomize){
+            Collections.shuffle(itemList);
+        }
+
+        Tuple<Foothold, Foothold> lrFh = getMinMaxNonWallFH();
+        range = Math.max(range, items.length);
+        int offset = Math.max((range / items.length) * 2, 3); // we want offset >= 3 || multiply by 2 so that the drops go past the start point
+        int i2 = 0;
+            for (HashMap map : itemList) {
+                int endPosX = startPosX - range + (offset * i2);
+                endPosX = Math.max(endPosX, lrFh.getLeft().getX1()); // left is lowest x val
+                endPosX = Math.min(endPosX, lrFh.getRight().getX1()); // right is highest x val
+
+                int itemID = (Integer) map.keySet().toArray()[0];
+                int quantity = (Integer) map.get(itemID);
+
+                i2++;
+
+                if (itemID > 999999) { // item
+                    Drop drop = new Drop(getNewObjectID());
+                    drop.setItem(ItemData.getItemDeepCopy(itemID));
+                    drop.getItem().setQuantity(quantity);
+                    Position startPos = new Position(startPosX, startPosY);
+                    Position endPos = new Position(endPosX, findFootHoldBelow(new Position(endPosX, startPosY-25)).getY1());
+                    drop(drop, startPos, endPos, true, delay * i2);
+                }
+            }
+    }
+
     public List<Portal> getClosestPortal(Rect rect) {
         List<Portal> portals = new ArrayList<>();
         for (Portal portals2 : getPortals()) {
@@ -1130,7 +1264,39 @@ public class Field {
         spawnLife(mob, null);
         return mob;
     }
-    
+
+    /**
+     * Spawns an NPC at given coordinates.
+     */
+    public void spawnNpc(int npcId, int pX, int pY) {
+        Npc npc = NpcData.getNpcDeepCopyById(npcId);
+        Position position = new Position(pX, pY);
+        npc.setPosition(position);
+        npc.setCy(pY);
+        npc.setRx0(pX + 50);
+        npc.setRx1(pX - 50);
+        npc.setFh(findFootHoldBelow(new Position(pX, pY -2)).getId());
+        npc.setNotRespawnable(true);
+        if (npc.getField() == null) {
+            npc.setField(this);
+        }
+
+        spawnLife(npc, null);
+    }
+
+    /**
+     * Spawns a mob at given point.
+     *
+     * @param id ID of the mob
+     * @param p point to spawn mob at
+     * @param respawnable whether mob will respawn automatically
+     * @param hp hp of mob. Set to 0 for default hp.
+     * @return
+     */
+    public Mob spawnMob(int id, Point p, boolean respawnable, long hp) {
+        return spawnMob(id, p.getLocation().x, p.getLocation().y, respawnable, hp);
+    }
+
     public Mob spawnMob(int id, int x, int y, boolean respawnable, long hp) {
         Mob mob = MobData.getMobDeepCopyById(id);
         Position pos = new Position(x, y);
@@ -1150,10 +1316,17 @@ public class Field {
     }
 
     public void spawnRuneStone() {
-        if(getMobs().size() <= 0 || getBossMobID() != 0 || !isChannelField()) {
+        if (getMobs().size() <= 0 || getBossMobID() != 0 || !isChannelField()) {
             return;
         }
-        if(getRuneStone() == null) {
+
+        for (int i = 0; i < GameConstants.BLOCKED_RUNE_MAPS.length; i++) {
+            if (getId() == GameConstants.BLOCKED_RUNE_MAPS[i]) {
+                return;
+            }
+        }
+
+        if (getRuneStone() == null) {
             RuneStone runeStone = new RuneStone().getRandomRuneStone(this);
             setRuneStone(runeStone);
             broadcastPacket(FieldPacket.runeStoneAppear(runeStone));
