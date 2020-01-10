@@ -40,6 +40,13 @@ public class DropPool {
                 (byte) 0, 0, false, canBePickedUpByPet);
     }
 
+    public static OutPacket dropEnterField(Drop drop, Position dropPositionFrom, Position dropPositionTo, int charID,
+                                           boolean canBePickedUpByPet, int delay) {
+        return DropPool.dropEnterField(drop, DropEnterType.Floating, 100, 100,
+                (byte) 2, dropPositionTo, charID, dropPositionFrom, delay, true, (short) 0, false,
+                (byte) 0, 0, false, canBePickedUpByPet);
+    }
+
     public static OutPacket dropEnterField(Drop drop, DropEnterType dropEnterType, int rand, int dropSpeed, byte ownType, Position dropPos, int sourceID,
                                            Position tempPos, int delay, boolean unkBool, short fallingVY,
                                            boolean fadeInEffect, byte makeType, int collisionPickup,

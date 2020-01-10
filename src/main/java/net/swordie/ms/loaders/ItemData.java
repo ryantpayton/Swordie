@@ -493,6 +493,11 @@ public class ItemData {
             }
 
             size = dataInputStream.readShort();
+            for(int i = 0; i < size; i++) {
+                itemInfo.getReqItemIds().add(dataInputStream.readInt());
+            }
+
+            size = dataInputStream.readShort();
             for (int i = 0; i < size; i++) {
                 itemInfo.addSkill(dataInputStream.readInt());
             }
@@ -558,6 +563,11 @@ public class ItemData {
                 }
                 dataOutputStream.writeShort(ii.getQuestIDs().size());
                 for (int i : ii.getQuestIDs()) {
+                    dataOutputStream.writeInt(i);
+                }
+
+                dataOutputStream.writeShort(ii.getReqItemIds().size());
+                for(int i: ii.getReqItemIds()) {
                     dataOutputStream.writeInt(i);
                 }
 
@@ -1304,6 +1314,14 @@ public class ItemData {
                                         log.warn(String.format("Unknown node: %s, value = %s, itemID = %s", name, value, item.getItemId()));
                                     }
                             }
+                        }
+                    }
+                    Node reqNode = XMLApi.getFirstChildByNameBF(mainNode, "req");
+                    if (reqNode != null) {
+                        for (Node req : XMLApi.getAllChildren(reqNode)) {
+                            String name = XMLApi.getNamedAttribute(req, "name");
+                            String value = XMLApi.getNamedAttribute(req, "value");
+                            item.getReqItemIds().add(Integer.parseInt(value));
                         }
                     }
                     Node socket = XMLApi.getFirstChildByNameBF(mainNode, "socket");

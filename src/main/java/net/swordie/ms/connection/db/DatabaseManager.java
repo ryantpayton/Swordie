@@ -189,7 +189,7 @@ public class DatabaseManager {
 
     public static Object getObjFromDB(Class clazz, int id) {
         log.info(String.format("%s: Trying to get obj %s with id %d.", LocalDateTime.now(), clazz, id));
-        Object o;
+        Object o = null;
         try(Session session = getSession()) {
             Transaction transaction = session.beginTransaction();
             // String.format for query, just to fill in the class
