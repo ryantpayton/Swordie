@@ -1599,6 +1599,10 @@ public class ItemData {
                                 io.addStatValue(level, BaseStat.fd, value);
                                 break;
                             case "boss":
+                                Node incDamgNode = XMLApi.getFirstChildByNameDF(levelChild, "incDAMr");
+                                if (incDamgNode != null) {
+                                    value = Integer.parseInt(XMLApi.getNamedAttribute(incDamgNode, "value"));
+                                }
                                 io.addStatValue(level, BaseStat.bd, value);
                                 break;
                             case "incAllskill":
