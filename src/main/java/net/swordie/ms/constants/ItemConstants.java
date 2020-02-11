@@ -1443,5 +1443,9 @@ public class ItemConstants {
     public static boolean is2XDropCoupon(int itemId) {
         return itemId <= 5360057 && itemId >= 5360000;
     }
+
+    public static boolean isFusionAnvil(int itemId) {
+        return itemId / 100 == 50624;
+    }
 }
 
