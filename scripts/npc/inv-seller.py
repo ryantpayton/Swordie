@@ -3,28 +3,28 @@
 
 from net.swordie.ms.loaders import ItemData
 from net.swordie.ms.constants import ItemConstants
+from net.swordie.ms.enums import InvType
 
 def disposeAll():
     sm.dispose()
     chr.dispose()
 
-def sellItemsFromEquipmentTab():
+def sellItemsFromTab(invType = InvType.EQUIP):
     # query inv info
-    eqInventory = chr.getEquipInventory()
-    eqs = eqInventory.getItems()
+    inventory = chr.getInventoryByType(invType)
+    invItems = inventory.getItems()
 
     # empty inv
-    if len(eqs) == 0:
+    if len(invItems) == 0:
         sm.sendSayOkay("You have no item to sell")
         disposeAll()
         return
 
     # has at least 1 item in inv
-    # sellingItems = []
-    if len(eqs) == 1:
+    if len(invItems) == 1:
         # only has 1 item, proceed to ask for confirmation
-        sellingItems = list(eqs)
-        _itemId = eqs.get(0).getItemId()
+        sellingItems = list(invItems)
+        _itemId = invItems.get(0).getItemId()
         confirmed = sm.sendAskYesNo("Are you sure you want to sell #i{}# #z{}#".format(_itemId, _itemId))
     else:
         # has more than 1 item, prompt mode selection
@@ -33,14 +33,12 @@ def sellItemsFromEquipmentTab():
         if option:
             if option == 1:
                 # sell everything
-                sellingItems = list(eqs)
+                sellingItems = list(invItems)
                 confirmed = sm.sendAskYesNo("Are you sure you want to sell #rEVERYTHING#k in your Equipment inventory?")
             if option == 2:
                 # sell from/to
-                def sortByBagIndex(item):
-                    return item.getBagIndex()
-                sortedItems = list(eqs)
-                sortedItems.sort(key=sortByBagIndex)
+                sortedItems = list(invItems)
+                sortedItems.sort(key=lambda x: x.getBagIndex())
                 itemListTemplate = "This option will sell all available items between STARTING item and ENDING item.\r\nPlease select #r<order>#k item:\r\n"
                 for item in sortedItems:
                     itemListTemplate += "#L{}##i{}# #z{}##l\r\n".format(item.getBagIndex(), item.getItemId(), item.getItemId())
@@ -48,10 +46,7 @@ def sellItemsFromEquipmentTab():
                 endIndex = sm.sendNext(itemListTemplate.replace("<order>", "ENDING"))
                 if startIndex > endIndex:
                     startIndex, endIndex = endIndex, startIndex
-                def isInRange(item):
-                    bagIndex = item.getBagIndex()
-                    return bagIndex >= startIndex and bagIndex <= endIndex
-                sellingItems = filter(isInRange, sortedItems)
+                sellingItems = filter(lambda x: (startIndex <= x.getBagIndex() <= endIndex), sortedItems)
                 soldItemsTemplate = "You will sell the following items:\r\n"
                 for item in sellingItems:
                     soldItemsTemplate += "#i{}# #z{}#\r\n".format(item.getItemId(), item.getItemId(), item.getBagIndex())
@@ -85,7 +80,12 @@ def sellItemsFromEquipmentTab():
     if chr.canAddMoney(totalMesos):
         # remove item from inv
         for soldItem in sellingItems:
-            sm.consumeItem(soldItem.getItemId())
+            _id = soldItem.getItemId()
+            _quantity = soldItem.getQuantity()
+            if ItemConstants.isEquip(_id):
+                chr.consumeItem(soldItem)
+            else:
+                chr.consumeItem(_id, _quantity)
         # add money
         chr.addMoney(totalMesos)
         sm.sendSayOkay("You've received {} mesos. Thank you for using my service!".format(totalMesos))
@@ -96,4 +96,15 @@ def sellItemsFromEquipmentTab():
         disposeAll()
         return
 
-sellItemsFromEquipmentTab()
+inventoryList = "Please which inventory you want to sell:\r\n#L1#Equipment#l\r\n#L2#Consume#l\r\n#L3#ETC#l\r\n"
+selectedInv = sm.sendNext(inventoryList)
+
+if selectedInv == 1:
+    sellItemsFromTab(InvType.EQUIP)
+elif selectedInv == 2:
+    sellItemsFromTab(InvType.CONSUME)
+elif selectedInv == 3:
+    sellItemsFromTab(InvType.ETC)
+else:
+    sm.sendSayOkay("Invalid inventory. Please run the command again!")
+    disposeAll()
