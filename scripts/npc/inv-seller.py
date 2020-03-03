@@ -13,6 +13,13 @@ def sellItemsFromTab(invType = InvType.EQUIP):
     # query inv info
     inventory = chr.getInventoryByType(invType)
     invItems = inventory.getItems()
+    tabName = ""
+    if invType == InvType.CONSUME:
+        tabName = "CONSUME"
+    elif invType == InvType.ETC:
+        tabName = "ETC"
+    else:
+        tabName = "EQUIPMENT"
 
     # empty inv
     if len(invItems) == 0:
@@ -28,7 +35,7 @@ def sellItemsFromTab(invType = InvType.EQUIP):
         confirmed = sm.sendAskYesNo("Are you sure you want to sell #i{}# #z{}#".format(_itemId, _itemId))
     else:
         # has more than 1 item, prompt mode selection
-        optionList = "Please select what you want to sell in your EQUIPMENT tab:\r\n#L1##rEverything#k#l\r\n#L2##gSell between selected items#k#l\r\n#L3#Maybe later#l\r\n"
+        optionList = "Please select what you want to sell in your {} tab:\r\n#L1##rEverything#k#l\r\n#L2##gSell between selected items#k#l\r\n#L3#Maybe later#l\r\n".format(tabName)
         option = sm.sendNext(optionList)
         if option:
             if option == 1:
