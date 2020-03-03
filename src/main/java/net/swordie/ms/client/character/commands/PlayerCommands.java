@@ -72,90 +72,10 @@ public class PlayerCommands {
     }
 
     @Command(names = {"sell"}, requiredType = AccountType.Player)
-    public static class SellAllEquipmentInventory extends PlayerCommand {
+    public static class SellEquipmentTab extends PlayerCommand {
         public static void execute(Char chr, String[] args) {
-            if (chr == null) {
-                // might not happen, BUT better safe than sorry
-                chr.chatMessage(Notice2, "Something went wrong. Please contact Clueless Cow on discord");
-                chr.dispose();
-                return;
-            }
-
-            Inventory eqInventory = chr.getEquipInventory();
-            List<Item> soldItems = new ArrayList<Item>();
-            byte numOfSlots = eqInventory.getSlots();
-            byte startIndex = 1, endIndex = numOfSlots;
-            int totalMesos = 0;
-            String startIndexOutOfRangeMessage = String.format("<startIndex> must be between 1 and %d", numOfSlots);
-            String endIndexOutOfRangeMessage = String.format("<endIndex> must be between <startIndex> and %d", numOfSlots);
-
-            if (args.length > 1) {
-                // process startIndex
-                String start = args[1];
-                if (start != null && Util.isNumber(start)) {
-                    startIndex = Byte.parseByte(start);
-                    if (startIndex < 1 || startIndex > numOfSlots) { // startIndex out of range
-                        chr.chatMessage(Notice2, startIndexOutOfRangeMessage);
-                        chr.dispose();
-                        return;
-                    }
-                }
-                // process endIndex
-                if (args.length > 2) {
-                    String end = args[2];
-                    if (end != null && Util.isNumber(end)) {
-                        endIndex = Byte.parseByte(end);
-                        if (endIndex <= startIndex || endIndex > numOfSlots) { // endIndex out of range
-                            chr.chatMessage(Notice2, endIndexOutOfRangeMessage.replace("<startIndex>", String.valueOf(startIndex + 1)));
-                            chr.dispose();
-                            return;
-                        }
-                    }
-                }
-            }
-
-            // start selling process
-            for (int i = startIndex; i <= endIndex; i++) {
-                // get item by slot index
-                Item item = eqInventory.getItemBySlot(i);
-                // no item found at slot, skip
-                if (item == null) continue;
-
-                // item found
-                // calculating item's price
-                int itemId = item.getItemId();
-                int quantity = item.getQuantity();
-                int cost = 0;
-                if (ItemConstants.isEquip(itemId)) {
-                    cost = ((Equip) item).getPrice();
-                } else {
-                    ItemInfo itemInfo = ItemData.getItemInfoByID(itemId);
-                    if (itemInfo == null) continue;
-                    cost = itemInfo.getPrice() * quantity;
-                }
-                totalMesos += (quantity * cost);
-                soldItems.add(item);
-            }
-
-            // no items found in range
-            if (soldItems.size() == 0) {
-                chr.chatMessage("No items found");
-                chr.dispose();
-                return;
-            }
-            // mesos cap
-            if (!chr.canAddMoney(totalMesos)) {
-                chr.chatMessage(String.format("You've reach the mesos cap. Please deposit at least %d mesos and run the command again!", totalMesos));
-                chr.dispose();
-                return;
-            }
-            // remove sold items from inventory
-            for (Item eq : soldItems) {
-                chr.consumeItem(eq);
-            }
-            chr.addMoney(totalMesos);
-            chr.chatMessage(String.format("You've received %d mesos by selling items", totalMesos));
-            chr.dispose();
+            ScriptManagerImpl smi = chr.getScriptManager();
+            smi.startScript(0, "inv-seller", ScriptType.Npc);
         }
     }
 }
